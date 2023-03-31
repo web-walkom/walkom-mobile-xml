@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Walkom</string>
+
+    <!-- Text -->
+    <string name="welcome_text">Добро пожаловать!</string>
+    <string name="description_text">Мы отправим вас в невероятное путешествие, при помощи <font color="#238A4C"><b>дополненной реальности</b></font></string>
+
+    <!-- Placeholders -->
+    <string name="email_placeholder">Введите почту</string>
+
+    <!-- Buttons -->
+    <string name="continue_button">Продолжить</string>
+    <string name="continue_guest_button">Продолжить как гость</string>
+</resources>
