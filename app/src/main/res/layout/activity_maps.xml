@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.MapsActivity">
+    tools:context=".presentation.MapActivity">
 
     <com.yandex.mapkit.mapview.MapView
         android:id="@+id/mapview"
@@ -18,28 +18,64 @@
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/circle_button"
         android:src="@drawable/arrow_back"
+        android:onClick="closeExcursion"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/light_gray" />
+        app:tint="@color/light_gray"
+        android:contentDescription="@string/close_map_description"/>
 
     <ImageButton
         android:id="@+id/location"
         android:layout_width="55dp"
         android:layout_height="55dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="70dp"
+        android:layout_marginEnd="15dp"
+        android:layout_marginBottom="85dp"
         android:background="@drawable/circle_button"
         android:src="@drawable/navigation"
+        android:onClick="locationMe"
         app:layout_constraintBottom_toBottomOf="@+id/mapview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/light_gray" />
+        app:tint="@color/light_gray"
+        android:contentDescription="@string/location_me_description" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="15dp"
+        android:gravity="end|center_vertical"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageButton
+            android:id="@+id/zoomIn"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginVertical="5dp"
+            android:background="@drawable/light_button"
+            android:src="@drawable/plus"
+            android:onClick="zoomIn"
+            app:tint="@color/light_gray"
+            android:contentDescription="@string/zoom_in_description" />
+
+        <ImageButton
+            android:id="@+id/zoomOut"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_marginVertical="5dp"
+            android:background="@drawable/light_button"
+            android:src="@drawable/minus"
+            android:onClick="zoomOut"
+            app:tint="@color/light_gray"
+            android:contentDescription="@string/zoom_out_description" />
+    </LinearLayout>
 
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingBottom="20dp"
         android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="@+id/mapview"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,10 +83,10 @@
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="50dp"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:paddingHorizontal="15dp" >
+            android:paddingHorizontal="10dp" >
 
             <Button
                 android:id="@+id/listPlaces"
@@ -62,7 +98,7 @@
                 android:textColor="@color/light_gray"
                 android:textSize="16sp"
                 android:textAllCaps="false"
-                android:paddingHorizontal="7dp"
+                android:paddingHorizontal="12dp"
                 android:drawableLeft="@drawable/list"
                 android:gravity="start|center_vertical"
                 app:backgroundTint="@null" />
@@ -108,7 +144,7 @@
                 android:textColor="@color/light_gray"
                 android:textSize="16sp"
                 android:textAllCaps="false"
-                android:paddingHorizontal="7dp"
+                android:paddingHorizontal="12dp"
                 android:drawableLeft="@drawable/stop"
                 android:gravity="start|center_vertical"
                 app:backgroundTint="@null" />

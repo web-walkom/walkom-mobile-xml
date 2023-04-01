@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:fitsSystemWindows="true"
-    tools:context=".presentation.MainActivity">
+    tools:context=".presentation.ExcursionActivity">
 
     <ImageView
         android:id="@+id/logo"

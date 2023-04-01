@@ -4,12 +4,15 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.PointF
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.layers.ObjectEvent
@@ -27,9 +30,7 @@ import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.common.Constants.UNKNOWN_ERROR
 import ru.walkom.app.databinding.ActivityMapsBinding
 
-class MapsActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener {
-
-    private val MAPKIT_API_KEY: String = "4e10e9f2-d783-499c-b77d-8fc64489b4ac"
+class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener {
 
     private val PLACE_LOCATIONS = listOf<Point>(
         Point(58.010418, 56.237335),
@@ -90,7 +91,7 @@ class MapsActivity : AppCompatActivity(), UserLocationObjectListener, Session.Ro
         Point(58.016668, 56.231868)
     )
 
-    private val permissions = arrayOf(
+    private val PERMISSIONS = arrayOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION
     )
@@ -102,53 +103,44 @@ class MapsActivity : AppCompatActivity(), UserLocationObjectListener, Session.Ro
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setWindowFlag()
 
-        MapKitFactory.setApiKey(MAPKIT_API_KEY)
         MapKitFactory.initialize(this)
 
         binding = ActivityMapsBinding.inflate(layoutInflater)
+        //binding.mapview.map.isNightModeEnabled = true
         setContentView(binding.root)
 
-        val mapKit: MapKit = MapKitFactory.getInstance()
+        mapObjects = binding.mapview.map.mapObjects.addCollection()
         requestLocationPermission()
 
+        val mapKit: MapKit = MapKitFactory.getInstance()
         userLocationLayer = mapKit.createUserLocationLayer(binding.mapview.mapWindow)
         userLocationLayer.isVisible = true
-        userLocationLayer.isHeadingEnabled = true
         userLocationLayer.setObjectListener(this)
-
-        transportRouter = TransportFactory.getInstance().createPedestrianRouter()
-        mapObjects = binding.mapview.map.mapObjects.addCollection()
 
         buildRoute()
         initialApproximation()
+    }
 
-        binding.back.setOnClickListener {
-            //getActivity()?.onBackPressed()
-        }
-
-        binding.location.setOnClickListener {
-            userLocationLayer.cameraPosition()?.let { cameraPosition ->
-                binding.mapview.map.move(
-                    CameraPosition(cameraPosition.target, 17.0f, 0.0f, 0.0f),
-                    Animation(Animation.Type.SMOOTH, 1f),
-                    null
-                )
-            }
-        }
+    private fun setWindowFlag() {
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        supportActionBar?.elevation = 0f
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        window.attributes.flags = window.attributes.flags and WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
     }
 
     private fun requestLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                permissions[0]
-            ) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(
-                this,
-                permissions[1]
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(this, PERMISSIONS[0]) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(this, PERMISSIONS[1]) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(this, permissions, 0)
+            ActivityCompat.requestPermissions(this, PERMISSIONS, 0)
             return
         }
     }
@@ -163,14 +155,13 @@ class MapsActivity : AppCompatActivity(), UserLocationObjectListener, Session.Ro
     private fun buildRoute() {
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
-        for (place in PLACE_LOCATIONS) {
+        for (place in PLACE_LOCATIONS)
             drawLocationMark(place)
-        }
 
-        for (waypoint in WAYPOINTS_LOCATIONS) {
+        for (waypoint in WAYPOINTS_LOCATIONS)
             requestPoints.add(RequestPoint(waypoint, RequestPointType.WAYPOINT, null))
-        }
 
+        transportRouter = TransportFactory.getInstance().createPedestrianRouter()
         transportRouter!!.requestRoutes(requestPoints, TimeOptions(), this)
     }
 
@@ -186,6 +177,43 @@ class MapsActivity : AppCompatActivity(), UserLocationObjectListener, Session.Ro
         binding.mapview.map.move(
             CameraPosition(PLACE_LOCATIONS[0], 20.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1f),
+            null
+        )
+    }
+
+    fun locationMe(view: View) {
+        userLocationLayer.cameraPosition()?.let { cameraPosition ->
+            binding.mapview.map.move(
+                CameraPosition(cameraPosition.target, 17.0f, 0.0f, 0.0f),
+                Animation(Animation.Type.SMOOTH, 1f),
+                null
+            )
+        }
+    }
+
+    fun closeExcursion(view: View) {
+        getActivity()?.onBackPressed()
+        //finish()
+    }
+
+    fun zoomIn(view: View) {
+        binding.mapview.map.move(
+            CameraPosition(
+                binding.mapview.map.cameraPosition.target,
+                binding.mapview.map.cameraPosition.zoom + 1, 0.0f, 0.0f
+            ),
+            Animation(Animation.Type.SMOOTH, 0.25f),
+            null
+        )
+    }
+
+    fun zoomOut(view: View) {
+        binding.mapview.map.move(
+            CameraPosition(
+                binding.mapview.map.cameraPosition.target,
+                binding.mapview.map.cameraPosition.zoom - 1, 0.0f, 0.0f
+            ),
+            Animation(Animation.Type.SMOOTH, 0.25f),
             null
         )
     }

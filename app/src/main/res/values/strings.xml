@@ -15,4 +15,10 @@
     <string name="pause_excursion">Приостановить</string>
     <string name="stop_excursion">Закончить</string>
     <string name="list_places">Список мест</string>
+
+    <!-- Content descriptions -->
+    <string name="location_me_description">Определить мое местоположение</string>
+    <string name="close_map_description">Закрыть карту</string>
+    <string name="zoom_in_description">Увеличить карту</string>
+    <string name="zoom_out_description">Уменьшить карту</string>
 </resources>
