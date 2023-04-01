@@ -11,4 +11,8 @@
     <!-- Buttons -->
     <string name="continue_button">Продолжить</string>
     <string name="continue_guest_button">Продолжить как гость</string>
+    <string name="start_excursion">Начать</string>
+    <string name="pause_excursion">Приостановить</string>
+    <string name="stop_excursion">Закончить</string>
+    <string name="list_places">Список мест</string>
 </resources>

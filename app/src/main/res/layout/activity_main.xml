@@ -70,7 +70,7 @@
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
         android:layout_marginBottom="16dp"
-        android:background="@drawable/text_button"
+        android:background="@drawable/green_button"
         android:text="@string/continue_button"
         android:textAllCaps="false"
         android:textColor="@color/white"
