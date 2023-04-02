@@ -9,11 +9,16 @@ import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
@@ -28,42 +33,124 @@ import com.yandex.mapkit.user_location.UserLocationObjectListener
 import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
+import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.ActivityMapsBinding
+import ru.walkom.app.domain.model.Placemark
 
 class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener, CameraListener {
 
-    private val PLACE_LOCATIONS = listOf<Point>(
-        Point(58.010418, 56.237335),
-        Point(58.011385, 56.239513),
-        Point(58.012248, 56.242676),
-        Point(58.013174, 56.243045),
-        Point(58.012553, 56.243556),
-        Point(58.013015, 56.243879),
-        Point(58.012607, 56.244302),
-        Point(58.012810, 56.244517),
-        Point(58.012867, 56.244769),
-        Point(58.013235, 56.244661),
-        Point(58.013006, 56.245146),
-        Point(58.013230, 56.245909),
-        Point(58.013506, 56.246934),
-        Point(58.015961, 56.245820),
-        Point(58.015318, 56.248883),
-        Point(58.016081, 56.247895),
-        Point(58.017358, 56.245424),
-        Point(58.018312, 56.244831),
-        Point(58.018464, 56.245577),
-        Point(58.018745, 56.246547),
-        Point(58.017954, 56.244041),
-        Point(58.017773, 56.243241),
-        Point(58.017330, 56.241714),
-        Point(58.017911, 56.240654),
-        Point(58.017292, 56.239172),
-        Point(58.016414, 56.234689),
-        Point(58.016927, 56.233439),
-        Point(58.016668, 56.231868)
+    private val PLACEMARKS_LOCATIONS = listOf<Placemark>(
+        Placemark(
+            Point(58.010418, 56.237335),
+            "Пермский медведь"
+        ),
+        Placemark(
+            Point(58.011385, 56.239513),
+            "Губернский детский приют"
+        ),
+        Placemark(
+            Point(58.012248, 56.242676),
+            "Рождественско-Богородицкая церковь"
+        ),
+        Placemark(
+            Point(58.013174, 56.243045),
+            "Пермский государственный институт культуры"
+        ),
+        Placemark(
+            Point(58.012553, 56.243556),
+            "Дом пекарня наследника Демидовых"
+        ),
+        Placemark(
+            Point(58.013015, 56.243879),
+            "Усадьба купчихи М.Т. Киселёвой"
+        ),
+        Placemark(
+            Point(58.012607, 56.244302),
+            "Старокирпичный переулок"
+        ),
+        Placemark(
+            Point(58.012810, 56.244517),
+            "Аптеки Боне и Бартминского"
+        ),
+        Placemark(
+            Point(58.012867, 56.244769),
+            "Дом присяжного поверенного Падалка"
+        ),
+        Placemark(
+            Point(58.013235, 56.244661),
+            "Доходно-деловой дом купца А.Г. Каменского"
+        ),
+        Placemark(
+            Point(58.013006, 56.245146),
+            "Дом купцов Степановых"
+        ),
+        Placemark(
+            Point(58.013230, 56.245909),
+            "Дом купцов Базановых"
+        ),
+        Placemark(
+            Point(58.013506, 56.246934),
+            "Книжный магазин Пиотровских"
+        ),
+        Placemark(
+            Point(58.015961, 56.245820),
+            "Пермский оперный театр"
+        ),
+        Placemark(
+            Point(58.015318, 56.248883),
+            "Дом Тупицыных"
+        ),
+        Placemark(
+            Point(58.016081, 56.247895),
+            "Пермский государственный аграрно-технологический университет"
+        ),
+        Placemark(
+            Point(58.017358, 56.245424),
+            "Европейские номера"
+        ),
+        Placemark(
+            Point(58.018312, 56.244831),
+            "Дом купца П.А. Попова"
+        ),
+        Placemark(
+            Point(58.018464, 56.245577),
+            "Узел связи Камского речного пароходства"
+        ),
+        Placemark(
+            Point(58.018745, 56.246547),
+            "Дом Мешкова"
+        ),
+        Placemark(
+            Point(58.017954, 56.244041),
+            "Дом со львами"
+        ),
+        Placemark(
+            Point(58.017773, 56.243241),
+            "Дом В.Е. Вердеревского, председателя казенной палаты"
+        ),
+        Placemark(
+            Point(58.017330, 56.241714),
+            "Торговая Баня мещанки Кашиной"
+        ),
+        Placemark(
+            Point(58.017911, 56.240654),
+            "Дома купцов Чердынцевых"
+        ),
+        Placemark(
+            Point(58.017292, 56.239172),
+            "Духовная консистория"
+        ),
+        Placemark(
+            Point(58.016414, 56.234689),
+            "Спасопреображенский кафедральный собор и архиерейский дом"
+        ),
+        Placemark(
+            Point(58.016927, 56.233439), "Смотровая площадка"),
+        Placemark(
+            Point(58.016668, 56.231868), "Соль земли Пермской"),
     )
 
     private val WAYPOINTS_LOCATIONS = listOf<Point>(
@@ -96,7 +183,8 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private val PERM_LOCATION = Point(58.010455, 56.229435)
 
-    private var placemarks = ArrayList<PlacemarkMapObject>()
+    private var placemarkIcons = ArrayList<PlacemarkMapObject>()
+    private var placemarkTexts = ArrayList<PlacemarkMapObject>()
     private var polylines = ArrayList<PolylineMapObject>()
 
     private lateinit var binding: ActivityMapsBinding
@@ -183,28 +271,73 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
     }
 
-    private fun drawLocationMark(point: Point) {
-        val placemark = mapObjects?.addPlacemark(point)
+    private fun drawLocationMark(placemark: Placemark, resourceMarkIcon: ImageProvider) {
+        val viewPlacemark = mapObjects?.addPlacemark(placemark.point)
 
-        placemark?.setIcon(
-            ImageProvider.fromResource(this, R.drawable.location_place),
+        viewPlacemark?.setIcon(
+            resourceMarkIcon,
             IconStyle()
                 .setAnchor(PointF(0.55f, 1f))
                 .setRotationType(RotationType.NO_ROTATION)
                 .setZIndex(0f)
                 .setScale(1f)
         )
-        placemark?.setText("Hello")
 
-        if (placemark != null)
-            placemarks.add(placemark)
+        viewPlacemark?.addTapListener { _, _ ->
+            Log.d(TAG, "Latitude: ${placemark.point.latitude}, Longitude: ${placemark.point.longitude}")
+            true
+        }
+
+        if (viewPlacemark != null)
+            placemarkIcons.add(viewPlacemark)
+    }
+
+    private fun drawLocationText(placemark: Placemark, constraintLayout: ConstraintLayout) {
+        val viewPlacemark = mapObjects?.addPlacemark(placemark.point, ViewProvider(constraintLayout))
+        if (viewPlacemark != null)
+            placemarkTexts.add(viewPlacemark)
     }
 
     private fun drawingRoute() {
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
+        val resourceMarkIcon = ImageProvider.fromResource(this, R.drawable.location_place)
 
-        for (place in PLACE_LOCATIONS)
-            drawLocationMark(place)
+        val textView = TextView(this)
+        textView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        textView.setPadding(10, 10, 10, 10)
+        textView.gravity = Gravity.CENTER
+
+        val cardView = CardView(this)
+        cardView.layoutParams = ViewGroup.LayoutParams(
+            300,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        cardView.radius = 10f
+        cardView.useCompatPadding = true
+        cardView.elevation = 4f
+        cardView.maxCardElevation = 6f
+        cardView.setCardBackgroundColor(Color.argb(255, 255, 255, 255))
+
+        val constraintLayout = ConstraintLayout(this)
+        constraintLayout.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        constraintLayout.setPadding(350, 0, 0, 60)
+
+        for (placemark in PLACEMARKS_LOCATIONS) {
+            drawLocationMark(placemark, resourceMarkIcon)
+
+            textView.text = placemark.title
+            cardView.removeAllViews()
+            cardView.addView(textView)
+            constraintLayout.removeAllViews()
+            constraintLayout.addView(cardView)
+            drawLocationText(placemark, constraintLayout)
+        }
 
         for (waypoint in WAYPOINTS_LOCATIONS)
             requestPoints.add(RequestPoint(waypoint, RequestPointType.WAYPOINT, null))
@@ -215,7 +348,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     fun startExcursion(view: View) {
         binding.mapview.map.move(
-            CameraPosition(PLACE_LOCATIONS[0], 20.0f, 0.0f, 0.0f),
+            CameraPosition(PLACEMARKS_LOCATIONS[0].point, 20.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1f),
             null
         )
@@ -273,9 +406,10 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     override fun onObjectAdded(userLocationView: UserLocationView) {
         setAnchor()
+        val resourceUserIcon = ImageProvider.fromResource(this, R.drawable.location_user)
 
         userLocationView.pin.setIcon(
-            ImageProvider.fromResource(this, R.drawable.location_user),
+            resourceUserIcon,
             IconStyle()
                 .setRotationType(RotationType.ROTATE)
                 .setZIndex(0f)
@@ -283,7 +417,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
 
         userLocationView.arrow.setIcon(
-            ImageProvider.fromResource(this, R.drawable.location_user),
+            resourceUserIcon,
             IconStyle()
                 .setRotationType(RotationType.ROTATE)
                 .setZIndex(0f)
@@ -300,9 +434,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     override fun onMasstransitRoutes(routes: MutableList<Route>) {
+        val strokeColor = Color.argb(255, 92, 163, 255)
+
         for (route in routes) {
             val polyline = mapObjects!!.addPolyline(route.geometry)
-            polyline.setStrokeColor(Color.argb(255, 92, 163, 255))
+            polyline.setStrokeColor(strokeColor)
             polyline.strokeWidth = 5f
             polylines.add(polyline)
         }
@@ -328,14 +464,23 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 noAnchor()
         }
 
-        if (cameraPosition.zoom < 14.5) {
-            //binding.mapview.map.mapObjects.isVisible = false
-            for (placemark in placemarks)
+        if (cameraPosition.zoom < 18) {
+            for (placemark in placemarkTexts)
                 placemark.isVisible = false
         }
         else {
-            //binding.mapview.map.mapObjects.isVisible = true
-            for (placemark in placemarks)
+            for (placemark in placemarkTexts)
+                placemark.isVisible = true
+        }
+
+        if (cameraPosition.zoom < 14.5) {
+            //mapObjects?.isVisible = false
+            for (placemark in placemarkIcons)
+                placemark.isVisible = false
+        }
+        else {
+            //mapObjects?.isVisible = true
+            for (placemark in placemarkIcons)
                 placemark.isVisible = true
         }
 
