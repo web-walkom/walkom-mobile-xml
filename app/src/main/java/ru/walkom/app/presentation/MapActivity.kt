@@ -96,6 +96,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private val PERM_LOCATION = Point(58.010455, 56.229435)
 
+    private var placemarks = ArrayList<PlacemarkMapObject>()
+    private var polylines = ArrayList<PolylineMapObject>()
+
     private lateinit var binding: ActivityMapsBinding
     private lateinit var checkLocationPermission: ActivityResultLauncher<Array<String>>
     lateinit var userLocationLayer: UserLocationLayer
@@ -161,7 +164,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         permissionLocation = true
 
         mapObjects = binding.mapview.map.mapObjects.addCollection()
-        buildRoute()
+        drawingRoute()
     }
 
     private fun cameraUserPosition() {
@@ -182,11 +185,22 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private fun drawLocationMark(point: Point) {
         val placemark = mapObjects?.addPlacemark(point)
-        placemark?.setIcon(ImageProvider.fromResource(this, R.drawable.location_place))
+
+        placemark?.setIcon(
+            ImageProvider.fromResource(this, R.drawable.location_place),
+            IconStyle()
+                .setAnchor(PointF(0.55f, 1f))
+                .setRotationType(RotationType.NO_ROTATION)
+                .setZIndex(0f)
+                .setScale(1f)
+        )
         placemark?.setText("Hello")
+
+        if (placemark != null)
+            placemarks.add(placemark)
     }
 
-    private fun buildRoute() {
+    private fun drawingRoute() {
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
         for (place in PLACE_LOCATIONS)
@@ -290,6 +304,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             val polyline = mapObjects!!.addPolyline(route.geometry)
             polyline.setStrokeColor(Color.argb(255, 92, 163, 255))
             polyline.strokeWidth = 5f
+            polylines.add(polyline)
         }
     }
 
@@ -311,6 +326,26 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         else {
             if (!followUserLocation)
                 noAnchor()
+        }
+
+        if (cameraPosition.zoom < 14.5) {
+            //binding.mapview.map.mapObjects.isVisible = false
+            for (placemark in placemarks)
+                placemark.isVisible = false
+        }
+        else {
+            //binding.mapview.map.mapObjects.isVisible = true
+            for (placemark in placemarks)
+                placemark.isVisible = true
+        }
+
+        if (cameraPosition.zoom < 12.5) {
+            for (polyline in polylines)
+                polyline.isVisible = false
+        }
+        else {
+            for (polyline in polylines)
+                polyline.isVisible = true
         }
     }
 

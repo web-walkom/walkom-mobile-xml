@@ -8,6 +8,9 @@ object Constants {
     const val ERROR_DETECT_LOCATION = "Ошибка при определении местоположения"
     const val UNKNOWN_ERROR = "Неизвестная ошибка"
 
+    // Notifications
+    const val NOTIFICATION_FAILED_DETECT_LOCATION = "Не удалось определить местоположение"
+
     // Other
     const val TAG = "AppLog"
 }
