@@ -2,6 +2,7 @@ package ru.walkom.app.presentation
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.app.Dialog
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Color
 import android.graphics.PointF
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowManager
 import android.widget.TextView
 import android.widget.Toast
@@ -283,10 +285,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 .setScale(1f)
         )
 
-        viewPlacemark?.addTapListener { _, _ ->
-            Log.d(TAG, "Latitude: ${placemark.point.latitude}, Longitude: ${placemark.point.longitude}")
-            true
-        }
+//        viewPlacemark?.addTapListener { _, _ ->
+//            true
+//        }
 
         if (viewPlacemark != null)
             placemarkIcons.add(viewPlacemark)
@@ -294,8 +295,28 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private fun drawLocationText(placemark: Placemark, constraintLayout: ConstraintLayout) {
         val viewPlacemark = mapObjects?.addPlacemark(placemark.point, ViewProvider(constraintLayout))
+
+//        viewPlacemark?.addTapListener { _, _ ->
+//            true
+//        }
+
         if (viewPlacemark != null)
             placemarkTexts.add(viewPlacemark)
+    }
+
+    private fun showDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.bottom_sheet_fragment, null)
+        val dialog = Dialog(this)
+        // val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogtheme)
+
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(dialogView)
+        dialog.show()
+
+        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+        dialog.window?.setGravity(Gravity.BOTTOM)
     }
 
     private fun drawingRoute() {
@@ -307,6 +328,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        textView.setTextColor(resources.getColor(R.color.dark_gray))
         textView.setPadding(10, 10, 10, 10)
         textView.gravity = Gravity.CENTER
 
@@ -346,7 +368,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         transportRouter!!.requestRoutes(requestPoints, TimeOptions(), this)
     }
 
-    fun startExcursion(view: View) {
+    fun onClickListPlaces(view: View) {
+        showDialog()
+    }
+
+    fun onClickStartExcursion(view: View) {
         binding.mapview.map.move(
             CameraPosition(PLACEMARKS_LOCATIONS[0].point, 20.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1f),
@@ -354,7 +380,20 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
     }
 
-    fun locationMe(view: View) {
+    fun onCLickPauseExcursion(view: View) {
+
+    }
+
+    fun onCLickStopExcursion(view: View) {
+
+    }
+
+    fun onCLickCloseExcursion(view: View) {
+        getActivity()?.onBackPressed()
+        //finish()
+    }
+
+    fun onClickLocationMe(view: View) {
         if (permissionLocation) {
             cameraUserPosition()
             followUserLocation = true
@@ -363,12 +402,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             checkPermission()
     }
 
-    fun closeExcursion(view: View) {
-        getActivity()?.onBackPressed()
-        //finish()
-    }
-
-    fun zoomIn(view: View) {
+    fun onClickZoomIn(view: View) {
         binding.mapview.map.move(
             CameraPosition(
                 binding.mapview.map.cameraPosition.target,
@@ -379,7 +413,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
     }
 
-    fun zoomOut(view: View) {
+    fun onClickZoomOut(view: View) {
         binding.mapview.map.move(
             CameraPosition(
                 binding.mapview.map.cameraPosition.target,

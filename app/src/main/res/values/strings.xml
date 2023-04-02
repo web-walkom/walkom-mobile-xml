@@ -15,6 +15,7 @@
     <string name="pause_excursion">Приостановить</string>
     <string name="stop_excursion">Закончить</string>
     <string name="list_places">Список мест</string>
+    <string name="showAR">Смотреть в AR</string>
 
     <!-- Content descriptions -->
     <string name="location_me_description">Определить мое местоположение</string>
