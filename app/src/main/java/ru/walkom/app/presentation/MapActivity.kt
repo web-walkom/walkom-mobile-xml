@@ -1,7 +1,8 @@
 package ru.walkom.app.presentation
 
-import android.Manifest
-import android.content.pm.PackageManager
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
@@ -11,12 +12,15 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.layers.ObjectEvent
 import com.yandex.mapkit.map.*
+import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.transport.TransportFactory
 import com.yandex.mapkit.transport.masstransit.*
 import com.yandex.mapkit.user_location.UserLocationLayer
@@ -24,13 +28,12 @@ import com.yandex.mapkit.user_location.UserLocationObjectListener
 import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
-import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
+import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.TAG
-import ru.walkom.app.common.Constants.UNKNOWN_ERROR
 import ru.walkom.app.databinding.ActivityMapsBinding
 
-class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener {
+class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener, CameraListener {
 
     private val PLACE_LOCATIONS = listOf<Point>(
         Point(58.010418, 56.237335),
@@ -91,36 +94,35 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         Point(58.016668, 56.231868)
     )
 
-    private val PERMISSIONS = arrayOf(
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION
-    )
+    private val PERM_LOCATION = Point(58.010455, 56.229435)
 
     private lateinit var binding: ActivityMapsBinding
+    private lateinit var checkLocationPermission: ActivityResultLauncher<Array<String>>
     lateinit var userLocationLayer: UserLocationLayer
     private var mapObjects: MapObjectCollection? = null
     private var transportRouter: PedestrianRouter? = null
 
+    private var permissionLocation = false
+    private var followUserLocation = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        MapKitFactory.initialize(this)
         super.onCreate(savedInstanceState)
         setWindowFlag()
 
-        MapKitFactory.initialize(this)
-
         binding = ActivityMapsBinding.inflate(layoutInflater)
-        //binding.mapview.map.isNightModeEnabled = true
         setContentView(binding.root)
 
-        mapObjects = binding.mapview.map.mapObjects.addCollection()
-        requestLocationPermission()
+        checkLocationPermission = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            if (permissions[ACCESS_FINE_LOCATION] == true ||
+                permissions[ACCESS_COARSE_LOCATION] == true) {
+                onMapReady()
+            }
+        }
 
-        val mapKit: MapKit = MapKitFactory.getInstance()
-        userLocationLayer = mapKit.createUserLocationLayer(binding.mapview.mapWindow)
-        userLocationLayer.isVisible = true
-        userLocationLayer.setObjectListener(this)
-
-        buildRoute()
-        initialApproximation()
+        checkPermission()
     }
 
     private fun setWindowFlag() {
@@ -136,20 +138,52 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         window.attributes.flags = window.attributes.flags and WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
     }
 
-    private fun requestLocationPermission() {
-        if (ActivityCompat.checkSelfPermission(this, PERMISSIONS[0]) != PackageManager.PERMISSION_GRANTED &&
-            ActivityCompat.checkSelfPermission(this, PERMISSIONS[1]) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(this, PERMISSIONS, 0)
-            return
+    private fun checkPermission() {
+        if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) == PERMISSION_GRANTED ||
+            ActivityCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION) == PERMISSION_GRANTED
+        )
+            onMapReady()
+        else
+            checkLocationPermission.launch(arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION))
+    }
+
+    private fun onMapReady() {
+        val mapKit = MapKitFactory.getInstance()
+
+        userLocationLayer = mapKit.createUserLocationLayer(binding.mapview.mapWindow)
+        userLocationLayer.isVisible = true
+        userLocationLayer.isHeadingEnabled = true
+        userLocationLayer.isAutoZoomEnabled = true
+        userLocationLayer.setObjectListener(this)
+
+        binding.mapview.map.addCameraListener(this)
+        cameraUserPosition()
+        permissionLocation = true
+
+        mapObjects = binding.mapview.map.mapObjects.addCollection()
+        buildRoute()
+    }
+
+    private fun cameraUserPosition() {
+        if (userLocationLayer.cameraPosition() != null) {
+            binding.mapview.map.move(
+                CameraPosition(userLocationLayer.cameraPosition()!!.target, 18.0f, 0.0f, 0.0f),
+                Animation(Animation.Type.SMOOTH, 1f),
+                null
+            )
+        } else {
+            binding.mapview.map.move(
+                CameraPosition(PERM_LOCATION, 15.0f, 0.0f, 0.0f),
+                Animation(Animation.Type.SMOOTH, 1f),
+                null
+            )
         }
     }
 
     private fun drawLocationMark(point: Point) {
-        val view = View(this).apply {
-            background = getDrawable(R.drawable.location_place)
-        }
-        mapObjects?.addPlacemark(point, ViewProvider(view))
+        val placemark = mapObjects?.addPlacemark(point)
+        placemark?.setIcon(ImageProvider.fromResource(this, R.drawable.location_place))
+        placemark?.setText("Hello")
     }
 
     private fun buildRoute() {
@@ -165,14 +199,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         transportRouter!!.requestRoutes(requestPoints, TimeOptions(), this)
     }
 
-    private fun initialApproximation() {
-        binding.mapview.map.move(
-            CameraPosition(Point(58.010455, 56.229435), 15.0f, 0.0f, 0.0f),
-            Animation(Animation.Type.SMOOTH, 1f),
-            null
-        )
-    }
-
     fun startExcursion(view: View) {
         binding.mapview.map.move(
             CameraPosition(PLACE_LOCATIONS[0], 20.0f, 0.0f, 0.0f),
@@ -182,13 +208,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     fun locationMe(view: View) {
-        userLocationLayer.cameraPosition()?.let { cameraPosition ->
-            binding.mapview.map.move(
-                CameraPosition(cameraPosition.target, 17.0f, 0.0f, 0.0f),
-                Animation(Animation.Type.SMOOTH, 1f),
-                null
-            )
+        if (permissionLocation) {
+            cameraUserPosition()
+            followUserLocation = true
         }
+        else
+            checkPermission()
     }
 
     fun closeExcursion(view: View) {
@@ -233,6 +258,63 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     override fun onObjectAdded(userLocationView: UserLocationView) {
+        setAnchor()
+
+        userLocationView.pin.setIcon(
+            ImageProvider.fromResource(this, R.drawable.location_user),
+            IconStyle()
+                .setRotationType(RotationType.ROTATE)
+                .setZIndex(0f)
+                .setScale(1f)
+        )
+
+        userLocationView.arrow.setIcon(
+            ImageProvider.fromResource(this, R.drawable.location_user),
+            IconStyle()
+                .setRotationType(RotationType.ROTATE)
+                .setZIndex(0f)
+                .setScale(1f)
+        )
+
+        userLocationView.accuracyCircle.fillColor = Color.BLUE
+    }
+
+    override fun onObjectRemoved(view: UserLocationView) {
+    }
+
+    override fun onObjectUpdated(view: UserLocationView, event: ObjectEvent) {
+    }
+
+    override fun onMasstransitRoutes(routes: MutableList<Route>) {
+        for (route in routes) {
+            val polyline = mapObjects!!.addPolyline(route.geometry)
+            polyline.setStrokeColor(Color.argb(255, 92, 163, 255))
+            polyline.strokeWidth = 5f
+        }
+    }
+
+    override fun onMasstransitRoutesError(error: Error) {
+        Toast.makeText(this, ERROR_DRAW_ROUTE, Toast.LENGTH_SHORT).show()
+        Log.e(TAG, error.toString())
+    }
+
+    override fun onCameraPositionChanged(
+        map: Map,
+        cameraPosition: CameraPosition,
+        cameraUpdateReason: CameraUpdateReason,
+        finished: Boolean
+    ) {
+        if (finished) {
+            if (followUserLocation)
+                setAnchor()
+        }
+        else {
+            if (!followUserLocation)
+                noAnchor()
+        }
+    }
+
+    private fun setAnchor() {
         userLocationLayer.setAnchor(
             PointF(
                 (binding.mapview.width() * 0.5).toFloat(),
@@ -244,25 +326,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             )
         )
 
-        userLocationView.pin.setIcon(ImageProvider.fromResource(this, R.drawable.location_user))
-        userLocationView.arrow.setIcon(ImageProvider.fromResource(this, R.drawable.location_user))
-        userLocationView.accuracyCircle.fillColor = Color.BLUE and -0x66000001
+        //binding.location.setImageResource(R.drawable.navigation)
+        followUserLocation = false
     }
 
-    override fun onObjectRemoved(view: UserLocationView) {
-    }
-
-    override fun onObjectUpdated(view: UserLocationView, event: ObjectEvent) {
-    }
-
-    override fun onMasstransitRoutes(routes: MutableList<Route>) {
-        for (route in routes) {
-            mapObjects!!.addPolyline(route.geometry)
-        }
-    }
-
-    override fun onMasstransitRoutesError(error: Error) {
-        Toast.makeText(this, UNKNOWN_ERROR, Toast.LENGTH_SHORT).show()
-        Log.e(TAG, error.toString())
+    private fun noAnchor() {
+        userLocationLayer.resetAnchor()
+        //binding.location.setImageResource(R.drawable.navigation_disabled)
     }
 }
