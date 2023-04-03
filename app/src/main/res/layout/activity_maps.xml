@@ -14,17 +14,30 @@
         tools:layout_editor_absoluteY="1dp" />
 
     <ImageButton
-        android:id="@+id/back"
+        android:id="@+id/closeExcursion"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="40dp"
-        android:paddingEnd="3dp"
-        android:background="@drawable/circle_button"
+        android:layout_marginTop="45dp"
+        android:layout_marginStart="15dp"
+        android:background="@drawable/light_button"
+        android:contentDescription="@string/stop_description"
+        android:onClick="onCLickStopExcursion"
         android:src="@drawable/arrow_back"
-        android:onClick="onCLickCloseExcursion"
-        android:contentDescription="@string/close_map_description"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/dark_gray" />
+
+    <ImageButton
+        android:id="@+id/listPlaces"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="45dp"
+        android:layout_marginEnd="15dp"
+        android:background="@drawable/light_button"
+        android:contentDescription="@string/list_places_description"
+        android:onClick="onClickListPlaces"
+        android:src="@drawable/list"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/light_gray" />
 
@@ -37,12 +50,13 @@
         android:background="@drawable/circle_button"
         android:src="@drawable/navigation"
         android:onClick="onClickLocationMe"
+        android:contentDescription="@string/location_me_description"
         app:layout_constraintBottom_toBottomOf="@+id/mapview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:tint="@color/light_gray"
-        android:contentDescription="@string/location_me_description" />
+        app:tint="@color/light_gray" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_marginEnd="15dp"
@@ -56,10 +70,10 @@
             android:layout_height="45dp"
             android:layout_marginVertical="5dp"
             android:background="@drawable/light_button"
-            android:src="@drawable/plus"
+            android:contentDescription="@string/zoom_in_description"
             android:onClick="onClickZoomIn"
-            app:tint="@color/light_gray"
-            android:contentDescription="@string/zoom_in_description" />
+            android:src="@drawable/plus"
+            app:tint="@color/light_gray" />
 
         <ImageButton
             android:id="@+id/zoomOut"
@@ -67,100 +81,46 @@
             android:layout_height="45dp"
             android:layout_marginVertical="5dp"
             android:background="@drawable/light_button"
-            android:src="@drawable/minus"
+            android:contentDescription="@string/zoom_out_description"
             android:onClick="onClickZoomOut"
-            app:tint="@color/light_gray"
-            android:contentDescription="@string/zoom_out_description" />
+            android:src="@drawable/minus"
+            app:tint="@color/light_gray" />
     </LinearLayout>
 
-    <HorizontalScrollView
-        android:layout_width="match_parent"
+    <Button
+        android:id="@+id/startExcursion"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="20dp"
-        android:scrollbars="none"
-        app:layout_constraintBottom_toBottomOf="@+id/mapview"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/light_button"
+        android:drawableLeft="@drawable/play"
+        android:drawableTint="@color/dark_gray"
+        android:drawablePadding="5dp"
+        android:gravity="start|center_vertical"
+        android:onClick="onClickStartExcursion"
+        android:paddingHorizontal="16dp"
+        android:text="@string/start_excursion"
+        android:textAllCaps="false"
+        android:textColor="@color/light_gray"
+        android:textSize="17sp"
+        app:backgroundTint="@null"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" >
+        app:layout_constraintStart_toStartOf="parent" />
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="10dp" >
-
-            <Button
-                android:id="@+id/listPlaces"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:background="@drawable/light_button"
-                android:text="@string/list_places"
-                android:textColor="@color/light_gray"
-                android:textSize="16sp"
-                android:textAllCaps="false"
-                android:paddingHorizontal="12dp"
-                android:drawableLeft="@drawable/list"
-                android:gravity="start|center_vertical"
-                android:onClick="onClickListPlaces"
-                app:backgroundTint="@null" />
-
-            <Button
-                android:id="@+id/startExcursion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:background="@drawable/light_button"
-                android:onClick="onClickStartExcursion"
-                android:paddingHorizontal="12dp"
-                android:text="@string/start_excursion"
-                android:textAllCaps="false"
-                android:textColor="@color/light_gray"
-                android:textSize="16sp"
-                android:drawableLeft="@drawable/play"
-                android:gravity="start|center_vertical"
-                app:backgroundTint="@null" />
-
-            <Button
-                android:id="@+id/pauseExcursion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:background="@drawable/light_button"
-                android:text="@string/pause_excursion"
-                android:textColor="@color/light_gray"
-                android:textSize="16sp"
-                android:textAllCaps="false"
-                android:paddingHorizontal="12dp"
-                android:drawableLeft="@drawable/pause"
-                android:gravity="start|center_vertical"
-                android:onClick="onCLickPauseExcursion"
-                app:backgroundTint="@null" />
-
-            <Button
-                android:id="@+id/stopExcursion"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:background="@drawable/light_button"
-                android:text="@string/stop_excursion"
-                android:textColor="@color/light_gray"
-                android:textSize="16sp"
-                android:textAllCaps="false"
-                android:paddingHorizontal="12dp"
-                android:drawableLeft="@drawable/stop"
-                android:gravity="start|center_vertical"
-                android:onClick="onCLickStopExcursion"
-                app:backgroundTint="@null" />
-
-        </LinearLayout>
-    </HorizontalScrollView>
-
-<!--    <FrameLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="450dp"-->
-<!--        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" >-->
-
-<!--    </FrameLayout>-->
+    <ImageButton
+        android:id="@+id/pauseExcursion"
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_marginBottom="30dp"
+        android:background="@drawable/light_button"
+        android:contentDescription="@string/pause_description"
+        android:onClick="onCLickPauseExcursion"
+        android:src="@drawable/pause"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/dark_gray" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

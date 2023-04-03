@@ -7,21 +7,23 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
+import androidx.core.view.marginStart
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
 import com.yandex.mapkit.geometry.Point
@@ -47,31 +49,42 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private val PLACEMARKS_LOCATIONS = listOf<Placemark>(
         Placemark(
             Point(58.010418, 56.237335),
-            "Пермский медведь"
+            "Пермский медведь",
+            R.drawable.bear
         ),
         Placemark(
             Point(58.011385, 56.239513),
-            "Губернский детский приют"
+            "Губернский детский приют",
+            R.drawable.provincial_children_shelter
         ),
         Placemark(
             Point(58.012248, 56.242676),
-            "Рождественско-Богородицкая церковь"
+            "Рождественско-Богородицкая церковь",
+            R.drawable.church
         ),
         Placemark(
             Point(58.013174, 56.243045),
-            "Пермский государственный институт культуры"
+            "Пермский государственный институт культуры",
+            R.drawable.perm_state_institute_culture
         ),
         Placemark(
             Point(58.012553, 56.243556),
-            "Дом пекарня наследника Демидовых"
+            "Дом пекарня наследника Демидовых",
+            R.drawable.house_demidovs
+        ),
+        Placemark(
+            Point(58.012758, 56.244125),
+            "Триумф. Пермский кинотеатр",
+            R.drawable.triumph
+        ),
+        /*
+        Placemark(
+            Point(58.012607, 56.244302),
+            "Старокирпичный переулок"
         ),
         Placemark(
             Point(58.013015, 56.243879),
             "Усадьба купчихи М.Т. Киселёвой"
-        ),
-        Placemark(
-            Point(58.012607, 56.244302),
-            "Старокирпичный переулок"
         ),
         Placemark(
             Point(58.012810, 56.244517),
@@ -153,6 +166,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             Point(58.016927, 56.233439), "Смотровая площадка"),
         Placemark(
             Point(58.016668, 56.231868), "Соль земли Пермской"),
+        */
     )
 
     private val WAYPOINTS_LOCATIONS = listOf<Point>(
@@ -161,6 +175,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         Point(58.012153, 56.241898),
         Point(58.012626, 56.243570),
         Point(58.012757, 56.244027),
+        /*
         Point(58.012951, 56.244698),
         Point(58.012951, 56.244698),
         Point(58.013070, 56.245109),
@@ -181,6 +196,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         Point(58.016256, 56.234080),
         Point(58.016927, 56.233439),
         Point(58.016668, 56.231868)
+         */
     )
 
     private val PERM_LOCATION = Point(58.010455, 56.229435)
@@ -197,6 +213,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private var permissionLocation = false
     private var followUserLocation = false
+
+    private var statusStart = false
+    private var statusPause = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -250,6 +269,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         userLocationLayer.setObjectListener(this)
 
         binding.mapview.map.addCameraListener(this)
+        initialApproximation()
         cameraUserPosition()
         permissionLocation = true
 
@@ -257,16 +277,18 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         drawingRoute()
     }
 
+    private fun initialApproximation() {
+        binding.mapview.map.move(
+            CameraPosition(PERM_LOCATION, 15.0f, 0.0f, 0.0f),
+            Animation(Animation.Type.SMOOTH, 1f),
+            null
+        )
+    }
+
     private fun cameraUserPosition() {
         if (userLocationLayer.cameraPosition() != null) {
             binding.mapview.map.move(
                 CameraPosition(userLocationLayer.cameraPosition()!!.target, 18.0f, 0.0f, 0.0f),
-                Animation(Animation.Type.SMOOTH, 1f),
-                null
-            )
-        } else {
-            binding.mapview.map.move(
-                CameraPosition(PERM_LOCATION, 15.0f, 0.0f, 0.0f),
                 Animation(Animation.Type.SMOOTH, 1f),
                 null
             )
@@ -285,23 +307,96 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 .setScale(1f)
         )
 
-//        viewPlacemark?.addTapListener { _, _ ->
-//            true
-//        }
-
         if (viewPlacemark != null)
             placemarkIcons.add(viewPlacemark)
     }
 
-    private fun drawLocationText(placemark: Placemark, constraintLayout: ConstraintLayout) {
-        val viewPlacemark = mapObjects?.addPlacemark(placemark.point, ViewProvider(constraintLayout))
+    private fun drawingRoute() {
+        val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
-//        viewPlacemark?.addTapListener { _, _ ->
-//            true
-//        }
+        for (waypoint in WAYPOINTS_LOCATIONS)
+            requestPoints.add(RequestPoint(waypoint, RequestPointType.WAYPOINT, null))
 
-        if (viewPlacemark != null)
-            placemarkTexts.add(viewPlacemark)
+        drawingPlacemarkIcon()
+        drawingPlacemarkText()
+
+        transportRouter = TransportFactory.getInstance().createPedestrianRouter()
+        transportRouter!!.requestRoutes(requestPoints, TimeOptions(), this)
+    }
+
+    private fun drawingPlacemarkIcon() {
+        val resourceMarkIcon = ImageProvider.fromResource(this, R.drawable.location_place)
+
+        for (placemark in PLACEMARKS_LOCATIONS)
+            drawLocationMark(placemark, resourceMarkIcon)
+    }
+
+    private fun drawingPlacemarkText() {
+        var viewPlacemark: PlacemarkMapObject?
+        val textView = TextView(this)
+        val imageView = ImageView(this)
+        val linearLayout = LinearLayout(this)
+        val cardView = CardView(this)
+        val constraintLayout = LinearLayout(this)
+
+        textView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        textView.maxWidth = 300
+        textView.maxLines = 3
+        textView.ellipsize = TextUtils.TruncateAt.END
+        textView.setTextColor(resources.getColor(R.color.dark_gray))
+        textView.setPadding(20, 10, 20, 10)
+
+        imageView.layoutParams = ViewGroup.LayoutParams(
+            170,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        imageView.adjustViewBounds = true
+        imageView.scaleType = ImageView.ScaleType.FIT_XY
+
+        linearLayout.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        linearLayout.orientation = LinearLayout.HORIZONTAL
+
+        cardView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        cardView.elevation = 10f
+        cardView.useCompatPadding = true
+        cardView.preventCornerOverlap = false
+        cardView.radius = 20f
+        cardView.setCardBackgroundColor(Color.argb(255, 255, 255, 255))
+
+        constraintLayout.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        constraintLayout
+        constraintLayout.setPadding(530, 0, 0, 60)
+
+        for (placemark in PLACEMARKS_LOCATIONS) {
+            textView.text = placemark.title
+            imageView.setImageResource(placemark.image)
+
+            linearLayout.removeAllViews()
+            linearLayout.addView(imageView)
+            linearLayout.addView(textView)
+
+            cardView.removeAllViews()
+            cardView.addView(linearLayout)
+
+            constraintLayout.removeAllViews()
+            constraintLayout.addView(cardView)
+
+            viewPlacemark = mapObjects?.addPlacemark(placemark.point, ViewProvider(constraintLayout))
+            if (viewPlacemark != null)
+                placemarkTexts.add(viewPlacemark)
+        }
     }
 
     private fun showDialog() {
@@ -319,76 +414,36 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         dialog.window?.setGravity(Gravity.BOTTOM)
     }
 
-    private fun drawingRoute() {
-        val requestPoints: ArrayList<RequestPoint> = ArrayList()
-        val resourceMarkIcon = ImageProvider.fromResource(this, R.drawable.location_place)
-
-        val textView = TextView(this)
-        textView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        textView.setTextColor(resources.getColor(R.color.dark_gray))
-        textView.setPadding(10, 10, 10, 10)
-        textView.gravity = Gravity.CENTER
-
-        val cardView = CardView(this)
-        cardView.layoutParams = ViewGroup.LayoutParams(
-            300,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        cardView.radius = 10f
-        cardView.useCompatPadding = true
-        cardView.elevation = 4f
-        cardView.maxCardElevation = 6f
-        cardView.setCardBackgroundColor(Color.argb(255, 255, 255, 255))
-
-        val constraintLayout = ConstraintLayout(this)
-        constraintLayout.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
-        )
-        constraintLayout.setPadding(350, 0, 0, 60)
-
-        for (placemark in PLACEMARKS_LOCATIONS) {
-            drawLocationMark(placemark, resourceMarkIcon)
-
-            textView.text = placemark.title
-            cardView.removeAllViews()
-            cardView.addView(textView)
-            constraintLayout.removeAllViews()
-            constraintLayout.addView(cardView)
-            drawLocationText(placemark, constraintLayout)
-        }
-
-        for (waypoint in WAYPOINTS_LOCATIONS)
-            requestPoints.add(RequestPoint(waypoint, RequestPointType.WAYPOINT, null))
-
-        transportRouter = TransportFactory.getInstance().createPedestrianRouter()
-        transportRouter!!.requestRoutes(requestPoints, TimeOptions(), this)
-    }
-
     fun onClickListPlaces(view: View) {
         showDialog()
     }
 
     fun onClickStartExcursion(view: View) {
+        binding.startExcursion.visibility = View.INVISIBLE
+        binding.pauseExcursion.visibility = View.VISIBLE
+        binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
+
         binding.mapview.map.move(
             CameraPosition(PLACEMARKS_LOCATIONS[0].point, 20.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1f),
             null
         )
+
+        statusStart = true
     }
 
     fun onCLickPauseExcursion(view: View) {
-
+        if (!statusPause) {
+            binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.play))
+            statusPause = true
+        }
+        else {
+            binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.pause))
+            statusPause = false
+        }
     }
 
     fun onCLickStopExcursion(view: View) {
-
-    }
-
-    fun onCLickCloseExcursion(view: View) {
         getActivity()?.onBackPressed()
         //finish()
     }
