@@ -2,6 +2,7 @@ package ru.walkom.app.presentation
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.annotation.SuppressLint
 import android.app.Dialog
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Color
@@ -41,36 +42,44 @@ import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.ActivityMapsBinding
 import ru.walkom.app.domain.model.Placemark
+import java.lang.Math.*
+import kotlin.math.pow
 
 class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener, CameraListener {
 
     private val PLACEMARKS_LOCATIONS = listOf<Placemark>(
         Placemark(
+            1,
             Point(58.010418, 56.237335),
             "Пермский медведь",
             R.drawable.bear
         ),
         Placemark(
+            2,
             Point(58.011385, 56.239513),
             "Губернский детский приют",
             R.drawable.provincial_children_shelter
         ),
         Placemark(
+            3,
             Point(58.012248, 56.242676),
             "Рождественско-Богородицкая церковь",
             R.drawable.church
         ),
         Placemark(
+            4,
             Point(58.013174, 56.243045),
             "Пермский государственный институт культуры",
             R.drawable.perm_state_institute_culture
         ),
         Placemark(
+            5,
             Point(58.012553, 56.243556),
             "Дом пекарня наследника Демидовых",
             R.drawable.house_demidovs
         ),
         Placemark(
+            6,
             Point(58.012758, 56.244125),
             "Триумф. Пермский кинотеатр",
             R.drawable.triumph
@@ -200,22 +209,20 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private val PREVIEW_LOCATION = Point(58.011757, 56.240897)
 
     private var placemarkIcons = ArrayList<PlacemarkMapObject>()
-    private var placemarkTexts = ArrayList<PlacemarkMapObject>()
+    private var placemarkCards = ArrayList<PlacemarkMapObject>()
     private var polylines = ArrayList<PolylineMapObject>()
 
     private lateinit var binding: ActivityMapsBinding
     private lateinit var checkLocationPermission: ActivityResultLauncher<Array<String>>
-    lateinit var userLocationLayer: UserLocationLayer
-    private var mapObjects: MapObjectCollection? = null
-    private var transportRouter: PedestrianRouter? = null
+    private lateinit var userLocationLayer: UserLocationLayer
+    private lateinit var mapObjects: MapObjectCollection
+    private lateinit var transportRouter: PedestrianRouter
+    private lateinit var mediaPlayer: MediaPlayer
 
     private var permissionLocation = false
     private var followUserLocation = false
-
     private var statusStart = false
     private var statusPause = false
-
-    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -235,6 +242,29 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
 
         checkPermission()
+    }
+
+    override fun onStart() {
+        binding.mapview.onStart()
+        MapKitFactory.getInstance().onStart()
+
+        super.onStart()
+    }
+
+    override fun onStop() {
+        binding.mapview.onStop()
+        MapKitFactory.getInstance().onStop()
+
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        if (this::mediaPlayer.isInitialized) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+
+        super.onDestroy()
     }
 
     private fun setWindowFlag() {
@@ -296,9 +326,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun drawLocationMark(placemark: Placemark, resourceMarkIcon: ImageProvider) {
-        val viewPlacemark = mapObjects?.addPlacemark(placemark.point)
+        val viewPlacemark = mapObjects.addPlacemark(placemark.point)
 
-        viewPlacemark?.setIcon(
+        viewPlacemark.setIcon(
             resourceMarkIcon,
             IconStyle()
                 .setAnchor(PointF(0.55f, 1f))
@@ -306,9 +336,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 .setZIndex(0f)
                 .setScale(1f)
         )
-
-        if (viewPlacemark != null)
-            placemarkIcons.add(viewPlacemark)
+        placemarkIcons.add(viewPlacemark)
     }
 
     private fun drawingRoute() {
@@ -318,10 +346,10 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             requestPoints.add(RequestPoint(waypoint, RequestPointType.WAYPOINT, null))
 
         drawingPlacemarkIcon()
-        drawingPlacemarkText()
+        drawingPlacemarkCard()
 
         transportRouter = TransportFactory.getInstance().createPedestrianRouter()
-        transportRouter!!.requestRoutes(requestPoints, TimeOptions(), this)
+        transportRouter.requestRoutes(requestPoints, TimeOptions(), this)
     }
 
     private fun drawingPlacemarkIcon() {
@@ -331,7 +359,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             drawLocationMark(placemark, resourceMarkIcon)
     }
 
-    private fun drawingPlacemarkText() {
+    private fun drawingPlacemarkCard() {
         var viewPlacemark: PlacemarkMapObject?
         val textView = TextView(this)
         val imageView = ImageView(this)
@@ -376,7 +404,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        constraintLayout
         constraintLayout.setPadding(530, 0, 0, 60)
 
         for (placemark in PLACEMARKS_LOCATIONS) {
@@ -393,12 +420,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             constraintLayout.removeAllViews()
             constraintLayout.addView(cardView)
 
-            viewPlacemark = mapObjects?.addPlacemark(placemark.point, ViewProvider(constraintLayout))
-            if (viewPlacemark != null)
-                placemarkTexts.add(viewPlacemark)
+            viewPlacemark = mapObjects.addPlacemark(placemark.point, ViewProvider(constraintLayout))
+            placemarkCards.add(viewPlacemark)
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun showDialog() {
         val dialogView = layoutInflater.inflate(R.layout.bottom_sheet_fragment, null)
         val dialog = Dialog(this)
@@ -495,29 +522,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
     }
 
-    override fun onStart() {
-        binding.mapview.onStart()
-        MapKitFactory.getInstance().onStart()
-
-        super.onStart()
-    }
-
-    override fun onStop() {
-        binding.mapview.onStop()
-        MapKitFactory.getInstance().onStop()
-
-        super.onStop()
-    }
-
-    override fun onDestroy() {
-        if (this::mediaPlayer.isInitialized) {
-            mediaPlayer.stop()
-            mediaPlayer.release()
-        }
-
-        super.onDestroy()
-    }
-
     override fun onObjectAdded(userLocationView: UserLocationView) {
         setAnchor()
         val resourceUserIcon = ImageProvider.fromResource(this, R.drawable.location_user)
@@ -545,6 +549,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     override fun onObjectUpdated(view: UserLocationView, event: ObjectEvent) {
+        val locationUser = Point(
+            userLocationLayer.cameraPosition()!!.target.latitude,
+            userLocationLayer.cameraPosition()!!.target.longitude
+        )
+        detectGPS(locationUser)
     }
 
     override fun onMasstransitRoutes(routes: MutableList<Route>) {
@@ -579,11 +588,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
 
         if (cameraPosition.zoom < 18) {
-            for (placemark in placemarkTexts)
+            for (placemark in placemarkCards)
                 placemark.isVisible = false
         }
         else {
-            for (placemark in placemarkTexts)
+            for (placemark in placemarkCards)
                 placemark.isVisible = true
         }
 
@@ -627,5 +636,45 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private fun noAnchor() {
         userLocationLayer.resetAnchor()
         //binding.location.setImageResource(R.drawable.navigation_disabled)
+    }
+
+    private fun detectGPS(locationUser: Point) {
+        if (statusPause)
+            Toast.makeText(this, "${locationUser.latitude} ${locationUser.longitude}", Toast.LENGTH_SHORT).show()
+
+        var statusContains: Boolean
+
+        for (placemark in PLACEMARKS_LOCATIONS) {
+            statusContains = containsPointArea(placemark.point, locationUser)
+            if (statusContains) {
+                Log.d(TAG, "${placemark.id}: $statusContains")
+            }
+        }
+    }
+
+    private fun containsPointArea(area: Point, point: Point): Boolean {
+        val r = 6371
+        val maxDistance = 15
+
+        val areaRadian = Point(
+            area.latitude * kotlin.math.PI / 180,
+            area.longitude * kotlin.math.PI / 180
+        )
+        val pointRadian = Point(
+            point.latitude * kotlin.math.PI / 180,
+            point.longitude * kotlin.math.PI / 180
+        )
+
+        val distance = 2 * r * kotlin.math.asin(
+            kotlin.math.sqrt(
+                kotlin.math.sin((pointRadian.latitude - areaRadian.latitude) / 2).pow(2.0)
+                + kotlin.math.cos(areaRadian.latitude) * kotlin.math.cos(pointRadian.latitude)
+                * kotlin.math.sin((pointRadian.longitude - areaRadian.longitude) / 2).pow(2.0)
+            )
+        )
+
+        if (distance * 1000 <= maxDistance)
+            return true
+        return false
     }
 }
