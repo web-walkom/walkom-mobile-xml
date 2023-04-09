@@ -7,7 +7,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Color
 import android.graphics.PointF
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
+import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
@@ -21,9 +21,7 @@ import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
-import androidx.core.view.marginStart
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
 import com.yandex.mapkit.geometry.Point
@@ -199,7 +197,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
          */
     )
 
-    private val PERM_LOCATION = Point(58.010455, 56.229435)
+    private val PREVIEW_LOCATION = Point(58.011757, 56.240897)
 
     private var placemarkIcons = ArrayList<PlacemarkMapObject>()
     private var placemarkTexts = ArrayList<PlacemarkMapObject>()
@@ -216,6 +214,8 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private var statusStart = false
     private var statusPause = false
+
+    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -279,7 +279,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private fun initialApproximation() {
         binding.mapview.map.move(
-            CameraPosition(PERM_LOCATION, 15.0f, 0.0f, 0.0f),
+            CameraPosition(PREVIEW_LOCATION, 15.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1f),
             null
         )
@@ -430,16 +430,32 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
 
         statusStart = true
+
+        if (!this::mediaPlayer.isInitialized) {
+            mediaPlayer = MediaPlayer.create(this, R.raw.music_1)
+        }
+
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
     }
 
     fun onCLickPauseExcursion(view: View) {
         if (!statusPause) {
             binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.play))
             statusPause = true
+
+            if (mediaPlayer.isPlaying) {
+                mediaPlayer.pause()
+            }
         }
         else {
             binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.pause))
             statusPause = false
+
+            if (!mediaPlayer.isPlaying) {
+                mediaPlayer.start()
+            }
         }
     }
 
@@ -491,6 +507,15 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         MapKitFactory.getInstance().onStop()
 
         super.onStop()
+    }
+
+    override fun onDestroy() {
+        if (this::mediaPlayer.isInitialized) {
+            mediaPlayer.stop()
+            mediaPlayer.release()
+        }
+
+        super.onDestroy()
     }
 
     override fun onObjectAdded(userLocationView: UserLocationView) {
