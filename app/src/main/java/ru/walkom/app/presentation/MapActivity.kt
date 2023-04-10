@@ -39,6 +39,7 @@ import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
+import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.ActivityMapsBinding
 import ru.walkom.app.domain.model.Placemark
@@ -223,6 +224,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private var followUserLocation = false
     private var statusStart = false
     private var statusPause = false
+    private var excursionStartEnabled = false
+
+    private var lastVisitPlacemark: Placemark? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -325,20 +329,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
     }
 
-    private fun drawLocationMark(placemark: Placemark, resourceMarkIcon: ImageProvider) {
-        val viewPlacemark = mapObjects.addPlacemark(placemark.point)
-
-        viewPlacemark.setIcon(
-            resourceMarkIcon,
-            IconStyle()
-                .setAnchor(PointF(0.55f, 1f))
-                .setRotationType(RotationType.NO_ROTATION)
-                .setZIndex(0f)
-                .setScale(1f)
-        )
-        placemarkIcons.add(viewPlacemark)
-    }
-
     private fun drawingRoute() {
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
@@ -353,10 +343,29 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun drawingPlacemarkIcon() {
-        val resourceMarkIcon = ImageProvider.fromResource(this, R.drawable.location_place)
+        val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.location_place_red)
+        val resourceMarkIconGreen = ImageProvider.fromResource(this, R.drawable.location_place_yellow)
 
-        for (placemark in PLACEMARKS_LOCATIONS)
-            drawLocationMark(placemark, resourceMarkIcon)
+        for (placemark in PLACEMARKS_LOCATIONS) {
+            if (placemark == PLACEMARKS_LOCATIONS[0])
+                drawLocationMark(placemark, resourceMarkIconGreen)
+            else
+                drawLocationMark(placemark, resourceMarkIconRed)
+        }
+    }
+
+    private fun drawLocationMark(placemark: Placemark, resourceMarkIcon: ImageProvider) {
+        val viewPlacemark = mapObjects.addPlacemark(placemark.point)
+
+        viewPlacemark.setIcon(
+            resourceMarkIcon,
+            IconStyle()
+                .setAnchor(PointF(0.55f, 1f))
+                .setRotationType(RotationType.NO_ROTATION)
+                .setZIndex(0f)
+                .setScale(1f)
+        )
+        placemarkIcons.add(viewPlacemark)
     }
 
     private fun drawingPlacemarkCard() {
@@ -446,25 +455,29 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     fun onClickStartExcursion(view: View) {
-        binding.startExcursion.visibility = View.INVISIBLE
-        binding.pauseExcursion.visibility = View.VISIBLE
-        binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
+        if (excursionStartEnabled) {
+            binding.startExcursion.visibility = View.INVISIBLE
+            binding.pauseExcursion.visibility = View.VISIBLE
+            binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
 
-        binding.mapview.map.move(
-            CameraPosition(PLACEMARKS_LOCATIONS[0].point, 20.0f, 0.0f, 0.0f),
-            Animation(Animation.Type.SMOOTH, 1f),
-            null
-        )
+            binding.mapview.map.move(
+                CameraPosition(PLACEMARKS_LOCATIONS[0].point, 20.0f, 0.0f, 0.0f),
+                Animation(Animation.Type.SMOOTH, 1f),
+                null
+            )
 
-        statusStart = true
+            statusStart = true
 
-        if (!this::mediaPlayer.isInitialized) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.music_1)
+            if (!this::mediaPlayer.isInitialized) {
+                mediaPlayer = MediaPlayer.create(this, R.raw.music_1)
+            }
+
+            if (!mediaPlayer.isPlaying) {
+                mediaPlayer.start()
+            }
         }
-
-        if (!mediaPlayer.isPlaying) {
-            mediaPlayer.start()
-        }
+        else
+            Toast.makeText(this, NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT).show()
     }
 
     fun onCLickPauseExcursion(view: View) {
@@ -553,14 +566,19 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             userLocationLayer.cameraPosition()!!.target.latitude,
             userLocationLayer.cameraPosition()!!.target.longitude
         )
-        detectGPS(locationUser)
+
+        if (!statusStart)
+            checkStartPosition(locationUser)
+
+        else if (statusStart && !statusPause)
+            detectGPS(locationUser)
     }
 
     override fun onMasstransitRoutes(routes: MutableList<Route>) {
         val strokeColor = Color.argb(255, 92, 163, 255)
 
         for (route in routes) {
-            val polyline = mapObjects!!.addPolyline(route.geometry)
+            val polyline = mapObjects.addPolyline(route.geometry)
             polyline.setStrokeColor(strokeColor)
             polyline.strokeWidth = 5f
             polylines.add(polyline)
@@ -638,11 +656,16 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         //binding.location.setImageResource(R.drawable.navigation_disabled)
     }
 
+    private fun checkStartPosition(locationUser: Point) {
+        val statusContains = containsPointArea(PLACEMARKS_LOCATIONS[0].point, locationUser)
+        excursionStartEnabled = statusContains
+    }
+
     private fun detectGPS(locationUser: Point) {
         if (statusPause)
             Toast.makeText(this, "${locationUser.latitude} ${locationUser.longitude}", Toast.LENGTH_SHORT).show()
 
-        var statusContains: Boolean
+        var statusContains = false
 
         for (placemark in PLACEMARKS_LOCATIONS) {
             statusContains = containsPointArea(placemark.point, locationUser)
@@ -650,31 +673,62 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 Log.d(TAG, "${placemark.id}: $statusContains")
             }
         }
+
+//        if (!statusContains) {
+//            val nearestPlacemark = getNearestPlacemark(locationUser)
+//        }
     }
 
     private fun containsPointArea(area: Point, point: Point): Boolean {
+        val maxDistance = 12
+        val distance = getDistanceBetweenPoints(area, point)
+
+        if (distance <= maxDistance)
+            return true
+        return false
+    }
+
+    private fun getDistanceBetweenPoints(point1: Point, point2: Point): Double {
         val r = 6371
-        val maxDistance = 15
 
         val areaRadian = Point(
-            area.latitude * kotlin.math.PI / 180,
-            area.longitude * kotlin.math.PI / 180
+            point1.latitude * kotlin.math.PI / 180,
+            point1.longitude * kotlin.math.PI / 180
         )
         val pointRadian = Point(
-            point.latitude * kotlin.math.PI / 180,
-            point.longitude * kotlin.math.PI / 180
+            point2.latitude * kotlin.math.PI / 180,
+            point2.longitude * kotlin.math.PI / 180
         )
 
         val distance = 2 * r * kotlin.math.asin(
             kotlin.math.sqrt(
                 kotlin.math.sin((pointRadian.latitude - areaRadian.latitude) / 2).pow(2.0)
-                + kotlin.math.cos(areaRadian.latitude) * kotlin.math.cos(pointRadian.latitude)
-                * kotlin.math.sin((pointRadian.longitude - areaRadian.longitude) / 2).pow(2.0)
+                    + kotlin.math.cos(areaRadian.latitude) * kotlin.math.cos(pointRadian.latitude)
+                    * kotlin.math.sin((pointRadian.longitude - areaRadian.longitude) / 2).pow(2.0)
             )
         )
 
-        if (distance * 1000 <= maxDistance)
-            return true
-        return false
+        return distance * 1000
+    }
+
+    private fun getNearestPlacemark(locationUser: Point): Placemark? {
+        var distanceMin: Double? = null
+        var distanceNow: Double
+        var nearestPlacemark: Placemark? = null
+
+        for (placemark in PLACEMARKS_LOCATIONS) {
+            distanceNow = getDistanceBetweenPoints(placemark.point, locationUser)
+
+            if (placemark == PLACEMARKS_LOCATIONS[0])
+                distanceMin = distanceNow
+            else {
+                if (distanceNow < distanceMin!!) {
+                    distanceMin = distanceNow
+                    nearestPlacemark = placemark
+                }
+            }
+        }
+
+        return nearestPlacemark
     }
 }
