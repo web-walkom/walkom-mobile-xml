@@ -90,7 +90,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             R.drawable.triumph
         )
     )
-    
+
     private val WAYPOINTS_LOCATIONS = listOf<Waypoint>(
         Waypoint(
             1,
@@ -380,6 +380,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     fun onClickStartExcursion(view: View) {
         if (!excursionStartEnabled) {
             binding.startExcursion.visibility = View.INVISIBLE
+            binding.progressExcursion.visibility = View.VISIBLE
             binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
 
@@ -394,6 +395,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             if (!this::mediaPlayer.isInitialized) {
                 startAudio(R.raw.guide_r2_1)
                 mediaPlayer.setOnCompletionListener {
+                    binding.progressExcursion.visibility = View.INVISIBLE
                     binding.soundAction.visibility = View.INVISIBLE
                 }
 
