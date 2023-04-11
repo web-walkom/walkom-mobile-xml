@@ -11,6 +11,8 @@ import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.provider.MediaStore.Audio.Media
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
@@ -42,7 +44,9 @@ import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.ActivityMapsBinding
+import ru.walkom.app.domain.model.AudioLocation
 import ru.walkom.app.domain.model.Placemark
+import ru.walkom.app.domain.model.Waypoint
 import java.lang.Math.*
 import kotlin.math.pow
 
@@ -84,127 +88,52 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             Point(58.012758, 56.244125),
             "Триумф. Пермский кинотеатр",
             R.drawable.triumph
-        ),
-        /*
-        Placemark(
-            Point(58.012607, 56.244302),
-            "Старокирпичный переулок"
-        ),
-        Placemark(
-            Point(58.013015, 56.243879),
-            "Усадьба купчихи М.Т. Киселёвой"
-        ),
-        Placemark(
-            Point(58.012810, 56.244517),
-            "Аптеки Боне и Бартминского"
-        ),
-        Placemark(
-            Point(58.012867, 56.244769),
-            "Дом присяжного поверенного Падалка"
-        ),
-        Placemark(
-            Point(58.013235, 56.244661),
-            "Доходно-деловой дом купца А.Г. Каменского"
-        ),
-        Placemark(
-            Point(58.013006, 56.245146),
-            "Дом купцов Степановых"
-        ),
-        Placemark(
-            Point(58.013230, 56.245909),
-            "Дом купцов Базановых"
-        ),
-        Placemark(
-            Point(58.013506, 56.246934),
-            "Книжный магазин Пиотровских"
-        ),
-        Placemark(
-            Point(58.015961, 56.245820),
-            "Пермский оперный театр"
-        ),
-        Placemark(
-            Point(58.015318, 56.248883),
-            "Дом Тупицыных"
-        ),
-        Placemark(
-            Point(58.016081, 56.247895),
-            "Пермский государственный аграрно-технологический университет"
-        ),
-        Placemark(
-            Point(58.017358, 56.245424),
-            "Европейские номера"
-        ),
-        Placemark(
-            Point(58.018312, 56.244831),
-            "Дом купца П.А. Попова"
-        ),
-        Placemark(
-            Point(58.018464, 56.245577),
-            "Узел связи Камского речного пароходства"
-        ),
-        Placemark(
-            Point(58.018745, 56.246547),
-            "Дом Мешкова"
-        ),
-        Placemark(
-            Point(58.017954, 56.244041),
-            "Дом со львами"
-        ),
-        Placemark(
-            Point(58.017773, 56.243241),
-            "Дом В.Е. Вердеревского, председателя казенной палаты"
-        ),
-        Placemark(
-            Point(58.017330, 56.241714),
-            "Торговая Баня мещанки Кашиной"
-        ),
-        Placemark(
-            Point(58.017911, 56.240654),
-            "Дома купцов Чердынцевых"
-        ),
-        Placemark(
-            Point(58.017292, 56.239172),
-            "Духовная консистория"
-        ),
-        Placemark(
-            Point(58.016414, 56.234689),
-            "Спасопреображенский кафедральный собор и архиерейский дом"
-        ),
-        Placemark(
-            Point(58.016927, 56.233439), "Смотровая площадка"),
-        Placemark(
-            Point(58.016668, 56.231868), "Соль земли Пермской"),
-        */
+        )
     )
 
-    private val WAYPOINTS_LOCATIONS = listOf<Point>(
-        Point(58.010433, 56.237325),
-        Point(58.011458, 56.239391),
-        Point(58.012153, 56.241898),
-        Point(58.012626, 56.243570),
-        Point(58.012757, 56.244027),
-        /*
-        Point(58.012951, 56.244698),
-        Point(58.012951, 56.244698),
-        Point(58.013070, 56.245109),
-        Point(58.013412, 56.246297),
-        Point(58.013511, 56.246665),
-        Point(58.014427, 56.247151),
-        Point(58.015203, 56.246618),
-        Point(58.015515, 56.247746),
-        Point(58.017509, 56.246013),
-        Point(58.018438, 56.245127),
-        Point(58.018574, 56.245447),
-        Point(58.018801, 56.246172),
-        Point(58.018713, 56.246883),
-        Point(58.018164, 56.243980),
-        Point(58.017930, 56.243147),
-        Point(58.017638, 56.241350),
-        Point(58.017082, 56.239363),
-        Point(58.016256, 56.234080),
-        Point(58.016927, 56.233439),
-        Point(58.016668, 56.231868)
-         */
+    private val WAYPOINTS_LOCATIONS = listOf<Waypoint>(
+        Waypoint(
+            1,
+            Point(58.010433, 56.237325),
+            R.raw.guide_r2_2,
+            1
+        ),
+        Waypoint(
+            2,
+            Point(58.010934, 56.237625),
+            R.raw.guide_r2_4,
+            null
+        ),
+        Waypoint(
+            3,
+            Point(58.011374, 56.239166),
+            R.raw.guide_r2_5,
+            2
+        ),
+        Waypoint(
+            4,
+            Point(58.012153, 56.241898),
+            null,
+            3
+        ),
+        Waypoint(
+            5,
+            Point(58.012477, 56.243069),
+            R.raw.guide_r2_6,
+            4
+        ),
+        Waypoint(
+            6,
+            Point(58.012575, 56.243399),
+            R.raw.guide_r2_7,
+            5
+        ),
+        Waypoint(
+            7,
+            Point(58.012757, 56.244027),
+            R.raw.guide_r2_9,
+            6
+        )
     )
 
     private val PREVIEW_LOCATION = Point(58.011757, 56.240897)
@@ -333,7 +262,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
         for (waypoint in WAYPOINTS_LOCATIONS)
-            requestPoints.add(RequestPoint(waypoint, RequestPointType.WAYPOINT, null))
+            requestPoints.add(RequestPoint(waypoint.point, RequestPointType.WAYPOINT, null))
 
         drawingPlacemarkIcon()
         drawingPlacemarkCard()
@@ -344,13 +273,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private fun drawingPlacemarkIcon() {
         val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.location_place_red)
-        val resourceMarkIconGreen = ImageProvider.fromResource(this, R.drawable.location_place_yellow)
 
         for (placemark in PLACEMARKS_LOCATIONS) {
-            if (placemark == PLACEMARKS_LOCATIONS[0])
-                drawLocationMark(placemark, resourceMarkIconGreen)
-            else
-                drawLocationMark(placemark, resourceMarkIconRed)
+            drawLocationMark(placemark, resourceMarkIconRed)
         }
     }
 
@@ -455,9 +380,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     fun onClickStartExcursion(view: View) {
-        if (excursionStartEnabled) {
+        if (!excursionStartEnabled) {
             binding.startExcursion.visibility = View.INVISIBLE
-            binding.pauseExcursion.visibility = View.VISIBLE
+            binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
 
             binding.mapview.map.move(
@@ -469,11 +394,24 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             statusStart = true
 
             if (!this::mediaPlayer.isInitialized) {
-                mediaPlayer = MediaPlayer.create(this, R.raw.music_1)
-            }
+                startAudio(R.raw.guide_r2_1)
+                mediaPlayer.setOnCompletionListener {
+                    binding.soundAction.visibility = View.INVISIBLE
+                }
 
-            if (!mediaPlayer.isPlaying) {
-                mediaPlayer.start()
+                binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                        if (fromUser)
+                            mediaPlayer.seekTo(progress)
+                    }
+
+                    override fun onStartTrackingTouch(p0: SeekBar?) {
+                    }
+
+                    override fun onStopTrackingTouch(p0: SeekBar?) {
+                    }
+
+                })
             }
         }
         else
@@ -662,25 +600,41 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun detectGPS(locationUser: Point) {
-        if (statusPause)
-            Toast.makeText(this, "${locationUser.latitude} ${locationUser.longitude}", Toast.LENGTH_SHORT).show()
-
         var statusContains = false
 
         for (placemark in PLACEMARKS_LOCATIONS) {
             statusContains = containsPointArea(placemark.point, locationUser)
             if (statusContains) {
                 Log.d(TAG, "${placemark.id}: $statusContains")
+                // show bottom sheet dialog
             }
         }
 
+        for (waypoint in WAYPOINTS_LOCATIONS) {
+            statusContains = containsPointArea(waypoint.point, locationUser)
+            if (statusContains) {
+                if (waypoint.audio != null) {
+                    mediaPlayer.setOnCompletionListener {
+                        startAudio(waypoint.audio)
+                    }
+                }
+                else {
+                    // Очистка пройденного марщрута
+                }
+            }
+        }
+
+        if (!mediaPlayer.isPlaying)
+            binding.soundAction.visibility = View.INVISIBLE
+
+        // Проверка на отдаление от маршрута
 //        if (!statusContains) {
 //            val nearestPlacemark = getNearestPlacemark(locationUser)
 //        }
     }
 
     private fun containsPointArea(area: Point, point: Point): Boolean {
-        val maxDistance = 12
+        val maxDistance = 7
         val distance = getDistanceBetweenPoints(area, point)
 
         if (distance <= maxDistance)
@@ -730,5 +684,27 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
 
         return nearestPlacemark
+    }
+
+    private fun startAudio(audio: Int) {
+        mediaPlayer = MediaPlayer.create(this, audio)
+        initialiseSeekBar()
+        mediaPlayer.start()
+    }
+
+    private fun initialiseSeekBar() {
+        binding.seekBar.max = mediaPlayer.duration
+
+        val handler = Handler()
+        handler.postDelayed(object: Runnable {
+            override fun run() {
+                try {
+                    binding.seekBar.progress = mediaPlayer.currentPosition
+                    handler.postDelayed(this, 1000)
+                } catch (e: java.lang.Exception) {
+                    binding.seekBar.progress = 0
+                }
+            }
+        }, 0)
     }
 }
