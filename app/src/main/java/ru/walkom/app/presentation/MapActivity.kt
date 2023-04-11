@@ -12,7 +12,6 @@ import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
-import android.provider.MediaStore.Audio.Media
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
@@ -42,9 +41,10 @@ import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
+import ru.walkom.app.common.Constants.NOTIFICATION_DEVIATION_ROUTE
+import ru.walkom.app.common.Constants.NOTIFICATION_TERMINATION_DEVIATION_ROUTE
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.ActivityMapsBinding
-import ru.walkom.app.domain.model.AudioLocation
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Waypoint
 import java.lang.Math.*
@@ -90,7 +90,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             R.drawable.triumph
         )
     )
-
+    
     private val WAYPOINTS_LOCATIONS = listOf<Waypoint>(
         Waypoint(
             1,
@@ -154,8 +154,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private var statusStart = false
     private var statusPause = false
     private var excursionStartEnabled = false
-
-    private var lastVisitPlacemark: Placemark? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -603,18 +601,23 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         var statusContains = false
 
         for (placemark in PLACEMARKS_LOCATIONS) {
+            // Проверка на подход пользователя к метке
             statusContains = containsPointArea(placemark.point, locationUser)
+
             if (statusContains) {
-                Log.d(TAG, "${placemark.id}: $statusContains")
+                Log.d(TAG, "${placemark.id}")
                 // show bottom sheet dialog
             }
         }
 
         for (waypoint in WAYPOINTS_LOCATIONS) {
+            // Проверка на подход пользователя к точке маршрута экскурсии
             statusContains = containsPointArea(waypoint.point, locationUser)
+
             if (statusContains) {
                 if (waypoint.audio != null) {
                     mediaPlayer.setOnCompletionListener {
+                        mediaPlayer.reset()
                         startAudio(waypoint.audio)
                     }
                 }
@@ -624,20 +627,28 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             }
         }
 
-        if (!mediaPlayer.isPlaying)
+        if (!mediaPlayer.isPlaying && binding.soundAction.visibility == View.VISIBLE)
             binding.soundAction.visibility = View.INVISIBLE
 
-        // Проверка на отдаление от маршрута
-//        if (!statusContains) {
-//            val nearestPlacemark = getNearestPlacemark(locationUser)
-//        }
+        if (!statusContains) {
+            // Проверка на отдаление от маршрута
+            val distance = getDistanceNearestPlacemark(locationUser)
+
+            if (distance > 0.1 && distance <= 0.15) {
+                Toast.makeText(this, NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
+            }
+            if (distance > 0.15) {
+                Toast.makeText(this, NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
+                getActivity()?.onBackPressed()
+            }
+        }
     }
 
     private fun containsPointArea(area: Point, point: Point): Boolean {
         val maxDistance = 7
         val distance = getDistanceBetweenPoints(area, point)
 
-        if (distance <= maxDistance)
+        if (distance * 1000 <= maxDistance)
             return true
         return false
     }
@@ -662,13 +673,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             )
         )
 
-        return distance * 1000
+        return distance
     }
 
-    private fun getNearestPlacemark(locationUser: Point): Placemark? {
-        var distanceMin: Double? = null
+    private fun getDistanceNearestPlacemark(locationUser: Point): Double {
+        var distanceMin: Double = 0.0
         var distanceNow: Double
-        var nearestPlacemark: Placemark? = null
 
         for (placemark in PLACEMARKS_LOCATIONS) {
             distanceNow = getDistanceBetweenPoints(placemark.point, locationUser)
@@ -676,14 +686,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             if (placemark == PLACEMARKS_LOCATIONS[0])
                 distanceMin = distanceNow
             else {
-                if (distanceNow < distanceMin!!) {
+                if (distanceNow < distanceMin)
                     distanceMin = distanceNow
-                    nearestPlacemark = placemark
-                }
             }
         }
 
-        return nearestPlacemark
+        return distanceMin
     }
 
     private fun startAudio(audio: Int) {

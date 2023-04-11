@@ -11,6 +11,8 @@ object Constants {
     // Notifications
     const val NOTIFICATION_FAILED_DETECT_LOCATION = "Не удалось определить местоположение"
     const val NOTIFICATION_CONDITIONS_START_TOUR = "Для начала экскурсии встаньте возле стартовой метки"
+    const val NOTIFICATION_DEVIATION_ROUTE = "Вы отклонились от маршрута, вернитесь или экскурсия будет завершена"
+    const val NOTIFICATION_TERMINATION_DEVIATION_ROUTE = "Вы отклонились от маршрута, экскурсия была завершена"
 
     // Other
     const val TAG = "AppLog"
