@@ -61,9 +61,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         ),
         Placemark(
             2,
-            Point(58.011385, 56.239513),
-            "Губернский детский приют",
-            R.drawable.provincial_children_shelter
+            Point(58.012611, 56.242274),
+            "Гимназия № 17",
+            R.drawable.gymnasium_17
         ),
         Placemark(
             3,
@@ -108,7 +108,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             3,
             Point(58.011374, 56.239166),
             R.raw.guide_r2_5,
-            2
+            null
         ),
         Waypoint(
             4,
@@ -140,6 +140,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private var placemarkIcons = ArrayList<PlacemarkMapObject>()
     private var placemarkCards = ArrayList<PlacemarkMapObject>()
+    private var waypointIcons = ArrayList<PlacemarkMapObject>()
     private var polylines = ArrayList<PolylineMapObject>()
 
     private lateinit var binding: ActivityMapsBinding
@@ -259,8 +260,10 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private fun drawingRoute() {
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
-        for (waypoint in WAYPOINTS_LOCATIONS)
+        for (waypoint in WAYPOINTS_LOCATIONS) {
             requestPoints.add(RequestPoint(waypoint.point, RequestPointType.WAYPOINT, null))
+            drawingWaypointIcon(waypoint)
+        }
 
         drawingPlacemarkIcon()
         drawingPlacemarkCard()
@@ -269,26 +272,36 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         transportRouter.requestRoutes(requestPoints, TimeOptions(), this)
     }
 
-    private fun drawingPlacemarkIcon() {
-        val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.location_place_red)
+    private fun drawingWaypointIcon(waypoint: Waypoint) {
+        val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.waypoint)
+        val viewWaypoint = mapObjects.addPlacemark(waypoint.point)
 
-        for (placemark in PLACEMARKS_LOCATIONS) {
-            drawLocationMark(placemark, resourceMarkIconRed)
-        }
-    }
-
-    private fun drawLocationMark(placemark: Placemark, resourceMarkIcon: ImageProvider) {
-        val viewPlacemark = mapObjects.addPlacemark(placemark.point)
-
-        viewPlacemark.setIcon(
-            resourceMarkIcon,
+        viewWaypoint.setIcon(
+            resourceMarkIconRed,
             IconStyle()
-                .setAnchor(PointF(0.55f, 1f))
                 .setRotationType(RotationType.NO_ROTATION)
                 .setZIndex(0f)
-                .setScale(1f)
+                .setScale(0.5f)
         )
-        placemarkIcons.add(viewPlacemark)
+        waypointIcons.add(viewWaypoint)
+    }
+
+    private fun drawingPlacemarkIcon() {
+        val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.location_place_red)
+        var viewPlacemark: PlacemarkMapObject
+
+        for (placemark in PLACEMARKS_LOCATIONS) {
+            viewPlacemark = mapObjects.addPlacemark(placemark.point)
+            viewPlacemark.setIcon(
+                resourceMarkIconRed,
+                IconStyle()
+                    .setAnchor(PointF(0.55f, 1f))
+                    .setRotationType(RotationType.NO_ROTATION)
+                    .setZIndex(0f)
+                    .setScale(1f)
+            )
+            placemarkIcons.add(viewPlacemark)
+        }
     }
 
     private fun drawingPlacemarkCard() {
@@ -378,7 +391,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     fun onClickStartExcursion(view: View) {
-        if (!excursionStartEnabled) {
+        if (excursionStartEnabled) {
             binding.startExcursion.visibility = View.INVISIBLE
             binding.progressExcursion.visibility = View.VISIBLE
             binding.soundAction.visibility = View.VISIBLE
@@ -394,10 +407,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
             if (!this::mediaPlayer.isInitialized) {
                 startAudio(R.raw.guide_r2_1)
-                mediaPlayer.setOnCompletionListener {
-                    binding.progressExcursion.visibility = View.INVISIBLE
-                    binding.soundAction.visibility = View.INVISIBLE
-                }
 
                 binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -553,14 +562,18 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
 
         if (cameraPosition.zoom < 14.5) {
-            //mapObjects?.isVisible = false
             for (placemark in placemarkIcons)
                 placemark.isVisible = false
+
+            for (waypoint in waypointIcons)
+                waypoint.isVisible = false
         }
         else {
-            //mapObjects?.isVisible = true
             for (placemark in placemarkIcons)
                 placemark.isVisible = true
+
+            for (waypoint in waypointIcons)
+                waypoint.isVisible = true
         }
 
         if (cameraPosition.zoom < 12.5) {
@@ -618,8 +631,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
             if (statusContains) {
                 if (waypoint.audio != null) {
-                    mediaPlayer.setOnCompletionListener {
-                        mediaPlayer.reset()
+                    if (mediaPlayer.isPlaying) {
+                        mediaPlayer.setOnCompletionListener {
+                            startAudio(waypoint.audio)
+                        }
+                    }
+                    else {
                         startAudio(waypoint.audio)
                     }
                 }
@@ -634,7 +651,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
         if (!statusContains) {
             // Проверка на отдаление от маршрута
-            val distance = getDistanceNearestPlacemark(locationUser)
+            val distance = getDistanceNearestWaypoint(locationUser)
 
             if (distance > 0.1 && distance <= 0.15) {
                 Toast.makeText(this, NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
@@ -647,7 +664,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun containsPointArea(area: Point, point: Point): Boolean {
-        val maxDistance = 7
+        val maxDistance = 15
         val distance = getDistanceBetweenPoints(area, point)
 
         if (distance * 1000 <= maxDistance)
@@ -678,14 +695,14 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         return distance
     }
 
-    private fun getDistanceNearestPlacemark(locationUser: Point): Double {
+    private fun getDistanceNearestWaypoint(locationUser: Point): Double {
         var distanceMin: Double = 0.0
         var distanceNow: Double
 
-        for (placemark in PLACEMARKS_LOCATIONS) {
-            distanceNow = getDistanceBetweenPoints(placemark.point, locationUser)
+        for (waypoint in WAYPOINTS_LOCATIONS) {
+            distanceNow = getDistanceBetweenPoints(waypoint.point, locationUser)
 
-            if (placemark == PLACEMARKS_LOCATIONS[0])
+            if (waypoint == WAYPOINTS_LOCATIONS[0])
                 distanceMin = distanceNow
             else {
                 if (distanceNow < distanceMin)
@@ -700,6 +717,10 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         mediaPlayer = MediaPlayer.create(this, audio)
         initialiseSeekBar()
         mediaPlayer.start()
+        mediaPlayer.setOnCompletionListener {
+            binding.progressExcursion.visibility = View.INVISIBLE
+            binding.soundAction.visibility = View.INVISIBLE
+        }
     }
 
     private fun initialiseSeekBar() {
