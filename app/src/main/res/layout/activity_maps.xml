@@ -28,36 +28,35 @@
         app:tint="@color/dark_gray" />
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/progressExcursion"
+        android:id="@+id/auxiliaryTable"
         android:layout_width="0px"
         android:layout_height="50dp"
         android:layout_marginTop="45dp"
-        android:layout_marginHorizontal="15dp"
+        android:layout_marginHorizontal="10dp"
         android:paddingTop="10dp"
-        android:visibility="invisible"
         app:cardCornerRadius="10dp"
         app:layout_constraintEnd_toStartOf="@+id/listPlaces"
         app:layout_constraintStart_toEndOf="@+id/closeExcursion"
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/titleTable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingTop="6dp"
             android:textSize="17sp"
             android:textStyle="bold"
-            android:textColor="@color/dark_gray"
-            android:text="Начало"/>
+            android:textColor="@color/dark_gray"/>
 
         <TextView
+            android:id="@+id/descriptionTable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:paddingTop="27dp"
             android:textSize="12sp"
-            android:textColor="@color/light_gray"
-            android:text="Дополнительная информация"/>
+            android:textColor="@color/light_gray"/>
 
     </androidx.cardview.widget.CardView>
 

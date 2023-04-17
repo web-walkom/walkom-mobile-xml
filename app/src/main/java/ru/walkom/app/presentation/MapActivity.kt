@@ -39,11 +39,21 @@ import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
+import ru.walkom.app.common.Constants.DESCRIPTION_INTRODUCTION_EXCURSION
+import ru.walkom.app.common.Constants.DESCRIPTION_START_EXCURSION
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_PLACEMARK
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE_EXTREME
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_START_POINT
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_WAYPOINT
 import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
 import ru.walkom.app.common.Constants.NOTIFICATION_DEVIATION_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_TERMINATION_DEVIATION_ROUTE
 import ru.walkom.app.common.Constants.TAG
+import ru.walkom.app.common.Constants.TEXT_INTRODUCTION_EXCURSION
+import ru.walkom.app.common.Constants.TEXT_START
+import ru.walkom.app.common.Constants.TEXT_START_EXCURSION
 import ru.walkom.app.databinding.ActivityMapsBinding
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Waypoint
@@ -88,6 +98,51 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             Point(58.012758, 56.244125),
             "Триумф. Пермский кинотеатр",
             R.drawable.triumph
+        )
+    )
+
+    private val WAYPOINTS_LOCATIONS_TEST = listOf<Waypoint>(
+        Waypoint(
+            1,
+            Point(58.037092, 56.125729),
+            R.raw.guide_r2_1,
+            1
+        ),
+        Waypoint(
+            2,
+            Point(58.037188, 56.124989),
+            R.raw.guide_r2_2,
+            null
+        ),
+        Waypoint(
+            3,
+            Point(58.036989, 56.124917),
+            R.raw.guide_r2_4,
+            2
+        ),
+        Waypoint(
+            4,
+            Point(58.036841, 56.126014),
+            R.raw.guide_r2_5,
+            3
+        ),
+        Waypoint(
+            5,
+            Point(58.036672, 56.127291),
+            R.raw.guide_r2_6,
+            4
+        ),
+        Waypoint(
+            6,
+            Point(58.036879, 56.127382),
+            R.raw.guide_r2_7,
+            5
+        ),
+        Waypoint(
+            7,
+            Point(58.037025, 56.126263),
+            R.raw.guide_r2_9,
+            6
         )
     )
 
@@ -140,6 +195,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private var placemarkIcons = ArrayList<PlacemarkMapObject>()
     private var placemarkCards = ArrayList<PlacemarkMapObject>()
+    private lateinit var placemarkStart: PlacemarkMapObject
     private var waypointIcons = ArrayList<PlacemarkMapObject>()
     private var polylines = ArrayList<PolylineMapObject>()
 
@@ -209,7 +265,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
         window.statusBarColor = Color.TRANSPARENT
         window.navigationBarColor = Color.TRANSPARENT
-        window.attributes.flags = window.attributes.flags and WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
+        window.attributes.flags = window.attributes.flags and
+                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and
+                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
     }
 
     private fun checkPermission() {
@@ -223,6 +281,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private fun onMapReady() {
         val mapKit = MapKitFactory.getInstance()
+
+        binding.titleTable.text = TEXT_START_EXCURSION
+        binding.descriptionTable.text = DESCRIPTION_START_EXCURSION
 
         userLocationLayer = mapKit.createUserLocationLayer(binding.mapview.mapWindow)
         userLocationLayer.isVisible = true
@@ -266,6 +327,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
 
         drawingPlacemarkIcon()
+        drawingStartPlacemark()
         drawingPlacemarkCard()
 
         transportRouter = TransportFactory.getInstance().createPedestrianRouter()
@@ -302,6 +364,37 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             )
             placemarkIcons.add(viewPlacemark)
         }
+    }
+
+    private fun drawingStartPlacemark() {
+        val textView = TextView(this)
+        val cardView = CardView(this)
+        val constraintLayout = LinearLayout(this)
+
+        textView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        textView.setTextColor(resources.getColor(R.color.dark_gray))
+        textView.setPadding(20, 10, 20, 10)
+        textView.text = TEXT_START
+
+        cardView.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        cardView.radius = 10f
+        cardView.setCardBackgroundColor(Color.argb(255, 255, 255, 255))
+        cardView.addView(textView)
+
+        constraintLayout.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        constraintLayout.setPadding(0, 0, 0, 200)
+        constraintLayout.addView(cardView)
+
+        placemarkStart = mapObjects.addPlacemark(PLACEMARKS_LOCATIONS[0].point, ViewProvider(constraintLayout))
     }
 
     private fun drawingPlacemarkCard() {
@@ -390,12 +483,17 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         showDialog()
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     fun onClickStartExcursion(view: View) {
-        if (excursionStartEnabled) {
+        if (!excursionStartEnabled) {
             binding.startExcursion.visibility = View.INVISIBLE
-            binding.progressExcursion.visibility = View.VISIBLE
             binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
+
+            binding.titleTable.text = TEXT_INTRODUCTION_EXCURSION
+            binding.descriptionTable.text = DESCRIPTION_INTRODUCTION_EXCURSION
+
+            placemarkStart.isVisible = false
 
             binding.mapview.map.move(
                 CameraPosition(PLACEMARKS_LOCATIONS[0].point, 20.0f, 0.0f, 0.0f),
@@ -514,9 +612,14 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             userLocationLayer.cameraPosition()!!.target.longitude
         )
 
-        if (!statusStart)
-            checkStartPosition(locationUser)
-
+        if (!statusStart) {
+            val statusContains = containsPointArea(
+                PLACEMARKS_LOCATIONS[0].point,
+                locationUser,
+                DISTANCE_CONTAINS_START_POINT
+            )
+            excursionStartEnabled = statusContains
+        }
         else if (statusStart && !statusPause)
             detectGPS(locationUser)
     }
@@ -567,6 +670,8 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
             for (waypoint in waypointIcons)
                 waypoint.isVisible = false
+
+            placemarkStart.isVisible = false
         }
         else {
             for (placemark in placemarkIcons)
@@ -574,6 +679,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
             for (waypoint in waypointIcons)
                 waypoint.isVisible = true
+
+            if (!statusStart)
+                placemarkStart.isVisible = true
         }
 
         if (cameraPosition.zoom < 12.5) {
@@ -607,27 +715,30 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         //binding.location.setImageResource(R.drawable.navigation_disabled)
     }
 
-    private fun checkStartPosition(locationUser: Point) {
-        val statusContains = containsPointArea(PLACEMARKS_LOCATIONS[0].point, locationUser)
-        excursionStartEnabled = statusContains
-    }
-
     private fun detectGPS(locationUser: Point) {
         var statusContains = false
 
         for (placemark in PLACEMARKS_LOCATIONS) {
             // Проверка на подход пользователя к метке
-            statusContains = containsPointArea(placemark.point, locationUser)
+            statusContains = containsPointArea(
+                placemark.point,
+                locationUser,
+                DISTANCE_CONTAINS_PLACEMARK
+            )
 
             if (statusContains) {
                 Log.d(TAG, "${placemark.id}")
-                // show bottom sheet dialog
+                showDialog()
             }
         }
 
         for (waypoint in WAYPOINTS_LOCATIONS) {
             // Проверка на подход пользователя к точке маршрута экскурсии
-            statusContains = containsPointArea(waypoint.point, locationUser)
+            statusContains = containsPointArea(
+                waypoint.point,
+                locationUser,
+                DISTANCE_CONTAINS_WAYPOINT
+            )
 
             if (statusContains) {
                 if (waypoint.audio != null) {
@@ -640,9 +751,8 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                         startAudio(waypoint.audio)
                     }
                 }
-                else {
-                    // Очистка пройденного марщрута
-                }
+
+                // Очистка пройденного марщрута
             }
         }
 
@@ -653,50 +763,26 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             // Проверка на отдаление от маршрута
             val distance = getDistanceNearestWaypoint(locationUser)
 
-            if (distance > 0.1 && distance <= 0.15) {
+            if (distance > DISTANCE_CONTAINS_ROUTE && distance <= DISTANCE_CONTAINS_ROUTE_EXTREME) {
                 Toast.makeText(this, NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
             }
-            if (distance > 0.15) {
+            if (distance > DISTANCE_CONTAINS_ROUTE_EXTREME) {
                 Toast.makeText(this, NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
                 getActivity()?.onBackPressed()
             }
         }
     }
 
-    private fun containsPointArea(area: Point, point: Point): Boolean {
-        val maxDistance = 15
+    private fun containsPointArea(area: Point, point: Point, maxDistance: Double): Boolean {
         val distance = getDistanceBetweenPoints(area, point)
 
-        if (distance * 1000 <= maxDistance)
+        if (distance <= maxDistance)
             return true
         return false
     }
 
-    private fun getDistanceBetweenPoints(point1: Point, point2: Point): Double {
-        val r = 6371
-
-        val areaRadian = Point(
-            point1.latitude * kotlin.math.PI / 180,
-            point1.longitude * kotlin.math.PI / 180
-        )
-        val pointRadian = Point(
-            point2.latitude * kotlin.math.PI / 180,
-            point2.longitude * kotlin.math.PI / 180
-        )
-
-        val distance = 2 * r * kotlin.math.asin(
-            kotlin.math.sqrt(
-                kotlin.math.sin((pointRadian.latitude - areaRadian.latitude) / 2).pow(2.0)
-                    + kotlin.math.cos(areaRadian.latitude) * kotlin.math.cos(pointRadian.latitude)
-                    * kotlin.math.sin((pointRadian.longitude - areaRadian.longitude) / 2).pow(2.0)
-            )
-        )
-
-        return distance
-    }
-
     private fun getDistanceNearestWaypoint(locationUser: Point): Double {
-        var distanceMin: Double = 0.0
+        var distanceMin = 0.0
         var distanceNow: Double
 
         for (waypoint in WAYPOINTS_LOCATIONS) {
@@ -713,12 +799,32 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         return distanceMin
     }
 
+    private fun getDistanceBetweenPoints(point1: Point, point2: Point): Double {
+        val r = 6371
+
+        val areaRadian = Point(
+            point1.latitude * kotlin.math.PI / 180,
+            point1.longitude * kotlin.math.PI / 180
+        )
+        val pointRadian = Point(
+            point2.latitude * kotlin.math.PI / 180,
+            point2.longitude * kotlin.math.PI / 180
+        )
+
+        return 2 * r * kotlin.math.asin(
+            kotlin.math.sqrt(
+                kotlin.math.sin((pointRadian.latitude - areaRadian.latitude) / 2).pow(2.0)
+                    + kotlin.math.cos(areaRadian.latitude) * kotlin.math.cos(pointRadian.latitude)
+                    * kotlin.math.sin((pointRadian.longitude - areaRadian.longitude) / 2).pow(2.0)
+            )
+        )
+    }
+
     private fun startAudio(audio: Int) {
         mediaPlayer = MediaPlayer.create(this, audio)
         initialiseSeekBar()
         mediaPlayer.start()
         mediaPlayer.setOnCompletionListener {
-            binding.progressExcursion.visibility = View.INVISIBLE
             binding.soundAction.visibility = View.INVISIBLE
         }
     }
