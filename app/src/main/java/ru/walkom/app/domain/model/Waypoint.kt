@@ -6,5 +6,6 @@ data class Waypoint(
     val id: Int,
     val point: Point,
     val audio: Int?,
-    val affiliationPlacemarkId: Int?
+    val affiliationPlacemarkId: Int?,
+    var isPassed: Boolean
 )

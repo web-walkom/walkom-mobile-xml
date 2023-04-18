@@ -42,6 +42,6 @@
         android:drawableLeft="@drawable/view_in_ar"
         android:drawableTint="@color/white"
         android:drawablePadding="5dp"
-        android:gravity="start|center_vertical" />
+        android:gravity="start|center_vertical"/>
 
 </LinearLayout>

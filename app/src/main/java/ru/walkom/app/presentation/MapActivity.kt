@@ -67,82 +67,43 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             1,
             Point(58.010418, 56.237335),
             "Пермский медведь",
-            R.drawable.bear
+            R.drawable.bear,
+            false
         ),
         Placemark(
             2,
             Point(58.012611, 56.242274),
             "Гимназия № 17",
-            R.drawable.gymnasium_17
+            R.drawable.gymnasium_17,
+            false
         ),
         Placemark(
             3,
             Point(58.012248, 56.242676),
             "Рождественско-Богородицкая церковь",
-            R.drawable.church
+            R.drawable.church,
+            false
         ),
         Placemark(
             4,
             Point(58.013174, 56.243045),
             "Пермский государственный институт культуры",
-            R.drawable.perm_state_institute_culture
+            R.drawable.perm_state_institute_culture,
+            false
         ),
         Placemark(
             5,
             Point(58.012553, 56.243556),
             "Дом пекарня наследника Демидовых",
-            R.drawable.house_demidovs
+            R.drawable.house_demidovs,
+            false
         ),
         Placemark(
             6,
             Point(58.012758, 56.244125),
             "Триумф. Пермский кинотеатр",
-            R.drawable.triumph
-        )
-    )
-
-    private val WAYPOINTS_LOCATIONS_TEST = listOf<Waypoint>(
-        Waypoint(
-            1,
-            Point(58.037092, 56.125729),
-            R.raw.guide_r2_1,
-            1
-        ),
-        Waypoint(
-            2,
-            Point(58.037188, 56.124989),
-            R.raw.guide_r2_2,
-            null
-        ),
-        Waypoint(
-            3,
-            Point(58.036989, 56.124917),
-            R.raw.guide_r2_4,
-            2
-        ),
-        Waypoint(
-            4,
-            Point(58.036841, 56.126014),
-            R.raw.guide_r2_5,
-            3
-        ),
-        Waypoint(
-            5,
-            Point(58.036672, 56.127291),
-            R.raw.guide_r2_6,
-            4
-        ),
-        Waypoint(
-            6,
-            Point(58.036879, 56.127382),
-            R.raw.guide_r2_7,
-            5
-        ),
-        Waypoint(
-            7,
-            Point(58.037025, 56.126263),
-            R.raw.guide_r2_9,
-            6
+            R.drawable.triumph,
+            false
         )
     )
 
@@ -151,43 +112,50 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             1,
             Point(58.010433, 56.237325),
             R.raw.guide_r2_2,
-            1
+            1,
+            false
         ),
         Waypoint(
             2,
             Point(58.010934, 56.237625),
             R.raw.guide_r2_4,
-            null
+            null,
+            false
         ),
         Waypoint(
             3,
             Point(58.011374, 56.239166),
             R.raw.guide_r2_5,
-            null
+            null,
+            false
         ),
         Waypoint(
             4,
             Point(58.012153, 56.241898),
             null,
-            3
+            3,
+            false
         ),
         Waypoint(
             5,
             Point(58.012477, 56.243069),
             R.raw.guide_r2_6,
-            4
+            4,
+            false
         ),
         Waypoint(
             6,
             Point(58.012575, 56.243399),
             R.raw.guide_r2_7,
-            5
+            5,
+            false
         ),
         Waypoint(
             7,
             Point(58.012757, 56.244027),
             R.raw.guide_r2_9,
-            6
+            6,
+            false
         )
     )
 
@@ -208,9 +176,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     private var permissionLocation = false
     private var followUserLocation = false
-    private var statusStart = false
+    private var statusStartExcursion = false
     private var statusPause = false
-    private var excursionStartEnabled = false
+    private var statusBeingStartPoint = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -485,7 +453,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     @SuppressLint("UseCompatLoadingForDrawables")
     fun onClickStartExcursion(view: View) {
-        if (!excursionStartEnabled) {
+        if (statusBeingStartPoint) {
             binding.startExcursion.visibility = View.INVISIBLE
             binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
@@ -501,10 +469,13 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 null
             )
 
-            statusStart = true
+//            statusStartExcursion = true
 
             if (!this::mediaPlayer.isInitialized) {
                 startAudio(R.raw.guide_r2_1)
+                mediaPlayer.setOnCompletionListener {
+                    statusStartExcursion = true
+                }
 
                 binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
                     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -612,15 +583,15 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             userLocationLayer.cameraPosition()!!.target.longitude
         )
 
-        if (!statusStart) {
+        if (!statusStartExcursion) {
             val statusContains = containsPointArea(
                 PLACEMARKS_LOCATIONS[0].point,
                 locationUser,
                 DISTANCE_CONTAINS_START_POINT
             )
-            excursionStartEnabled = statusContains
+            statusBeingStartPoint = statusContains
         }
-        else if (statusStart && !statusPause)
+        else if (statusStartExcursion && !statusPause)
             detectGPS(locationUser)
     }
 
@@ -680,7 +651,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             for (waypoint in waypointIcons)
                 waypoint.isVisible = true
 
-            if (!statusStart)
+            if (!statusStartExcursion)
                 placemarkStart.isVisible = true
         }
 
@@ -718,7 +689,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private fun detectGPS(locationUser: Point) {
         var statusContains = false
 
-        for (placemark in PLACEMARKS_LOCATIONS) {
+        /*for (placemark in PLACEMARKS_LOCATIONS) {
             // Проверка на подход пользователя к метке
             statusContains = containsPointArea(
                 placemark.point,
@@ -726,11 +697,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 DISTANCE_CONTAINS_PLACEMARK
             )
 
-            if (statusContains) {
-                Log.d(TAG, "${placemark.id}")
+            if (statusContains && !placemark.isPassed) {
                 showDialog()
+                placemark.isPassed = true
             }
-        }
+        }*/
 
         for (waypoint in WAYPOINTS_LOCATIONS) {
             // Проверка на подход пользователя к точке маршрута экскурсии
@@ -740,24 +711,21 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 DISTANCE_CONTAINS_WAYPOINT
             )
 
-            if (statusContains) {
-                if (waypoint.audio != null) {
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.setOnCompletionListener {
-                            startAudio(waypoint.audio)
-                        }
-                    }
-                    else {
-                        startAudio(waypoint.audio)
-                    }
+            if (statusContains && !waypoint.isPassed) {
+                if (waypoint.audio != null && !mediaPlayer.isPlaying) {
+                    startAudio(waypoint.audio)
                 }
 
-                // Очистка пройденного марщрута
+                if (waypoint.affiliationPlacemarkId != null) {
+                    showDialog()
+                }
+
+                waypoint.isPassed = true
             }
         }
 
-        if (!mediaPlayer.isPlaying && binding.soundAction.visibility == View.VISIBLE)
-            binding.soundAction.visibility = View.INVISIBLE
+//        if (!mediaPlayer.isPlaying && binding.soundAction.visibility == View.VISIBLE)
+//            binding.soundAction.visibility = View.INVISIBLE
 
         if (!statusContains) {
             // Проверка на отдаление от маршрута
@@ -830,6 +798,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun initialiseSeekBar() {
+        binding.soundAction.visibility = View.VISIBLE
         binding.seekBar.max = mediaPlayer.duration
 
         val handler = Handler()

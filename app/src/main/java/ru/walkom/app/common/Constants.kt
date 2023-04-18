@@ -14,9 +14,9 @@ object Constants {
     const val NOTIFICATION_TERMINATION_DEVIATION_ROUTE = "Вы отклонились от маршрута, экскурсия была завершена"
 
     // Distances
-    const val DISTANCE_CONTAINS_START_POINT = 0.02
-    const val DISTANCE_CONTAINS_PLACEMARK = 0.015
-    const val DISTANCE_CONTAINS_WAYPOINT = 0.015
+    const val DISTANCE_CONTAINS_START_POINT = 0.015
+    const val DISTANCE_CONTAINS_PLACEMARK = 0.01
+    const val DISTANCE_CONTAINS_WAYPOINT = 0.01
     const val DISTANCE_CONTAINS_ROUTE = 0.1
     const val DISTANCE_CONTAINS_ROUTE_EXTREME = 0.15
 
