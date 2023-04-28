@@ -3,7 +3,7 @@ package ru.walkom.app.presentation
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.app.Dialog
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.Color
 import android.graphics.PointF
@@ -24,6 +24,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
 import com.yandex.mapkit.geometry.Point
@@ -41,7 +43,6 @@ import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.DESCRIPTION_INTRODUCTION_EXCURSION
 import ru.walkom.app.common.Constants.DESCRIPTION_START_EXCURSION
-import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_PLACEMARK
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE_EXTREME
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_START_POINT
@@ -62,7 +63,7 @@ import kotlin.math.pow
 
 class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.RouteListener, CameraListener {
 
-    private val PLACEMARKS_LOCATIONS = listOf<Placemark>(
+    private val PLACEMARKS_LOCATIONS_ = listOf<Placemark>(
         Placemark(
             1,
             Point(58.010418, 56.237335),
@@ -107,7 +108,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
     )
 
-    private val WAYPOINTS_LOCATIONS = listOf<Waypoint>(
+    private val WAYPOINTS_LOCATIONS_ = listOf<Waypoint>(
         Waypoint(
             1,
             Point(58.010433, 56.237325),
@@ -159,6 +160,96 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
     )
 
+    private val PLACEMARKS_LOCATIONS = listOf<Placemark>(
+        Placemark(
+            1,
+            Point(58.037092, 56.125729),
+            "Пермский медведь",
+            R.drawable.bear,
+            false
+        ),
+        Placemark(
+            2,
+            Point(58.036989, 56.124917),
+            "Гимназия № 17",
+            R.drawable.gymnasium_17,
+            false
+        ),
+        Placemark(
+            3,
+            Point(58.036841, 56.126014),
+            "Рождественско-Богородицкая церковь",
+            R.drawable.church,
+            false
+        ),
+        Placemark(
+            4,
+            Point(58.036672, 56.127291),
+            "Пермский государственный институт культуры",
+            R.drawable.perm_state_institute_culture,
+            false
+        ),
+        Placemark(
+            5,
+            Point(58.036879, 56.127382),
+            "Дом пекарня наследника Демидовых",
+            R.drawable.house_demidovs,
+            false
+        ),
+        Placemark(
+            6,
+            Point(58.037025, 56.126263),
+            "Триумф. Пермский кинотеатр",
+            R.drawable.triumph,
+            false
+        )
+    )
+
+    private val WAYPOINTS_LOCATIONS = listOf<Waypoint>(
+        Waypoint(
+            1,
+            Point(58.037188, 56.124989),
+            R.raw.guide_r2_2,
+            1,
+            false
+        ),
+        Waypoint(
+            2,
+            Point(58.036989, 56.124917),
+            R.raw.guide_r2_4,
+            null,
+            false
+        ),
+        Waypoint(
+            3,
+            Point(58.036841, 56.126014),
+            R.raw.guide_r2_5,
+            3,
+            false
+        ),
+        Waypoint(
+            4,
+            Point(58.036672, 56.127291),
+            R.raw.guide_r2_6,
+            4,
+            false
+        ),
+        Waypoint(
+            5,
+            Point(58.036879, 56.127382),
+            R.raw.guide_r2_7,
+            5,
+            false
+        ),
+        Waypoint(
+            6,
+            Point(58.037025, 56.126263),
+            R.raw.guide_r2_9,
+            6,
+            false
+        )
+    )
+
     private val PREVIEW_LOCATION = Point(58.011757, 56.240897)
 
     private var placemarkIcons = ArrayList<PlacemarkMapObject>()
@@ -179,6 +270,10 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private var statusStartExcursion = false
     private var statusPause = false
     private var statusBeingStartPoint = false
+
+    private lateinit var itemAdaptor: ItemAdaptor
+    private lateinit var recyclerView: RecyclerView
+    private val listPlacesRouteTour = listOf<String>("Пермский медведь", "Комсомольская площадь")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -317,7 +412,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun drawingPlacemarkIcon() {
-        val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.location_place_red)
+        val resourceMarkIconRed = ImageProvider.fromResource(this, R.drawable.placemark)
         var viewPlacemark: PlacemarkMapObject
 
         for (placemark in PLACEMARKS_LOCATIONS) {
@@ -431,24 +526,33 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
     }
 
-    @SuppressLint("InflateParams")
-    private fun showDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.bottom_sheet_fragment, null)
-        val dialog = Dialog(this)
-        // val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogtheme)
+    private fun showInformationAboutPlacemark() {
+        val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
+        val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
 
+        showBottomSheet(dialogView, dialog)
+    }
+
+    private fun showBottomSheet(dialogView: View, dialog: BottomSheetDialog) {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(dialogView)
         dialog.show()
 
         dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
+        dialog.window?.attributes?.windowAnimations = R.style.BottomSheetAnimation
         dialog.window?.setGravity(Gravity.BOTTOM)
     }
 
     fun onClickListPlaces(view: View) {
-        showDialog()
+        val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
+        val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
+
+//        itemAdaptor = ItemAdaptor(listPlacesRouteTour)
+//        recyclerView = dialogView.findViewById(R.id.listRoutePlaces)
+//        recyclerView.adapter = itemAdaptor
+
+        showBottomSheet(dialogView, dialog)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -456,7 +560,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         if (statusBeingStartPoint) {
             binding.startExcursion.visibility = View.INVISIBLE
             binding.soundAction.visibility = View.VISIBLE
-            binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.stop))
+            binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.ic_stop))
 
             binding.titleTable.text = TEXT_INTRODUCTION_EXCURSION
             binding.descriptionTable.text = DESCRIPTION_INTRODUCTION_EXCURSION
@@ -469,12 +573,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 null
             )
 
-//            statusStartExcursion = true
-
             if (!this::mediaPlayer.isInitialized) {
                 startAudio(R.raw.guide_r2_1)
                 mediaPlayer.setOnCompletionListener {
                     statusStartExcursion = true
+                    binding.soundAction.visibility = View.INVISIBLE
                 }
 
                 binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
@@ -496,9 +599,9 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             Toast.makeText(this, NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT).show()
     }
 
-    fun onCLickPauseExcursion(view: View) {
+    fun onClickPauseExcursion(view: View) {
         if (!statusPause) {
-            binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.play))
+            binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.ic_play))
             statusPause = true
 
             if (mediaPlayer.isPlaying) {
@@ -506,7 +609,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             }
         }
         else {
-            binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.pause))
+            binding.pauseExcursion.setImageDrawable(getDrawable(R.drawable.ic_pause))
             statusPause = false
 
             if (!mediaPlayer.isPlaying) {
@@ -515,7 +618,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         }
     }
 
-    fun onCLickStopExcursion(view: View) {
+    fun onClickStopExcursion(view: View) {
         getActivity()?.onBackPressed()
         //finish()
     }
@@ -551,6 +654,11 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         )
     }
 
+    fun onClickShowAR(view: View) {
+        val intent = Intent(this, CameraARActivity::class.java)
+        startActivity(intent)
+    }
+    
     override fun onObjectAdded(userLocationView: UserLocationView) {
         setAnchor()
         val resourceUserIcon = ImageProvider.fromResource(this, R.drawable.location_user)
@@ -689,20 +797,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private fun detectGPS(locationUser: Point) {
         var statusContains = false
 
-        /*for (placemark in PLACEMARKS_LOCATIONS) {
-            // Проверка на подход пользователя к метке
-            statusContains = containsPointArea(
-                placemark.point,
-                locationUser,
-                DISTANCE_CONTAINS_PLACEMARK
-            )
-
-            if (statusContains && !placemark.isPassed) {
-                showDialog()
-                placemark.isPassed = true
-            }
-        }*/
-
         for (waypoint in WAYPOINTS_LOCATIONS) {
             // Проверка на подход пользователя к точке маршрута экскурсии
             statusContains = containsPointArea(
@@ -717,15 +811,12 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 }
 
                 if (waypoint.affiliationPlacemarkId != null) {
-                    showDialog()
+                    showInformationAboutPlacemark()
                 }
 
                 waypoint.isPassed = true
             }
         }
-
-//        if (!mediaPlayer.isPlaying && binding.soundAction.visibility == View.VISIBLE)
-//            binding.soundAction.visibility = View.INVISIBLE
 
         if (!statusContains) {
             // Проверка на отдаление от маршрута

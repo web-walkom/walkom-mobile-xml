@@ -9,6 +9,6 @@
     </item>
 
     <item android:id="@android:id/progress">
-        <clip android:drawable="@drawable/bg_progress" />
+        <clip android:drawable="@drawable/green_button" />
     </item>
 </layer-list>

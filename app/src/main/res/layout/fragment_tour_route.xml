@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_bottom_sheet"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="25dp">
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="50dp"
+        android:layout_height="5dp"
+        android:layout_marginTop="5dp"
+        android:background="@drawable/line"
+        app:layout_constraintCircleRadius="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/titleRouteTour"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="@string/tour_route"
+        android:textAlignment="center"
+        android:textColor="@color/dark_gray"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dictum sapien diam, ac luctus tortor lobortis vitae. Pellentesque at libero quam. Donec vitae lectus dui. Ut fringilla faucibus ullamcorper. Aenean eget purus vel dui molestie auctor. Praesent a urna quis magna pretium ornare. Praesent fermentum imperdiet placerat. Cras sodales metus nunc, nec consequat magna facilisis ut. In ac ligula in arcu pharetra convallis. Sed feugiat dui sit amet scelerisque rutrum. Ut aliquam sagittis dui, at hendrerit arcu lobortis a. Donec et finibus felis. Nulla quis egestas erat, tincidunt dignissim augue. Praesent iaculis quam mauris, vel efficitur nisl tempus ut.
+
+Nulla facilisi. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer a euismod sem, eget rhoncus nibh. Praesent vulputate metus nisl, ac posuere magna semper vel. Nunc non viverra nibh. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla non arcu et ante imperdiet vestibulum quis non augue. Cras hendrerit augue id sapien vulputate, vitae vehicula velit tristique. Donec nec egestas tortor, non vehicula orci. Fusce nulla arcu, vehicula eu ipsum sed, iaculis condimentum massa.
+Phasellus semper dui erat in ligula."
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleRouteTour" />
+
+    <Button
+        android:id="@+id/startExcursion"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginHorizontal="40dp"
+        android:background="@drawable/green_button"
+        android:text="@string/showAR"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:onClick="onClickShowAR"
+        app:backgroundTint="@null"
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:layout_editor_absoluteX="25dp" />
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/listRoutePlaces"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/titleRouteTour"-->
+<!--        tools:listitem="@layout/place_item"/>-->
+
+<!--    <ListView-->
+<!--        android:id="@+id/listPlaces"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/titlePlace"-->
+<!--        tools:layout_editor_absoluteX="10dp"-->
+<!--        tools:listitem="@layout/place_item" />-->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

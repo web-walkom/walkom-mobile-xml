@@ -4,6 +4,7 @@
     <!-- Text -->
     <string name="welcome_text">Добро пожаловать!</string>
     <string name="description_text">Мы отправим вас в невероятное путешествие, при помощи <font color="#238A4C"><b>дополненной реальности</b></font></string>
+    <string name="tour_route">Маршрут экскурсии</string>
 
     <!-- Placeholders -->
     <string name="email_placeholder">Введите почту</string>
@@ -11,7 +12,7 @@
     <!-- Buttons -->
     <string name="continue_button">Продолжить</string>
     <string name="continue_guest_button">Продолжить как гость</string>
-    <string name="start_excursion">Начать</string>
+    <string name="start_excursion">Начать экскурсию</string>
     <string name="showAR">Смотреть в AR</string>
 
     <!-- Content descriptions -->
@@ -22,4 +23,5 @@
     <string name="zoom_out_description">Уменьшить карту</string>
     <string name="pause_description">Поставить экскурсию на паузу</string>
     <string name="stop_description">Закончить экскурсию</string>
+    <string name="close_camera_ar">Закрыть окно с камерой</string>
 </resources>
