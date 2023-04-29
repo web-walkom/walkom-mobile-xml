@@ -21,7 +21,7 @@
         android:layout_marginStart="15dp"
         android:paddingEnd="2dp"
         android:background="@drawable/light_button"
-        android:contentDescription="@string/stop_description"
+        android:contentDescription="@string/stop_excursion"
         android:onClick="onClickStopExcursion"
         android:src="@drawable/ic_arrow_back"
         android:elevation="8dp"

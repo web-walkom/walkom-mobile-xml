@@ -21,7 +21,7 @@ class WelcomeActivity : AppCompatActivity() {
 //            if (!binding.emailField.text.toString().isEmailValid()) {
 //                binding.emailField.error = ERROR_INVALID_ERROR
 //            }
-            val intent = Intent(this, MapActivity::class.java)
+            val intent = Intent(this, ExcursionActivity::class.java)
             startActivity(intent)
         }
     }

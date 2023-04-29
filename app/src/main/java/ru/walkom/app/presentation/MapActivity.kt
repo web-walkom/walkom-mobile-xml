@@ -15,6 +15,7 @@ import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -25,6 +26,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewpager2.widget.CompositePageTransformer
+import androidx.viewpager2.widget.MarginPageTransformer
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
@@ -57,6 +61,7 @@ import ru.walkom.app.common.Constants.TEXT_START
 import ru.walkom.app.common.Constants.TEXT_START_EXCURSION
 import ru.walkom.app.databinding.ActivityMapsBinding
 import ru.walkom.app.domain.model.Placemark
+import ru.walkom.app.domain.model.SliderModel
 import ru.walkom.app.domain.model.Waypoint
 import java.lang.Math.*
 import kotlin.math.pow
@@ -163,7 +168,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private val PLACEMARKS_LOCATIONS = listOf<Placemark>(
         Placemark(
             1,
-            Point(58.037092, 56.125729),
+            Point(58.037188, 56.124989),
             "Пермский медведь",
             R.drawable.bear,
             false
@@ -270,10 +275,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     private var statusStartExcursion = false
     private var statusPause = false
     private var statusBeingStartPoint = false
-
-    private lateinit var itemAdaptor: ItemAdaptor
-    private lateinit var recyclerView: RecyclerView
-    private val listPlacesRouteTour = listOf<String>("Пермский медведь", "Комсомольская площадь")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         MapKitFactory.initialize(this)
@@ -527,9 +528,15 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
     }
 
     private fun showInformationAboutPlacemark() {
-        val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
+        val dialogView = layoutInflater.inflate(R.layout.fragment_info_placemark, null)
         val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
 
+        showBottomSheet(dialogView, dialog)
+    }
+
+    fun onClickListPlaces(view: View) {
+        val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
+        val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
         showBottomSheet(dialogView, dialog)
     }
 
@@ -542,17 +549,6 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         dialog.window?.attributes?.windowAnimations = R.style.BottomSheetAnimation
         dialog.window?.setGravity(Gravity.BOTTOM)
-    }
-
-    fun onClickListPlaces(view: View) {
-        val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
-        val dialog = BottomSheetDialog(this, R.style.BottomSheetDialogTheme)
-
-//        itemAdaptor = ItemAdaptor(listPlacesRouteTour)
-//        recyclerView = dialogView.findViewById(R.id.listRoutePlaces)
-//        recyclerView.adapter = itemAdaptor
-
-        showBottomSheet(dialogView, dialog)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")

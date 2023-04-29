@@ -10,7 +10,7 @@ import ru.walkom.app.R
 class ItemAdaptor(private var mList: List<String>): RecyclerView.Adapter<ItemAdaptor.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.tour_route_item, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.fragment_tour_route, parent, false)
         return ViewHolder(view)
     }
 
