@@ -5,6 +5,9 @@
     <uses-feature
         android:name="android.hardware.camera.ar"
         android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -12,7 +15,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
-        android:name=".presentation.MainApplication"
+        android:name=".app.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -22,7 +25,7 @@
         android:theme="@style/Theme.Walkom"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.ExcursionsActivity"
+            android:name=".presentation.screens.excursions.ExcursionsActivity"
             android:label="@string/app_name"
             android:exported="true"
             android:theme="@style/Theme.Walkom.CustomStatusNavigationBar">
@@ -37,14 +40,14 @@
             android:exported="true"
             android:theme="@style/Theme.Walkom.CustomStatusNavigationBar" />
         <activity
-            android:name=".presentation.WelcomeActivity"
+            android:name=".presentation.screens.welcome.WelcomeActivity"
             android:exported="false" />
         <activity
-            android:name=".presentation.MapActivity"
+            android:name=".presentation.screens.map.MapActivity"
             android:exported="false"
             android:theme="@style/Theme.Walkom.TranslucentActionAndStatusBar" />
         <activity
-            android:name=".presentation.CameraARActivity"
+            android:name=".presentation.screens.camera.CameraARActivity"
             android:exported="false" />
     </application>
 

@@ -6,8 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_bottom_sheet"
     android:gravity="center_horizontal"
-    android:orientation="vertical"
-    tools:context=".presentation.ItemListDialogFragment">
+    android:orientation="vertical">
 
     <View
         android:id="@+id/view"

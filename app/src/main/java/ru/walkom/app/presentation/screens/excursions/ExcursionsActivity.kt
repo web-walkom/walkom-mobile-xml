@@ -1,15 +1,18 @@
-package ru.walkom.app.presentation
+package ru.walkom.app.presentation.screens.excursions
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import ru.walkom.app.R
-import ru.walkom.app.databinding.ActivityExcursionBinding
+import androidx.activity.viewModels
+import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.databinding.ActivityExcursionsBinding
+import ru.walkom.app.presentation.ExcursionActivity
 
-class ExcursionsActivity : AppCompatActivity() {
+@AndroidEntryPoint
+class ExcursionsActivity: AppCompatActivity() {
 
+    private val viewModel: ExcursionsViewModel by viewModels()
     private lateinit var binding: ActivityExcursionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -17,6 +20,9 @@ class ExcursionsActivity : AppCompatActivity() {
 
         binding = ActivityExcursionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        viewModel.getExcursions()
+        binding.titleExcursion.text = viewModel.excursions[0].title
     }
 
     fun onClickExcursion(view: View) {

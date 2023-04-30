@@ -1,10 +1,11 @@
-package ru.walkom.app.presentation
+package ru.walkom.app.presentation.screens.welcome
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import ru.walkom.app.databinding.ActivityWelcomeBinding
+import ru.walkom.app.presentation.ExcursionActivity
 
 class WelcomeActivity : AppCompatActivity() {
 

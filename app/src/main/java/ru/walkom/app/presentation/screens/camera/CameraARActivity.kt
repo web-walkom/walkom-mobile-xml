@@ -1,4 +1,4 @@
-package ru.walkom.app.presentation
+package ru.walkom.app.presentation.screens.camera
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.View
 import androidx.core.view.WindowCompat
 import com.google.ar.core.TrackingState
-import com.gorisse.thomas.lifecycle.getActivity
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position

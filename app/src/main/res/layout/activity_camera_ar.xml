@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".presentation.CameraARActivity">
+    tools:context=".presentation.screens.camera.CameraARActivity">
 
     <io.github.sceneview.ar.ArSceneView
         android:id="@+id/sceneView"

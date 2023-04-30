@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import ru.walkom.app.databinding.ActivityExcursionBinding
+import ru.walkom.app.presentation.screens.map.MapActivity
 
 class ExcursionActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package ru.walkom.app.presentation
+package ru.walkom.app.presentation.screens.map
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -15,7 +15,6 @@ import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
@@ -25,10 +24,6 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.CompositePageTransformer
-import androidx.viewpager2.widget.MarginPageTransformer
-import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gorisse.thomas.lifecycle.getActivity
 import com.yandex.mapkit.*
@@ -61,8 +56,8 @@ import ru.walkom.app.common.Constants.TEXT_START
 import ru.walkom.app.common.Constants.TEXT_START_EXCURSION
 import ru.walkom.app.databinding.ActivityMapsBinding
 import ru.walkom.app.domain.model.Placemark
-import ru.walkom.app.domain.model.SliderModel
 import ru.walkom.app.domain.model.Waypoint
+import ru.walkom.app.presentation.screens.camera.CameraARActivity
 import java.lang.Math.*
 import kotlin.math.pow
 
