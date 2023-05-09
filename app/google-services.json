@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "956663017156",
+    "project_id": "walkom-cf0d0",
+    "storage_bucket": "walkom-cf0d0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:956663017156:android:fd628989c60d95e22f2391",
+        "android_client_info": {
+          "package_name": "ru.walkom.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "956663017156-ntjsgrq7a63f8qm4qap4g3jk4k79m2rm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDQHpikBhwdEQyD0No2sSc792dmt7d5Gg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "956663017156-ntjsgrq7a63f8qm4qap4g3jk4k79m2rm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

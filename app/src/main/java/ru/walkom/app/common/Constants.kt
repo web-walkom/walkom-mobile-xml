@@ -1,8 +1,6 @@
 package ru.walkom.app.common
 
 object Constants {
-    const val APP_ID = "walkom-bqdiv"
-
     // Errors
     const val ERROR_INVALID_ERROR = "Неверная почта"
     const val ERROR_DRAW_ROUTE = "Ошибка построения маршрута"
@@ -28,6 +26,12 @@ object Constants {
     const val TEXT_INTRODUCTION_EXCURSION = "Вступление"
     const val DESCRIPTION_INTRODUCTION_EXCURSION = "Внимательно послушайте"
 
+    // FirestoreDB
+    const val EXCURSIONS_COLLECTION = "excursions"
+    const val PLACEMARKS_FIELD = "placemarks"
+    const val WAYPOINTS_FIELD = "waypoints"
+
     // Other
+    val MAPKIT_API_KEY = "4e10e9f2-d783-499c-b77d-8fc64489b4ac"
     const val TAG = "AppLog"
 }

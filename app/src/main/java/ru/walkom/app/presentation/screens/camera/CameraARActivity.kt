@@ -6,13 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.core.view.WindowCompat
-import com.google.ar.core.Config
 import com.google.ar.core.TrackingState
 import com.gorisse.thomas.lifecycle.getActivity
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.ActivityCameraArBinding
 
@@ -59,15 +57,13 @@ class CameraARActivity : AppCompatActivity() {
                 else
                     binding.earthState.text = "Earth state: NULL"
                 binding.trackingState.text = "Tracking state: ${earth?.trackingState}"
-                binding.horizontalAccuracy.text = "Horizontal accuracy: ${earth?.cameraGeospatialPose?.horizontalAccuracy}"
-                binding.verticalAccuracy.text = "Vertical accuracy: ${earth?.cameraGeospatialPose?.verticalAccuracy}"
 
                 if (earth?.trackingState == TrackingState.TRACKING && !statusCreateAnchor) {
                     val cameraGeospatialPose = earth.cameraGeospatialPose
 
                     val earthAnchor = earth.createAnchor(
-                        58.037069, 56.125718,
-                        cameraGeospatialPose.altitude - 1,
+                        58.037158, 56.124979,
+                        cameraGeospatialPose.altitude - 1.5,
                         0f, 0f, 0f, 1f
                     )
 
