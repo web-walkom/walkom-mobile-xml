@@ -1,6 +1,7 @@
 package ru.walkom.app.common
 
 object Constants {
+    const val APP_ID = "walkom-bqdiv"
 
     // Errors
     const val ERROR_INVALID_ERROR = "Неверная почта"

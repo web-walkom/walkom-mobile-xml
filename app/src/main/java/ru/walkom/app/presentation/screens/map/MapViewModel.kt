@@ -17,7 +17,9 @@ import com.yandex.mapkit.transport.masstransit.Route
 import com.yandex.mapkit.user_location.UserLocationLayer
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
+import ru.walkom.app.R
 import ru.walkom.app.domain.model.Waypoint
+import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import ru.walkom.app.domain.use_case.GetPlacemarksExcursionUseCase
 import ru.walkom.app.domain.use_case.GetWaypointsExcursionUseCase
 import javax.inject.Inject
@@ -26,17 +28,21 @@ import kotlin.math.pow
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val getPlacemarksExcursionUseCase: GetPlacemarksExcursionUseCase,
-    private val getWaypointsExcursionUseCase: GetWaypointsExcursionUseCase
+    private val getWaypointsExcursionUseCase: GetWaypointsExcursionUseCase,
+    private val getExcursionByIdUseCase: GetExcursionByIdUseCase
 ): ViewModel() {
 
     val placemarksLocations = getPlacemarksExcursionUseCase.invoke("1")
     val waypointsLocations = getWaypointsExcursionUseCase.invoke("1")
+    val startPointAudio = R.raw.guide_r2_1
+
+    val excursion = getExcursionByIdUseCase.invoke("63fb0fdc89ca647e7f10804b")
 
     lateinit var placemarkStart: PlacemarkMapObject
     var placemarkIcons = ArrayList<PlacemarkMapObject>()
     var placemarkCards = ArrayList<PlacemarkMapObject>()
     var waypointIcons = ArrayList<PlacemarkMapObject>()
-    var polylines = ArrayList<PolylineMapObject>()
+    var polylines: PolylineMapObject? = null
 
     lateinit var userLocationLayer: UserLocationLayer
     lateinit var mapObjects: MapObjectCollection
@@ -93,10 +99,9 @@ class MapViewModel @Inject constructor(
         val strokeColor = Color.argb(255, 92, 163, 255)
 
         for (route in routes) {
-            val polyline = mapObjects.addPolyline(route.geometry)
-            polyline.setStrokeColor(strokeColor)
-            polyline.strokeWidth = 5f
-            polylines.add(polyline)
+            polylines = mapObjects.addPolyline(route.geometry)
+            polylines!!.setStrokeColor(strokeColor)
+            polylines!!.strokeWidth = 4f
         }
     }
 
@@ -130,14 +135,8 @@ class MapViewModel @Inject constructor(
                 placemarkStart.isVisible = true
         }
 
-        if (cameraPosition.zoom < 12.5) {
-            for (polyline in polylines)
-                polyline.isVisible = false
-        }
-        else {
-            for (polyline in polylines)
-                polyline.isVisible = true
-        }
+        if (polylines != null)
+            polylines!!.isVisible = cameraPosition.zoom >= 12.5
     }
 
     fun setAnchor(width: Int, height: Int) {

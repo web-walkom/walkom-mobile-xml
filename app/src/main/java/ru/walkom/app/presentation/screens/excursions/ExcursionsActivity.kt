@@ -18,11 +18,12 @@ class ExcursionsActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val state = viewModel.excursions
+
         binding = ActivityExcursionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        viewModel.getExcursions()
-        binding.titleExcursion.text = viewModel.excursions[0].title
+        //binding.titleExcursion.text = viewModel.excursions[0].title
     }
 
     fun onClickExcursion(view: View) {

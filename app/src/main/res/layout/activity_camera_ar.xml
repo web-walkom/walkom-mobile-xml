@@ -63,7 +63,7 @@
         app:layout_constraintTop_toBottomOf="@+id/longitude" />
 
     <TextView
-        android:id="@+id/status"
+        android:id="@+id/earthState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
@@ -73,13 +73,33 @@
         app:layout_constraintTop_toBottomOf="@+id/altitude" />
 
     <TextView
-        android:id="@+id/earthState"
+        android:id="@+id/trackingState"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="30dp"
         android:textColor="@color/white"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/status" />
+        app:layout_constraintTop_toBottomOf="@+id/earthState" />
+
+    <TextView
+        android:id="@+id/horizontalAccuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trackingState" />
+
+    <TextView
+        android:id="@+id/verticalAccuracy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="30dp"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/horizontalAccuracy" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

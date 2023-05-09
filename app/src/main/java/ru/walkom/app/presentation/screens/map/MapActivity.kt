@@ -317,7 +317,7 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
 
     @SuppressLint("UseCompatLoadingForDrawables")
     fun onClickStartExcursion(view: View) {
-        if (viewModel.statusBeingStartPoint) {
+        if (!viewModel.statusBeingStartPoint) {
             binding.startExcursion.visibility = View.INVISIBLE
             binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(getDrawable(R.drawable.ic_stop))
@@ -330,14 +330,14 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             binding.mapview.map.move(
                 CameraPosition(
                     viewModel.placemarksLocations[0].point,
-                    20.0f, 0.0f, 0.0f
+                    20.0f, 0.0f, 70.0f
                 ),
                 Animation(Animation.Type.SMOOTH, 1f),
                 null
             )
 
             if (!this::mediaPlayer.isInitialized) {
-                startAudio(R.raw.guide_r2_1)
+                startAudio(viewModel.startPointAudio)
                 mediaPlayer.setOnCompletionListener {
                     viewModel.statusStartExcursion = true
                     binding.soundAction.visibility = View.INVISIBLE
@@ -520,9 +520,8 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
             // Проверка на отдаление от маршрута
             val distance = viewModel.getDistanceNearestWaypoint(locationUser)
 
-            if (distance > DISTANCE_CONTAINS_ROUTE && distance <= DISTANCE_CONTAINS_ROUTE_EXTREME) {
+            if (distance > DISTANCE_CONTAINS_ROUTE && distance <= DISTANCE_CONTAINS_ROUTE_EXTREME)
                 Toast.makeText(this, NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
-            }
             if (distance > DISTANCE_CONTAINS_ROUTE_EXTREME) {
                 Toast.makeText(this, NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
                 getActivity()?.onBackPressed()

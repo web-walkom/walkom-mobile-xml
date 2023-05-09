@@ -1,8 +1,10 @@
 package ru.walkom.app.presentation.screens.excursions
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ru.walkom.app.domain.model.Excursion
+import kotlinx.coroutines.launch
+import ru.walkom.app.domain.model.ExcursionRealm
 import ru.walkom.app.domain.use_case.GetExcursionsUseCase
 import javax.inject.Inject
 
@@ -11,9 +13,15 @@ class ExcursionsViewModel @Inject constructor(
     private val getExcursionsUseCase : GetExcursionsUseCase
 ): ViewModel() {
 
-    var excursions: List<Excursion> = listOf()
+    var excursions = emptyList<ExcursionRealm>()
 
-    fun getExcursions() {
-        excursions = getExcursionsUseCase.invoke()
+    init {
+        viewModelScope.launch {
+//            getExcursionsUseCase.invoke().collect {
+//                excursions = it
+//                Log.i(TAG, "Success get excursions")
+//            }
+//            getExcursionsUseCase.invoke()
+        }
     }
 }

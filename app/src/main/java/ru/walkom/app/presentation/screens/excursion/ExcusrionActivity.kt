@@ -7,6 +7,7 @@ import android.view.View
 import androidx.activity.viewModels
 import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.databinding.ActivityExcursionBinding
+import ru.walkom.app.presentation.screens.camera.CameraARActivity
 import ru.walkom.app.presentation.screens.excursions.ExcursionViewModel
 import ru.walkom.app.presentation.screens.map.MapActivity
 

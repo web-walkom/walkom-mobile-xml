@@ -16,7 +16,9 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideExcursionMongoDB(): ExcursionMongoDB = ExcursionMongoDBImpl()
+    fun provideExcursionMongoDB(): ExcursionMongoDB {
+        return ExcursionMongoDBImpl()
+    }
 
     @Provides
     @Singleton
