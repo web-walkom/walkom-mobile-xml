@@ -41,8 +41,7 @@
         android:layout_marginTop="15dp"
         android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed dictum sapien diam, ac luctus tortor lobortis vitae. Pellentesque at libero quam. Donec vitae lectus dui. Ut fringilla faucibus ullamcorper. Aenean eget purus vel dui molestie auctor. Praesent a urna quis magna pretium ornare. Praesent fermentum imperdiet placerat. Cras sodales metus nunc, nec consequat magna facilisis ut. In ac ligula in arcu pharetra convallis. Sed feugiat dui sit amet scelerisque rutrum. Ut aliquam sagittis dui, at hendrerit arcu lobortis a. Donec et finibus felis. Nulla quis egestas erat, tincidunt dignissim augue. Praesent iaculis quam mauris, vel efficitur nisl tempus ut.
 
-Nulla facilisi. Interdum et malesuada fames ac ante ipsum primis in faucibus. Integer a euismod sem, eget rhoncus nibh. Praesent vulputate metus nisl, ac posuere magna semper vel. Nunc non viverra nibh. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla non arcu et ante imperdiet vestibulum quis non augue. Cras hendrerit augue id sapien vulputate, vitae vehicula velit tristique. Donec nec egestas tortor, non vehicula orci. Fusce nulla arcu, vehicula eu ipsum sed, iaculis condimentum massa.
-Phasellus semper dui erat in ligula."
+Nulla facilisi."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/titleRouteTour" />

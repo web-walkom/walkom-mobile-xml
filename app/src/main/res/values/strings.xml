@@ -3,6 +3,7 @@
 
     <!-- Text -->
     <string name="welcome_text">Добро пожаловать!</string>
+    <string name="enter_code">Введите код</string>
     <string name="description_text">Мы отправим вас в невероятное путешествие, при помощи <font color="#238A4C"><b>дополненной реальности</b></font></string>
     <string name="tour_route">Маршрут экскурсии</string>
     <string name="excursions">Экскурсии</string>
@@ -27,4 +28,6 @@
     <string name="stop_excursion">Закончить экскурсию</string>
     <string name="close_excursion">Закрыть экскурсию</string>
     <string name="close_camera_ar">Закрыть окно с камерой</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

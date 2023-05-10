@@ -3,6 +3,7 @@ package ru.walkom.app.data.firestoreDB
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yandex.mapkit.geometry.Point
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import ru.walkom.app.R
@@ -35,15 +36,23 @@ class ExcursionFirestoreDBImpl(
         }
     }
 
-    override fun getExcursionById(id: String): Excursion {
-        return Excursion(
-            "63fb0fdc89ca647e7f10804b",
-            "Keeper. Театрализованные экскурсии по Перми",
-            "Знакомьтесь! Это Keeper - хранитель времени! Keeper - собирает легенды города Перми и расскажет вам тайны, секреты и истории, свидетелем которых был 100-200 лет назад.",
-            0,
-            listOf("/excursions/63fb0fdc89ca647e7f10804b/1.jpg")
-        )
-        //return realm.query<ExcursionRealm>().asFlow().map { it.list }
+    override fun getExcursionById(id: String) = flow<Response<ExcursionDB?>> {
+        try {
+            emit(Response.Loading)
+
+            val excursion = db.collection(EXCURSIONS_COLLECTION)
+                .document(id)
+                .get().await()
+                .toObject(ExcursionDB::class.java)
+
+            excursion?.let {
+                it.id = id
+            }
+
+            emit(Response.Success(excursion))
+        } catch (e: Exception) {
+            emit(Response.Error(e.message ?: e.toString()))
+        }
     }
 
     override fun getPlacemarksExcursion(id: String): List<Placemark> {

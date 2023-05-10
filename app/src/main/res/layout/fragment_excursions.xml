@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".presentation.screens.excursions.ExcursionsActivity">
+    tools:context=".presentation.screens.excursions.ExcursionsFragment">
 
     <TextView
         android:id="@+id/titleScreen"
@@ -16,7 +16,7 @@
         android:layout_marginTop="30dp"
         android:text="@string/excursions"
         android:textColor="@color/dark_gray"
-        android:textSize="32sp"
+        android:textSize="@dimen/text_h1"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -33,9 +33,9 @@
         app:layout_constraintTop_toBottomOf="@+id/titleScreen">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/excursionCard"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            android:onClick="onClickExcursion"
             app:cardCornerRadius="20dp"
             app:layout_constraintEnd_toEndOf="parent">
 
@@ -53,7 +53,7 @@
                 android:layout_marginHorizontal="15dp"
                 android:fontFamily="@font/exo2_bold"
                 android:textColor="@color/white"
-                android:textSize="20sp"
+                android:textSize="@dimen/text_h4"
                 android:layout_gravity="bottom"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

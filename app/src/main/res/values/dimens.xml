@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_margin">16dp</dimen>
-    <dimen name="list_item_spacing">16dp</dimen>
-    <dimen name="list_item_spacing_half">8dp</dimen>
+    <dimen name="text_body_normal">16dp</dimen>
+    <dimen name="text_body_large">18dp</dimen>
+    <dimen name="text_h1">32dp</dimen>
+    <dimen name="text_h3">23dp</dimen>
+    <dimen name="text_h4">20dp</dimen>
 </resources>

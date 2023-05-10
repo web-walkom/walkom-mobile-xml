@@ -12,7 +12,7 @@ data class Placemark(
 
 data class PlacemarkDB(
     val title: String = "",
-    val photo: String = "",
+    val photos: List<String> = emptyList(),
     var latitude: Double = 0.0,
     var longitude: Double = 0.0
 )

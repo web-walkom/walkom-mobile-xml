@@ -5,20 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    tools:context=".presentation.screens.excursion.ExcursionActivity">
+    tools:context=".presentation.screens.excursion.ExcursionFragment">
 
     <ImageButton
         android:id="@+id/closeExcursion"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginTop="25dp"
-        android:layout_marginStart="15dp"
+        android:layout_marginStart="18dp"
         android:paddingEnd="2dp"
         android:background="@drawable/circle_button"
         android:contentDescription="@string/close_excursion"
         android:src="@drawable/ic_arrow_back"
         android:elevation="8dp"
-        android:onClick="onClickCloseExcursion"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/dark_gray" />
@@ -51,9 +50,8 @@
             android:layout_marginTop="11dp"
             android:fontFamily="@font/exo2_bold"
             android:textColor="@color/dark_gray"
-            android:textSize="23sp"
+            android:textSize="@dimen/text_h3"
             android:textStyle="bold"
-            android:text="Keeper. Театрализованные экскурсии по Перми"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -65,8 +63,7 @@
             android:layout_marginTop="15dp"
             android:fontFamily="@font/exo2_medium"
             android:textColor="@color/light_gray"
-            android:textSize="16sp"
-            android:text="Знакомьтесь! Это Keeper - хранитель времени! Keeper - собирает легенды города Перми и расскажет вам тайны, секреты и истории, свидетелем которых был 100-200 лет назад."
+            android:textSize="@dimen/text_body_normal"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/excursionTitle" />
 
@@ -80,8 +77,7 @@
             android:text="@string/run_excursion"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:textSize="16sp"
-            android:onClick="onClickRunExcursion"
+            android:textSize="@dimen/text_body_normal"
             app:backgroundTint="@null"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

@@ -5,7 +5,15 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <uses-feature
         android:name="android.hardware.camera.ar"
@@ -28,7 +36,12 @@
         android:theme="@style/Theme.Walkom"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.screens.excursions.ExcursionsActivity"
+            android:name=".presentation.screens.auth.AuthActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Walkom.CustomStatusNavigationBar"
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
+        <activity
+            android:name=".presentation.screens.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Walkom.CustomStatusNavigationBar">
@@ -38,28 +51,25 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".presentation.ExcursionActivity"
-            android:exported="true"
-            android:theme="@style/Theme.Walkom.CustomStatusNavigationBar" />
-        <activity
-            android:name=".presentation.screens.welcome.WelcomeActivity"
-            android:exported="false" />
-        <activity
-            android:name=".presentation.screens.map.MapActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Walkom.TranslucentActionAndStatusBar" />
-        <activity
-            android:name=".presentation.screens.camera.CameraARActivity"
-            android:exported="false" />
+
+<!--         <activity -->
+<!--         android:name=".presentation.screens.excursions.ExcursionsActivity" -->
+<!--         android:exported="false" /> -->
+<!--         <activity -->
+<!--         android:name=".presentation.screens.excursion.ExcursionActivity" -->
+<!--         android:exported="true" -->
+<!--         android:theme="@style/Theme.Walkom.CustomStatusNavigationBar" /> -->
+<!--        <activity-->
+<!--            android:name=".presentation.screens.map.MapActivity"-->
+<!--            android:exported="false"-->
+<!--            android:theme="@style/Theme.Walkom.TranslucentActionAndStatusBar" />-->
+<!--        <activity-->
+<!--            android:name=".presentation.screens.camera.CameraARActivity"-->
+<!--            android:exported="false" />-->
 
         <meta-data
             android:name="com.google.android.ar.API_KEY"
             android:value="AIzaSyDwgUSv0mjNaO0cvKNPCbPAPw-qf416JqA" />
-
-<!--        <meta-data-->
-<!--            android:name="com.google.android.geo.API_KEY"-->
-<!--            android:value="AIzaSyDwgUSv0mjNaO0cvKNPCbPAPw-qf416JqA" />-->
     </application>
 
 </manifest>

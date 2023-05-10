@@ -9,7 +9,7 @@ import ru.walkom.app.domain.model.Waypoint
 
 interface ExcursionFirestoreDB {
     fun getExcursions(): Flow<Response<List<ExcursionDB>>>
-    fun getExcursionById(id: String): Excursion
+    fun getExcursionById(id: String): Flow<Response<ExcursionDB?>>
     fun getPlacemarksExcursion(id: String): List<Placemark>
     fun getWaypointsExcursion(id: String): List<Waypoint>
 }

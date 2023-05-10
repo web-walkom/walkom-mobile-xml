@@ -72,6 +72,10 @@ dependencies {
     // Firebase
     implementation 'com.google.firebase:firebase-firestore-ktx:24.6.0'
 
+    // S3
+    implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true }
+    implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
+
     // Other
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation "io.coil-kt:coil:2.3.0"
