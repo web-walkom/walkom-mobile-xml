@@ -2,9 +2,9 @@ package ru.walkom.app.domain.use_case
 
 import ru.walkom.app.domain.repository.ExcursionRepository
 
-class DownloadAudioExcursionUseCase(
+class DownloadDataExcursionUseCase(
     private val repository: ExcursionRepository
 ) {
 
-    operator fun invoke(id: String) = repository.downloadAudioExcursion(id)
+    operator fun invoke(id: String) = repository.downloadDataExcursionUseCase(id)
 }

@@ -1,4 +1,4 @@
- package ru.walkom.app.presentation.screens.excursion
+package ru.walkom.app.presentation.screens.excursion
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,14 +8,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.walkom.app.domain.model.ExcursionDB
 import ru.walkom.app.domain.model.Response
-import ru.walkom.app.domain.use_case.DownloadAudioExcursionUseCase
+import ru.walkom.app.domain.use_case.DownloadDataExcursionUseCase
 import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import javax.inject.Inject
 
 @HiltViewModel
 class ExcursionViewModel @Inject constructor(
     private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
-    private val downloadAudioExcursionUseCase: DownloadAudioExcursionUseCase
+    private val downloadDataExcursionUseCase: DownloadDataExcursionUseCase
 ): ViewModel() {
 
     private val _stateExcursion = MutableLiveData<Response<ExcursionDB?>>()
@@ -36,9 +36,9 @@ class ExcursionViewModel @Inject constructor(
         }
     }
 
-    fun downloadAudioExcursion() {
+    fun downloadDataExcursion() {
         viewModelScope.launch {
-            downloadAudioExcursionUseCase.invoke("QQ4oHDyYxtOme3Nu2VFq").collect { response ->
+            downloadDataExcursionUseCase.invoke("QQ4oHDyYxtOme3Nu2VFq").collect { response ->
                 _stateAudio.postValue(response)
             }
         }

@@ -83,6 +83,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <ProgressBar
+            android:id="@+id/progressLoad"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="15dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/white"
+            android:visibility="gone"
+
+            app:layout_constraintBottom_toBottomOf="@+id/startExcursion"
+            app:layout_constraintStart_toStartOf="@+id/startExcursion"
+            app:layout_constraintTop_toTopOf="@+id/startExcursion" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

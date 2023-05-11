@@ -64,6 +64,7 @@
         android:textColorHint="@color/light_gray"
         android:textSize="@dimen/text_body_normal"
         android:fontFamily="@font/exo2_medium"
+        android:elevation="0.5dp"
         app:layout_constraintBottom_toTopOf="@+id/continueEmail"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

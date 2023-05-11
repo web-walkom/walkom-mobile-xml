@@ -341,6 +341,8 @@ class MapActivity : AppCompatActivity(), UserLocationObjectListener, Session.Rou
                 mediaPlayer.setOnCompletionListener {
                     viewModel.statusStartExcursion = true
                     binding.soundAction.visibility = View.INVISIBLE
+                    //mediaPlayer.stop()
+                    //mediaPlayer.reset()
                 }
 
                 binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {

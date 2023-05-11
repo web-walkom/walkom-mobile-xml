@@ -71,6 +71,7 @@ dependencies {
 
     // Firebase
     implementation 'com.google.firebase:firebase-firestore-ktx:24.6.0'
+    implementation 'com.google.firebase:firebase-storage-ktx:20.2.0'
 
     // S3
     implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.7@aar') { transitive = true }

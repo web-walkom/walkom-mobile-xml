@@ -5,7 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import ru.walkom.app.domain.repository.ExcursionRepository
-import ru.walkom.app.domain.use_case.DownloadAudioExcursionUseCase
+import ru.walkom.app.domain.use_case.DownloadDataExcursionUseCase
 import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import ru.walkom.app.domain.use_case.GetExcursionsUseCase
 import ru.walkom.app.domain.use_case.GetPlacemarksExcursionUseCase
@@ -36,7 +36,7 @@ class DomainModule {
     }
 
     @Provides
-    fun provideDownloadAudioExcursionUseCase(repository: ExcursionRepository): DownloadAudioExcursionUseCase {
-        return DownloadAudioExcursionUseCase(repository = repository)
+    fun provideDownloadDataExcursionUseCase(repository: ExcursionRepository): DownloadDataExcursionUseCase {
+        return DownloadDataExcursionUseCase(repository = repository)
     }
 }

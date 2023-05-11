@@ -8,16 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import coil.load
-import ru.walkom.app.R
 import ru.walkom.app.common.Constants
+import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.common.replaceFragment
 import ru.walkom.app.databinding.FragmentExcursionsBinding
 import ru.walkom.app.domain.model.Response
-import ru.walkom.app.presentation.screens.base_fragment.BaseFragment
 import ru.walkom.app.presentation.screens.excursion.ExcursionFragment
 
 
-//class ExcursionsFragment : BaseFragment(R.layout.fragment_excursions) {
 class ExcursionsFragment : Fragment() {
 
     private val viewModel: ExcursionsViewModel by activityViewModels()
@@ -36,7 +34,7 @@ class ExcursionsFragment : Fragment() {
             response?.let { state ->
                 when (state) {
                     is Response.Loading -> {
-                        Log.d(Constants.TAG, "Loading")
+                        Log.i(TAG, "Loading")
                     }
                     is Response.Success -> {
                         binding.excursionsList.visibility = View.VISIBLE
@@ -44,7 +42,7 @@ class ExcursionsFragment : Fragment() {
                         binding.excursionPhoto.load(state.data[0].photos[0])
                     }
                     is Response.Error -> {
-                        Log.e(Constants.TAG, state.message)
+                        Log.e(TAG, state.message)
                     }
                 }
             }
@@ -53,10 +51,5 @@ class ExcursionsFragment : Fragment() {
         binding.excursionCard.setOnClickListener {
             replaceFragment(ExcursionFragment())
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = ExcursionsFragment()
     }
 }

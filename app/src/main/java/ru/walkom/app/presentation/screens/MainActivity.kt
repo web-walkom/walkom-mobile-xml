@@ -27,10 +27,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initFunc() {
-        val userAuth = false
+        val userAuth = true
 
         if (userAuth)
-            replaceFragment(ExcursionsFragment())
+            replaceFragment(ExcursionsFragment(), false)
         else
             replaceActivity(AuthActivity())
     }

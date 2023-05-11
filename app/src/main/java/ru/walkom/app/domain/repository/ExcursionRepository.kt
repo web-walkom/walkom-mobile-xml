@@ -12,5 +12,5 @@ interface ExcursionRepository {
     fun getExcursionById(id: String): Flow<Response<ExcursionDB?>>
     fun getPlacemarksExcursion(id: String): List<Placemark>
     fun getWaypointsExcursion(id: String): List<Waypoint>
-    fun downloadAudioExcursion(id: String): Flow<Response<Boolean>>
+    fun downloadDataExcursionUseCase(id: String): Flow<Response<Boolean>>
 }

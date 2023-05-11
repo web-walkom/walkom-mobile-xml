@@ -22,6 +22,6 @@ class AuthActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
 
-        replaceFragment(WelcomeFragment())
+        replaceFragment(WelcomeFragment(), false)
     }
 }

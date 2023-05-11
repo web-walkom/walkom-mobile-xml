@@ -38,9 +38,4 @@ class WelcomeFragment : Fragment() {
             }
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = WelcomeFragment()
-    }
 }
