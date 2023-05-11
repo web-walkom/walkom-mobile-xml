@@ -29,6 +29,10 @@ object Constants {
     const val BUTTON_LOAD_EXCURSION = "Скачать"
     const val BUTTON_RUN_EXCURSION = "Запустить"
 
+    // Folders data
+    const val FOLDER_AUDIO = "audios"
+    const val FOLDER_MODELS = "models"
+
     // FirestoreDB
     const val EXCURSIONS_COLLECTION = "excursions"
     const val PLACEMARKS_FIELD = "placemarks"

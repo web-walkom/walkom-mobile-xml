@@ -4,6 +4,8 @@ import android.content.Context
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import ru.walkom.app.common.Constants.FOLDER_AUDIO
+import ru.walkom.app.common.Constants.FOLDER_MODELS
 import ru.walkom.app.domain.model.Response
 import java.io.File
 
@@ -17,14 +19,14 @@ class ExcursionStorageImpl(
         try {
             emit(Response.Loading)
 
-            for (i in 0..6) {
-                val fileRef = storage.child("excursions/${id}/audios/${i}.mp3")
-                val file = File(context.filesDir, "QQ4oHDyYxtOme3Nu2VFq_${i}")
-                fileRef.getFile(file).await()
+            val folder = File("${context.filesDir}/${id}", FOLDER_AUDIO)
+            if (!folder.exists())
+                folder.mkdir()
 
-//                fileRef.metadata.addOnCompleteListener {
-//                    Log.i(TAG, it.result.sizeBytes.toString())
-//                }
+            for (i in 0..6) {
+                val fileRef = storage.child("excursions/${id}/${FOLDER_AUDIO}/${i}.mp3")
+                val file = File(folder, "$i")
+                fileRef.getFile(file).await()
             }
 
             emit(Response.Success(true))
@@ -37,8 +39,12 @@ class ExcursionStorageImpl(
         try {
             emit(Response.Loading)
 
-            val fileRef = storage.child("excursions/${id}/models/diligense.glb")
-            val file = File(context.filesDir, "QQ4oHDyYxtOme3Nu2VFq_diligense")
+            val folder = File("${context.filesDir}/${id}", FOLDER_MODELS)
+            if (!folder.exists())
+                folder.mkdir()
+
+            val fileRef = storage.child("excursions/${id}/${FOLDER_MODELS}/diligense.glb")
+            val file = File(folder, "diligense")
             fileRef.getFile(file).await()
 
             emit(Response.Success(true))

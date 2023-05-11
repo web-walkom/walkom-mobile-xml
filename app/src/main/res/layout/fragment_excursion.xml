@@ -22,6 +22,18 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/dark_gray" />
 
+    <ProgressBar
+        android:id="@+id/progressLoad"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/dark_gray"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <ImageView
         android:id="@+id/excursionPhoto"
         android:layout_width="match_parent"
@@ -84,7 +96,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <ProgressBar
-            android:id="@+id/progressLoad"
+            android:id="@+id/progressDownload"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="15dp"

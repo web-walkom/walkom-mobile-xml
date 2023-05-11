@@ -34,9 +34,10 @@ class ExcursionsFragment : Fragment() {
             response?.let { state ->
                 when (state) {
                     is Response.Loading -> {
-                        Log.i(TAG, "Loading")
+                        binding.progressLoad.visibility = View.VISIBLE
                     }
                     is Response.Success -> {
+                        binding.progressLoad.visibility = View.GONE
                         binding.excursionsList.visibility = View.VISIBLE
                         binding.excursionTitle.text = state.data[0].title
                         binding.excursionPhoto.load(state.data[0].photos[0])

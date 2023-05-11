@@ -24,13 +24,15 @@ class ExcursionViewModel @Inject constructor(
     private val _stateAudio = MutableLiveData<Response<Boolean>>()
     val stateAudio: LiveData<Response<Boolean>> get() = _stateAudio
 
+    private val ID = "QQ4oHDyYxtOme3Nu2VFq"
+
     init {
         getExcursionData()
     }
 
     private fun getExcursionData() {
         viewModelScope.launch {
-            getExcursionByIdUseCase.invoke("QQ4oHDyYxtOme3Nu2VFq").collect { response ->
+            getExcursionByIdUseCase.invoke(ID).collect { response ->
                 _stateExcursion.postValue(response)
             }
         }
@@ -38,7 +40,7 @@ class ExcursionViewModel @Inject constructor(
 
     fun downloadDataExcursion() {
         viewModelScope.launch {
-            downloadDataExcursionUseCase.invoke("QQ4oHDyYxtOme3Nu2VFq").collect { response ->
+            downloadDataExcursionUseCase.invoke(ID).collect { response ->
                 _stateAudio.postValue(response)
             }
         }
