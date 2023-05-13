@@ -3,11 +3,11 @@ package ru.walkom.app.presentation.screens
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import dagger.hilt.android.AndroidEntryPoint
-import ru.walkom.app.common.replaceActivity
+import ru.walkom.app.common.Constants.APP_ACTIVITY
 import ru.walkom.app.common.replaceFragment
 import ru.walkom.app.databinding.ActivityMainBinding
-import ru.walkom.app.presentation.screens.auth.AuthActivity
 import ru.walkom.app.presentation.screens.excursions.ExcursionsFragment
+import ru.walkom.app.presentation.screens.welcome.WelcomeFragment
 
 
 @AndroidEntryPoint
@@ -23,6 +23,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        APP_ACTIVITY = this
         initFunc()
     }
 
@@ -32,6 +33,6 @@ class MainActivity : AppCompatActivity() {
         if (userAuth)
             replaceFragment(ExcursionsFragment(), false)
         else
-            replaceActivity(AuthActivity())
+            replaceFragment(WelcomeFragment(), false)
     }
 }

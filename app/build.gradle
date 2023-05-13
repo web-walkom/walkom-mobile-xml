@@ -78,6 +78,7 @@ dependencies {
     implementation 'com.amazonaws:aws-android-sdk-s3:2.6.+'
 
     // Other
+    implementation "androidx.fragment:fragment-ktx:1.5.7"
     implementation "androidx.core:core-splashscreen:1.0.1"
     implementation "io.coil-kt:coil:2.3.0"
 }

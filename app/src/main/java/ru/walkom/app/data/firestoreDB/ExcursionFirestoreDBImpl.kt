@@ -1,17 +1,13 @@
 package ru.walkom.app.data.firestoreDB
 
-import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yandex.mapkit.geometry.Point
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.EXCURSIONS_COLLECTION
-import ru.walkom.app.common.Constants.PLACEMARKS_FIELD
-import ru.walkom.app.common.Constants.TAG
-import ru.walkom.app.domain.model.Excursion
-import ru.walkom.app.domain.model.ExcursionDB
+import ru.walkom.app.domain.model.ExcursionItem
+import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.model.Waypoint
@@ -19,13 +15,13 @@ import ru.walkom.app.domain.model.Waypoint
 class ExcursionFirestoreDBImpl(
     private val db: FirebaseFirestore
 ): ExcursionFirestoreDB {
-    override fun getExcursions() = flow<Response<List<ExcursionDB>>> {
+    override fun getExcursions() = flow<Response<List<ExcursionItem>>> {
         try {
             emit(Response.Loading)
 
             val excursions = db.collection(EXCURSIONS_COLLECTION)
                 .get().await().map { document ->
-                    val excursion = document.toObject(ExcursionDB::class.java)
+                    val excursion = document.toObject(ExcursionItem::class.java)
                     excursion.id = document.id
                     excursion
                 }
@@ -36,14 +32,14 @@ class ExcursionFirestoreDBImpl(
         }
     }
 
-    override fun getExcursionById(id: String) = flow<Response<ExcursionDB?>> {
+    override fun getExcursionById(id: String) = flow<Response<ExcursionOpen?>> {
         try {
             emit(Response.Loading)
 
             val excursion = db.collection(EXCURSIONS_COLLECTION)
                 .document(id)
                 .get().await()
-                .toObject(ExcursionDB::class.java)
+                .toObject(ExcursionOpen::class.java)
 
             excursion?.let {
                 it.id = id
@@ -152,42 +148,42 @@ class ExcursionFirestoreDBImpl(
             Waypoint(
                 1,
                 Point(58.037188, 56.124989),
-                R.raw.guide_r2_2,
+                "R.raw.guide_r2_2",
                 1,
                 false
             ),
             Waypoint(
                 2,
                 Point(58.036989, 56.124917),
-                R.raw.guide_r2_4,
+                "R.raw.guide_r2_4",
                 null,
                 false
             ),
             Waypoint(
                 3,
                 Point(58.036841, 56.126014),
-                R.raw.guide_r2_5,
+                "R.raw.guide_r2_5",
                 3,
                 false
             ),
             Waypoint(
                 4,
                 Point(58.036672, 56.127291),
-                R.raw.guide_r2_6,
+                "R.raw.guide_r2_6",
                 4,
                 false
             ),
             Waypoint(
                 5,
                 Point(58.036879, 56.127382),
-                R.raw.guide_r2_7,
+                "R.raw.guide_r2_7",
                 5,
                 false
             ),
             Waypoint(
                 6,
                 Point(58.037025, 56.126263),
-                R.raw.guide_r2_9,
+                "R.raw.guide_r2_9",
                 6,
                 false
             )

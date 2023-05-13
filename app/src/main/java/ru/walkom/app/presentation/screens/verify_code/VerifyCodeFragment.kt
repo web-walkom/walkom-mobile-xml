@@ -6,10 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import ru.walkom.app.common.replaceActivity
+import ru.walkom.app.common.restartActivity
 import ru.walkom.app.databinding.FragmentVerifyCodeBinding
-import ru.walkom.app.presentation.screens.MainActivity
-import ru.walkom.app.presentation.screens.auth.AuthActivity
 
 
 class VerifyCodeFragment : Fragment() {
@@ -31,7 +29,7 @@ class VerifyCodeFragment : Fragment() {
         binding.continueCode.setOnClickListener {
             val code = binding.codeField.text.toString()
             if (viewModel.checkCode(code)) {
-                (activity as AuthActivity).replaceActivity(MainActivity())
+                restartActivity()
             }
         }
     }

@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import coil.load
-import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.common.replaceFragment
 import ru.walkom.app.databinding.FragmentExcursionsBinding
@@ -24,7 +23,7 @@ class ExcursionsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentExcursionsBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,16 +40,17 @@ class ExcursionsFragment : Fragment() {
                         binding.excursionsList.visibility = View.VISIBLE
                         binding.excursionTitle.text = state.data[0].title
                         binding.excursionPhoto.load(state.data[0].photos[0])
+
+                        binding.excursionCard.setOnClickListener {
+                            replaceFragment(ExcursionFragment(state.data[0]))
+                        }
+                        return@let
                     }
                     is Response.Error -> {
                         Log.e(TAG, state.message)
                     }
                 }
             }
-        }
-
-        binding.excursionCard.setOnClickListener {
-            replaceFragment(ExcursionFragment())
         }
     }
 }

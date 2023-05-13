@@ -1,6 +1,13 @@
 package ru.walkom.app.common
 
+import ru.walkom.app.presentation.screens.MainActivity
+
 object Constants {
+
+    // System
+    lateinit var APP_ACTIVITY: MainActivity
+    const val TAG = "AppLog"
+
     // Errors
     const val ERROR_INVALID_ERROR = "Неверная почта"
     const val ERROR_DRAW_ROUTE = "Ошибка построения маршрута"
@@ -43,8 +50,5 @@ object Constants {
     const val SECRET_ACCESS_KEY_S3 = "08de18800fc1d95112e38acfd1a92c62"
 
     // Yandex MapKit
-    val MAPKIT_API_KEY = "4e10e9f2-d783-499c-b77d-8fc64489b4ac"
-
-    // Other
-    const val TAG = "AppLog"
+    const val MAPKIT_API_KEY = "4e10e9f2-d783-499c-b77d-8fc64489b4ac"
 }

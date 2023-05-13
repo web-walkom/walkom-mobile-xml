@@ -42,10 +42,9 @@ class DataModule {
     @Provides
     @Singleton
     fun provideExcursionStorage(
-        storage: StorageReference,
-        @ApplicationContext context: Context
+        storage: StorageReference
     ): ExcursionStorage {
-        return ExcursionStorageImpl(storage = storage, context = context)
+        return ExcursionStorageImpl(storage = storage)
     }
 
     @Provides

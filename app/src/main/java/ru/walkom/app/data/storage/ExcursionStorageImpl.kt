@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import ru.walkom.app.common.Constants.APP_ACTIVITY
 import ru.walkom.app.common.Constants.FOLDER_AUDIO
 import ru.walkom.app.common.Constants.FOLDER_MODELS
 import ru.walkom.app.domain.model.Response
@@ -11,15 +12,14 @@ import java.io.File
 
 
 class ExcursionStorageImpl(
-    private val storage: StorageReference,
-    private val context: Context
+    private val storage: StorageReference
 ): ExcursionStorage {
 
     override fun downloadAudioExcursion(id: String) = flow<Response<Boolean>> {
         try {
             emit(Response.Loading)
 
-            val folder = File("${context.filesDir}/${id}", FOLDER_AUDIO)
+            val folder = File("${APP_ACTIVITY.filesDir}/${id}", FOLDER_AUDIO)
             if (!folder.exists())
                 folder.mkdir()
 
@@ -39,7 +39,7 @@ class ExcursionStorageImpl(
         try {
             emit(Response.Loading)
 
-            val folder = File("${context.filesDir}/${id}", FOLDER_MODELS)
+            val folder = File("${APP_ACTIVITY.filesDir}/${id}", FOLDER_MODELS)
             if (!folder.exists())
                 folder.mkdir()
 

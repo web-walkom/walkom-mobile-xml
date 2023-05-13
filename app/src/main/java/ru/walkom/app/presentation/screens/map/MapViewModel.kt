@@ -34,9 +34,7 @@ class MapViewModel @Inject constructor(
 
     val placemarksLocations = getPlacemarksExcursionUseCase.invoke("1")
     val waypointsLocations = getWaypointsExcursionUseCase.invoke("1")
-    val startPointAudio = R.raw.guide_r2_1
-
-    val excursion = getExcursionByIdUseCase.invoke("63fb0fdc89ca647e7f10804b")
+    val startPointAudio = "R.raw.guide_r2_1"
 
     lateinit var placemarkStart: PlacemarkMapObject
     var placemarkIcons = ArrayList<PlacemarkMapObject>()

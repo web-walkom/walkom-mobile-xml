@@ -5,7 +5,7 @@ import com.yandex.mapkit.geometry.Point
 data class Waypoint(
     val id: Int,
     val point: Point,
-    val audio: Int?,
+    val audio: String?,
     val affiliationPlacemarkId: Int?,
     var isPassed: Boolean
 )

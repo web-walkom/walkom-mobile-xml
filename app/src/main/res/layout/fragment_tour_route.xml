@@ -7,7 +7,8 @@
     android:background="@drawable/bg_bottom_sheet"
     android:gravity="center_horizontal"
     android:orientation="vertical"
-    android:paddingHorizontal="25dp">
+    android:paddingHorizontal="25dp"
+    tools:context=".presentation.screens.map.MapFragment">
 
     <View
         android:id="@+id/view"
@@ -47,7 +48,7 @@ Nulla facilisi."
         app:layout_constraintTop_toBottomOf="@+id/titleRouteTour" />
 
     <Button
-        android:id="@+id/startExcursion"
+        android:id="@+id/showAR"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="15dp"
@@ -57,7 +58,6 @@ Nulla facilisi."
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="16sp"
-        android:onClick="onClickShowAR"
         app:backgroundTint="@null"
         app:layout_constraintTop_toBottomOf="@+id/textView"
         tools:layout_editor_absoluteX="25dp" />
