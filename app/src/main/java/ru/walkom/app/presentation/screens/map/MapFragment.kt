@@ -51,7 +51,9 @@ import com.yandex.runtime.ui_view.ViewProvider
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
+import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.FragmentMapBinding
+import ru.walkom.app.domain.model.Response
 
 
 class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListener,
@@ -84,6 +86,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         }
 
         checkPermission()
+        stateGetRouteHandler()
         clickHandler()
     }
 
@@ -177,6 +180,27 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         }
     }
 
+    private fun stateGetRouteHandler() {
+        viewModel.stateRoute.observe(viewLifecycleOwner) { response ->
+            response?.let { state ->
+                when (state) {
+                    is Response.Loading -> {
+                        Log.i(TAG, "Loading")
+                    }
+                    is Response.Success -> {
+                        Log.i(TAG, state.data.toString())
+//                        viewModel.placemarksLocations = state.data.placemarks
+//                        viewModel.waypointsLocations = state.data.waypoints
+                        return@let
+                    }
+                    is Response.Error -> {
+                        Log.e(Constants.TAG, state.message)
+                    }
+                }
+            }
+        }
+    }
+
     private fun onMapReady() {
         val mapKit = MapKitFactory.getInstance()
 
@@ -202,7 +226,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         binding.mapview.map.move(
             CameraPosition(
                 viewModel.placemarksLocations[0].point,
-                15.0f, 0.0f, 0.0f
+                16.0f, 0.0f, 0.0f
             ),
             Animation(Animation.Type.SMOOTH, 1f),
             null
@@ -345,6 +369,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     private fun onClickListPlaces() {
         val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
         val dialog = BottomSheetDialog(APP_ACTIVITY, R.style.BottomSheetDialogTheme)
+
         showBottomSheet(dialogView, dialog)
     }
 

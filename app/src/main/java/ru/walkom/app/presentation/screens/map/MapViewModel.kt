@@ -2,7 +2,10 @@ package ru.walkom.app.presentation.screens.map
 
 import android.graphics.Color
 import android.graphics.PointF
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.yandex.mapkit.RequestPoint
 import com.yandex.mapkit.RequestPointType
 import com.yandex.mapkit.geometry.Point
@@ -17,7 +20,9 @@ import com.yandex.mapkit.transport.masstransit.Route
 import com.yandex.mapkit.user_location.UserLocationLayer
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
-import ru.walkom.app.R
+import kotlinx.coroutines.launch
+import ru.walkom.app.domain.model.ExcursionMap
+import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.model.Waypoint
 import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import ru.walkom.app.domain.use_case.GetPlacemarksExcursionUseCase
@@ -27,13 +32,17 @@ import kotlin.math.pow
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
+    private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
     private val getPlacemarksExcursionUseCase: GetPlacemarksExcursionUseCase,
     private val getWaypointsExcursionUseCase: GetWaypointsExcursionUseCase,
-    private val getExcursionByIdUseCase: GetExcursionByIdUseCase
 ): ViewModel() {
 
-    val placemarksLocations = getPlacemarksExcursionUseCase.invoke("1")
-    val waypointsLocations = getWaypointsExcursionUseCase.invoke("1")
+    private val _stateRoute = MutableLiveData<Response<ExcursionMap?>>()
+    val stateRoute: LiveData<Response<ExcursionMap?>> get() = _stateRoute
+    private val ID = "QQ4oHDyYxtOme3Nu2VFq"
+
+    var placemarksLocations = getPlacemarksExcursionUseCase.invoke("1")
+    var waypointsLocations = getWaypointsExcursionUseCase.invoke("1")
     val startPointAudio = "R.raw.guide_r2_1"
 
     lateinit var placemarkStart: PlacemarkMapObject
@@ -51,6 +60,14 @@ class MapViewModel @Inject constructor(
     var statusStartExcursion = false
     var statusPause = false
     var statusBeingStartPoint = false
+
+    init {
+        viewModelScope.launch {
+            getExcursionByIdUseCase.invoke(ID, ExcursionMap::class.java).collect { response ->
+                _stateRoute.postValue(response)
+            }
+        }
+    }
 
     fun buildingRoute(resourceIcon: ImageProvider): ArrayList<RequestPoint> {
         val requestPoints: ArrayList<RequestPoint> = ArrayList()

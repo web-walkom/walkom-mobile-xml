@@ -26,6 +26,11 @@ class DomainModule {
     }
 
     @Provides
+    fun provideDownloadFilesExcursionUseCase(repository: ExcursionRepository): DownloadFilesExcursionUseCase {
+        return DownloadFilesExcursionUseCase(repository = repository)
+    }
+
+    @Provides
     fun provideGetPlacemarksExcursionUseCase(repository: ExcursionRepository): GetPlacemarksExcursionUseCase {
         return GetPlacemarksExcursionUseCase(repository = repository)
     }
@@ -33,10 +38,5 @@ class DomainModule {
     @Provides
     fun provideGetWaypointsExcursionUseCase(repository: ExcursionRepository): GetWaypointsExcursionUseCase {
         return GetWaypointsExcursionUseCase(repository = repository)
-    }
-
-    @Provides
-    fun provideDownloadFilesExcursionUseCase(repository: ExcursionRepository): DownloadFilesExcursionUseCase {
-        return DownloadFilesExcursionUseCase(repository = repository)
     }
 }

@@ -20,10 +20,6 @@ class ExcursionsViewModel @Inject constructor(
     val stateExcursions: LiveData<Response<List<ExcursionItem>>> get() = _stateExcursions
 
     init {
-        getExcursions()
-    }
-
-    private fun getExcursions() {
         viewModelScope.launch {
             getExcursionsUseCase.invoke().collect { response ->
                 _stateExcursions.postValue(response)

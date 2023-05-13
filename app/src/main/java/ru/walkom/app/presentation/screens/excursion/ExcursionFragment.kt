@@ -80,7 +80,7 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
             if (!folderData.exists())
                 folderData.mkdir()
 
-            viewModel.downloadDataExcursion()
+            viewModel.downloadFilesExcursion()
             viewModel.stateAudio.observe(viewLifecycleOwner) { response ->
                 response?.let { state ->
                     when (state) {

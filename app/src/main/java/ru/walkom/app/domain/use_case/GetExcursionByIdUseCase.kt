@@ -6,5 +6,5 @@ class GetExcursionByIdUseCase(
     private val repository: ExcursionRepository
 ) {
 
-    operator fun invoke(id: String) = repository.getExcursionById(id)
+    operator fun <T> invoke(id: String, type: Class<T>) = repository.getExcursionById(id, type)
 }

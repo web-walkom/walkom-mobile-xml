@@ -2,11 +2,13 @@ package ru.walkom.app.data.firestoreDB
 
 import com.google.firebase.firestore.FirebaseFirestore
 import com.yandex.mapkit.geometry.Point
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.EXCURSIONS_COLLECTION
 import ru.walkom.app.domain.model.ExcursionItem
+import ru.walkom.app.domain.model.ExcursionMap
 import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
@@ -32,17 +34,20 @@ class ExcursionFirestoreDBImpl(
         }
     }
 
-    override fun getExcursionById(id: String) = flow<Response<ExcursionOpen?>> {
+    override fun <T> getExcursionById(id: String, type: Class<T>) = flow<Response<T?>> {
         try {
             emit(Response.Loading)
 
             val excursion = db.collection(EXCURSIONS_COLLECTION)
                 .document(id)
                 .get().await()
-                .toObject(ExcursionOpen::class.java)
+                .toObject(type)
 
             excursion?.let {
-                it.id = id
+                if (it is ExcursionMap)
+                    (it as ExcursionMap).id = id
+                else if (it is ExcursionOpen)
+                    (it as ExcursionOpen).id = id
             }
 
             emit(Response.Success(excursion))

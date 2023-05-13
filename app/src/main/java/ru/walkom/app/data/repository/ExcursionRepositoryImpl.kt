@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.flow
 import ru.walkom.app.data.firestoreDB.ExcursionFirestoreDB
 import ru.walkom.app.data.storage.ExcursionStorage
 import ru.walkom.app.domain.model.ExcursionItem
+import ru.walkom.app.domain.model.ExcursionMap
 import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
@@ -18,11 +19,8 @@ class ExcursionRepositoryImpl(
 
     override fun getExcursions(): Flow<Response<List<ExcursionItem>>> = excursionFirestoreDB.getExcursions()
 
-    override fun getExcursionById(id: String): Flow<Response<ExcursionOpen?>> = excursionFirestoreDB.getExcursionById(id)
-
-    override fun getPlacemarksExcursion(id: String): List<Placemark> = excursionFirestoreDB.getPlacemarksExcursion(id)
-
-    override fun getWaypointsExcursion(id: String): List<Waypoint> = excursionFirestoreDB.getWaypointsExcursion(id)
+    override fun <T> getExcursionById(id: String, type: Class<T>): Flow<Response<T?>> =
+        excursionFirestoreDB.getExcursionById(id, type)
 
     override fun downloadFilesExcursion(id: String) = flow<Response<Boolean>> {
 //        excursionStorage.getSizeDataExcursion(id).collect {
@@ -47,4 +45,8 @@ class ExcursionRepositoryImpl(
             }
         }
     }
+
+    override fun getPlacemarksExcursion(id: String): List<Placemark> = excursionFirestoreDB.getPlacemarksExcursion(id)
+
+    override fun getWaypointsExcursion(id: String): List<Waypoint> = excursionFirestoreDB.getWaypointsExcursion(id)
 }

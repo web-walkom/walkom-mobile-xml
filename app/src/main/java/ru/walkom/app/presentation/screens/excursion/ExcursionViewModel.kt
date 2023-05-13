@@ -30,18 +30,14 @@ class ExcursionViewModel @Inject constructor(
     private val ID = "QQ4oHDyYxtOme3Nu2VFq"
 
     init {
-        getExcursionData()
-    }
-
-    private fun getExcursionData() {
         viewModelScope.launch {
-            getExcursionByIdUseCase.invoke(ID).collect { response ->
+            getExcursionByIdUseCase.invoke(ID, ExcursionOpen::class.java).collect { response ->
                 _stateExcursion.postValue(response)
             }
         }
     }
 
-    fun downloadDataExcursion() {
+    fun downloadFilesExcursion() {
         viewModelScope.launch {
             downloadFilesExcursionUseCase.invoke(ID).collect { response ->
                 _stateAudio.postValue(response)
