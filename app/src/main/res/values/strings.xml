@@ -27,6 +27,7 @@
     <string name="pause_description">Поставить экскурсию на паузу</string>
     <string name="stop_excursion">Закончить экскурсию</string>
     <string name="close_excursion">Закрыть экскурсию</string>
+    <string name="options_excursion">Открыть окно с меню экскурсии</string>
     <string name="close_camera_ar">Закрыть окно с камерой</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

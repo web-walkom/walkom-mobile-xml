@@ -44,10 +44,11 @@ class ExcursionsFragment : Fragment() {
                         binding.excursionCard.setOnClickListener {
                             replaceFragment(ExcursionFragment(state.data[0]))
                         }
-                        return@let
+                        return@observe
                     }
                     is Response.Error -> {
                         Log.e(TAG, state.message)
+                        return@observe
                     }
                 }
             }

@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="55dp"
         android:text="@string/excursions"
         android:textColor="@color/dark_gray"
         android:textSize="@dimen/text_h1"
@@ -48,7 +48,7 @@
             android:id="@+id/excursionCard"
             android:layout_width="match_parent"
             android:layout_height="300dp"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="30dp"
             app:layout_constraintEnd_toEndOf="parent">
 
             <ImageView
@@ -61,8 +61,8 @@
                 android:id="@+id/excursionTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="12dp"
-                android:layout_marginHorizontal="15dp"
+                android:layout_marginBottom="13dp"
+                android:layout_marginHorizontal="16dp"
                 android:fontFamily="@font/exo2_bold"
                 android:textColor="@color/white"
                 android:textSize="@dimen/text_h4"

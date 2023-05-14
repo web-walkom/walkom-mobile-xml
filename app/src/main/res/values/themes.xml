@@ -4,23 +4,15 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="Theme.Walkom.CustomStatusNavigationBar">
+    <style name="Theme.Walkom.TranslucentActionAndStatusBar">
 <!--        <item name="android:windowTranslucentStatus">true</item>-->
+<!--        <item name="android:windowTranslucentNavigation">true</item>-->
 <!--        <item name="android:statusBarColor">@android:color/transparent</item>-->
 <!--        <item name="android:windowContentOverlay">@null</item>-->
 
-        <item name="android:windowBackground">@color/background</item>
-        <item name="android:navigationBarColor">@color/background</item>
-    </style>
-
-    <style name="Theme.Walkom.TranslucentActionAndStatusBar">
-        <item name="android:windowTranslucentStatus">true</item>
-        <item name="android:windowTranslucentNavigation">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-
-        <item name="android:windowActionBarOverlay">true</item>
-        <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+<!--        <item name="android:windowActionBarOverlay">true</item>-->
+<!--        <item name="android:windowActionModeOverlay">true</item>-->
+<!--        <item name="android:navigationBarColor">@android:color/transparent</item>-->
     </style>
 
     <style name="BottomSheetAnimation">

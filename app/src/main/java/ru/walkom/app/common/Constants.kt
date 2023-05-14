@@ -42,8 +42,16 @@ object Constants {
 
     // FirestoreDB
     const val EXCURSIONS_COLLECTION = "excursions"
+    const val TITLE_FIELD = "title"
+    const val PHOTOS_FIELD = "photos"
+    const val DESCRIPTION_FIELD = "description"
+    const val PRICE_FIELD = "price"
     const val PLACEMARKS_FIELD = "placemarks"
     const val WAYPOINTS_FIELD = "waypoints"
+    const val MODELS_FIELD = "models"
+
+    // Firebase storage
+    const val EXCURSIONS_BUCKET = "excursions"
 
     // AWS S3
     const val ACCESS_KEY_S3 = "cp65795"

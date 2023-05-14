@@ -75,7 +75,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         MapKitFactory.initialize(APP_ACTIVITY)
-        setWindowFlag()
+//        setWindowFlag()
 
         checkLocationPermission = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -117,20 +117,20 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         super.onDestroy()
     }
 
-    private fun setWindowFlag() {
-        APP_ACTIVITY.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        APP_ACTIVITY.supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        APP_ACTIVITY.supportActionBar?.elevation = 0f
-        APP_ACTIVITY.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        APP_ACTIVITY.window.statusBarColor = Color.TRANSPARENT
-        APP_ACTIVITY.window.navigationBarColor = Color.TRANSPARENT
-        APP_ACTIVITY.window.attributes.flags = APP_ACTIVITY.window.attributes.flags and
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
-    }
+//    private fun setWindowFlag() {
+//        APP_ACTIVITY.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        APP_ACTIVITY.supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+//        APP_ACTIVITY.supportActionBar?.elevation = 0f
+//        APP_ACTIVITY.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+//                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+//                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+//                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+//        APP_ACTIVITY.window.statusBarColor = Color.TRANSPARENT
+//        APP_ACTIVITY.window.navigationBarColor = Color.TRANSPARENT
+//        APP_ACTIVITY.window.attributes.flags = APP_ACTIVITY.window.attributes.flags and
+//                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and
+//                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
+//    }
 
     private fun checkPermission() {
         if (ActivityCompat.checkSelfPermission(
@@ -191,10 +191,11 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                         viewModel.placemarksLocations = state.data?.placemarks ?: listOf()
                         viewModel.waypointsLocations = state.data?.waypoints ?: listOf()
                         onMapReady()
-                        return@let
+                        return@observe
                     }
                     is Response.Error -> {
                         Log.e(TAG, state.message)
+                        return@observe
                     }
                 }
             }

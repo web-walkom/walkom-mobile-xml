@@ -8,6 +8,7 @@ import ru.walkom.app.domain.repository.ExcursionRepository
 import ru.walkom.app.domain.use_case.DownloadFilesExcursionUseCase
 import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import ru.walkom.app.domain.use_case.GetExcursionsUseCase
+import ru.walkom.app.domain.use_case.GetSizeFilesExcursionUseCase
 import ru.walkom.app.domain.use_case.UploadExcursionUseCase
 
 @Module
@@ -22,6 +23,11 @@ class DomainModule {
     @Provides
     fun provideGetExcursionByIdUseCase(repository: ExcursionRepository): GetExcursionByIdUseCase {
         return GetExcursionByIdUseCase(repository = repository)
+    }
+
+    @Provides
+    fun provideGetSizeFilesExcursionUseCase(repository: ExcursionRepository): GetSizeFilesExcursionUseCase {
+        return GetSizeFilesExcursionUseCase(repository = repository)
     }
 
     @Provides

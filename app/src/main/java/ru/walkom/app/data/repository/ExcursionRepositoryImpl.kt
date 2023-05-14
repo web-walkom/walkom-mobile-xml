@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.walkom.app.data.firestoreDB.ExcursionFirestoreDB
 import ru.walkom.app.data.storage.ExcursionStorage
-import ru.walkom.app.domain.model.ExcursionAll
+import ru.walkom.app.domain.model.ExcursionNew
 import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.repository.ExcursionRepository
@@ -19,17 +19,9 @@ class ExcursionRepositoryImpl(
     override fun <T> getExcursionById(id: String, type: Class<T>): Flow<Response<T?>> =
         excursionFirestoreDB.getExcursionById(id, type)
 
-    override fun downloadFilesExcursion(id: String) = flow<Response<Boolean>> {
-//        excursionStorage.getSizeDataExcursion(id).collect {
-//            when (it) {
-//                is Response.Loading -> emit(it)
-//                is Response.Error -> emit(it)
-//                is Response.Success -> {
-//                    Log.i(TAG, it.data.toString())
-//                }
-//            }
-//        }
+    override fun getSizeFilesExcursion(id: String): Flow<Response<Int>> = excursionStorage.getSizeFilesExcursion(id)
 
+    override fun downloadFilesExcursion(id: String) = flow<Response<Boolean>> {
         excursionStorage.downloadAudioExcursion(id).collect { responseAudio ->
             when (responseAudio) {
                 is Response.Loading -> emit(responseAudio)
@@ -43,5 +35,5 @@ class ExcursionRepositoryImpl(
         }
     }
 
-    override fun uploadExcursion(excursion: ExcursionAll): Flow<Response<Boolean>> = excursionFirestoreDB.uploadExcursion(excursion)
+    override fun uploadExcursion(excursion: ExcursionNew): Flow<Response<Boolean>> = excursionFirestoreDB.uploadExcursion(excursion)
 }

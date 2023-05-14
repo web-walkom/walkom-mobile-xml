@@ -8,5 +8,5 @@ interface ExcursionStorage {
 
     fun downloadModelsExcursion(id: String): Flow<Response<Boolean>>
 
-    fun getSizeDataExcursion(id: String): Flow<Response<Int>>
+    fun getSizeFilesExcursion(id: String): Flow<Response<Int>>
 }

@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.walkom.app.common.Constants.TAG
-import ru.walkom.app.domain.model.ExcursionAll
+import ru.walkom.app.domain.model.ExcursionNew
 import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
@@ -39,7 +39,7 @@ class ExcursionsViewModel @Inject constructor(
     private fun uploadExcursion() {
         val ID = "BVs8u01NWCTjpZDaTfeT"
 
-        val excursion = ExcursionAll(
+        val excursion = ExcursionNew(
             title = "Keeper. Театрализованные экскурсии по Перми",
             description = "Знакомьтесь! Это Keeper - хранитель времени! Keeper - собирает легенды города Перми и расскажет вам тайны, секреты и истории, свидетелем которых был 100-200 лет назад.",
             photos = listOf("https://s3.timeweb.com/37399227-3d832f77-13e3-4864-9f21-46a4f4e85dce/excursions/${ID}/photos/excursion/1.jpg"),
@@ -127,7 +127,7 @@ class ExcursionsViewModel @Inject constructor(
             )
         )
 
-        val excursion_ = ExcursionAll(
+        val excursion_ = ExcursionNew(
             title = "Keeper. Театрализованные экскурсии по Перми",
             description = "Знакомьтесь! Это Keeper - хранитель времени! Keeper - собирает легенды города Перми и расскажет вам тайны, секреты и истории, свидетелем которых был 100-200 лет назад.",
             photos = listOf("https://s3.timeweb.com/37399227-3d832f77-13e3-4864-9f21-46a4f4e85dce/excursions/${ID}/photos/excursion/1.jpg"),

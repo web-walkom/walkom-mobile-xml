@@ -32,6 +32,7 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         binding = FragmentExcursionBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -40,6 +41,18 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
         binding.excursionTitle.text = excursion.title
         binding.excursionPhoto.load(excursion.photos[0])
 
+        clickHandler()
+        getExcursionHandler()
+
+        val folderAudio = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_AUDIO)
+        val folderModels = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_MODELS)
+        if (!folderAudio.exists() || !folderModels.exists()) {
+            binding.startExcursion.text = BUTTON_LOAD_EXCURSION
+            getSizeFilesHandler()
+        }
+    }
+
+    private fun getExcursionHandler() {
         viewModel.stateExcursion.observe(viewLifecycleOwner) { response ->
             response?.let { state ->
                 when (state) {
@@ -49,21 +62,44 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
                     is Response.Success -> {
                         binding.progressLoad.visibility = View.GONE
                         binding.excursionDescription.text = state.data?.description ?: ""
+                        return@observe
                     }
                     is Response.Error -> {
                         Log.e(TAG, state.message)
+                        return@observe
                     }
                 }
             }
         }
+    }
 
-        val folderAudio = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_AUDIO)
-        val folderModels = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_MODELS)
-        if (!folderAudio.exists() || !folderModels.exists())
-            binding.startExcursion.text = BUTTON_LOAD_EXCURSION
+    private fun getSizeFilesHandler() {
+        viewModel.stateSizeFiles.observe(viewLifecycleOwner) { response ->
+            response?.let { state ->
+                when (state) {
+                    is Response.Loading -> {
+                        Log.i(TAG, "Loading")
+                    }
+                    is Response.Success -> {
+                        binding.startExcursion.text = "${BUTTON_LOAD_EXCURSION} (${state.data}MB)"
+                        return@observe
+                    }
+                    is Response.Error -> {
+                        Log.e(TAG, state.message)
+                        return@observe
+                    }
+                }
+            }
+        }
+    }
 
+    private fun clickHandler() {
         binding.closeExcursion.setOnClickListener {
             APP_ACTIVITY.supportFragmentManager.popBackStack()
+        }
+
+        binding.optionsExcursion.setOnClickListener {
+
         }
 
         binding.startExcursion.setOnClickListener {
@@ -81,7 +117,7 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
                 folderData.mkdir()
 
             viewModel.downloadFilesExcursion()
-            viewModel.stateAudio.observe(viewLifecycleOwner) { response ->
+            viewModel.stateDownload.observe(viewLifecycleOwner) { response ->
                 response?.let { state ->
                     when (state) {
                         is Response.Loading -> {
@@ -95,11 +131,13 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
                             binding.startExcursion.isEnabled = true
                             binding.startExcursion.background = resources.getDrawable(R.drawable.green_button)
                             binding.startExcursion.text = BUTTON_RUN_EXCURSION
-                            return@let
+
+                            return@observe
                         }
 
                         is Response.Error -> {
                             Log.e(TAG, state.message)
+                            return@observe
                         }
                     }
                 }

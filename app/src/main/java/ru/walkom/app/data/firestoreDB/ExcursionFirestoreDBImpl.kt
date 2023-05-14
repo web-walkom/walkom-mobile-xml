@@ -3,8 +3,14 @@ package ru.walkom.app.data.firestoreDB
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
+import ru.walkom.app.common.Constants.DESCRIPTION_FIELD
 import ru.walkom.app.common.Constants.EXCURSIONS_COLLECTION
-import ru.walkom.app.domain.model.ExcursionAll
+import ru.walkom.app.common.Constants.PHOTOS_FIELD
+import ru.walkom.app.common.Constants.PLACEMARKS_FIELD
+import ru.walkom.app.common.Constants.PRICE_FIELD
+import ru.walkom.app.common.Constants.TITLE_FIELD
+import ru.walkom.app.common.Constants.WAYPOINTS_FIELD
+import ru.walkom.app.domain.model.ExcursionNew
 import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.ExcursionMap
 import ru.walkom.app.domain.model.ExcursionOpen
@@ -52,17 +58,17 @@ class ExcursionFirestoreDBImpl(
         }
     }
 
-    override fun uploadExcursion(excursion: ExcursionAll) = flow<Response<Boolean>> {
+    override fun uploadExcursion(excursion: ExcursionNew) = flow<Response<Boolean>> {
         try {
             emit(Response.Loading)
 
             val mapExcursion = hashMapOf<String, Any>()
-            mapExcursion["title"] = excursion.title
-            mapExcursion["photos"] = excursion.photos
-            mapExcursion["description"] = excursion.description
-            mapExcursion["price"] = excursion.price ?: 0
-            mapExcursion["placemarks"] = excursion.placemarks
-            mapExcursion["waypoints"] = excursion.waypoints
+            mapExcursion[TITLE_FIELD] = excursion.title
+            mapExcursion[PHOTOS_FIELD] = excursion.photos
+            mapExcursion[DESCRIPTION_FIELD] = excursion.description
+            mapExcursion[PRICE_FIELD] = excursion.price ?: 0
+            mapExcursion[PLACEMARKS_FIELD] = excursion.placemarks
+            mapExcursion[WAYPOINTS_FIELD] = excursion.waypoints
             db.collection(EXCURSIONS_COLLECTION).add(mapExcursion).await()
 
             emit(Response.Success(true))

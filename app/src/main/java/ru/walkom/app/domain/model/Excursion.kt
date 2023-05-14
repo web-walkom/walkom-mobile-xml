@@ -21,7 +21,7 @@ data class ExcursionMap(
     val models: List<Model3D> = emptyList()
 )
 
-data class ExcursionAll(
+data class ExcursionNew(
     val title: String = "",
     val photos: List<String> = emptyList(),
     val description: String = "",

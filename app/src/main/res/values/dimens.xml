@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="text_body_normal">16dp</dimen>
-    <dimen name="text_body_large">18dp</dimen>
-    <dimen name="text_h1">32dp</dimen>
-    <dimen name="text_h3">23dp</dimen>
-    <dimen name="text_h4">20dp</dimen>
+    <dimen name="text_body_normal">16sp</dimen>
+    <dimen name="text_body_large">18sp</dimen>
+    <dimen name="text_h1">32sp</dimen>
+    <dimen name="text_h3">23sp</dimen>
+    <dimen name="text_h4">20sp</dimen>
+
+    <dimen name="margin_system_top">45dp</dimen>
 </resources>

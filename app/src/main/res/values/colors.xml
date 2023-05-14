@@ -10,6 +10,6 @@
     <color name="green">#238A4C</color>
     <color name="green_opacity">#BF238A4C</color>
     <color name="green_disable">#7F238A4C</color>
-    <color name="sliver_transparent">#79C7C7C7</color>
-    <color name="sliver_transparent_pressed">#41C7C7C7</color>
+    <color name="sliver_transparent">#E6A1A1A1</color>
+    <color name="sliver_transparent_pressed">#BFA1A1A1</color>
 </resources>
