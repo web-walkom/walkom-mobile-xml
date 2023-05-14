@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yandex.mapkit.RequestPoint
 import com.yandex.mapkit.RequestPointType
+import com.yandex.mapkit.geometry.Circle
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.IconStyle
@@ -22,28 +23,24 @@ import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import ru.walkom.app.domain.model.ExcursionMap
+import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.model.Waypoint
 import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
-import ru.walkom.app.domain.use_case.GetPlacemarksExcursionUseCase
-import ru.walkom.app.domain.use_case.GetWaypointsExcursionUseCase
 import javax.inject.Inject
 import kotlin.math.pow
 
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
-    private val getPlacemarksExcursionUseCase: GetPlacemarksExcursionUseCase,
-    private val getWaypointsExcursionUseCase: GetWaypointsExcursionUseCase,
 ): ViewModel() {
 
     private val _stateRoute = MutableLiveData<Response<ExcursionMap?>>()
     val stateRoute: LiveData<Response<ExcursionMap?>> get() = _stateRoute
-    private val ID = "QQ4oHDyYxtOme3Nu2VFq"
+    private val ID = "I7bPIxO3oquep793tN6s"
 
-    var placemarksLocations = getPlacemarksExcursionUseCase.invoke("1")
-    var waypointsLocations = getWaypointsExcursionUseCase.invoke("1")
-    val startPointAudio = "R.raw.guide_r2_1"
+    lateinit var placemarksLocations: List<Placemark>
+    lateinit var waypointsLocations: List<Waypoint>
 
     lateinit var placemarkStart: PlacemarkMapObject
     var placemarkIcons = ArrayList<PlacemarkMapObject>()
@@ -73,7 +70,12 @@ class MapViewModel @Inject constructor(
         val requestPoints: ArrayList<RequestPoint> = ArrayList()
 
         for (waypoint in waypointsLocations) {
-            requestPoints.add(RequestPoint(waypoint.point, RequestPointType.WAYPOINT, null))
+            requestPoints.add(RequestPoint(
+                Point(waypoint.latitude, waypoint.longitude),
+                RequestPointType.WAYPOINT,
+                null
+            ))
+
             drawingWaypointIcon(waypoint, resourceIcon)
         }
 
@@ -81,7 +83,7 @@ class MapViewModel @Inject constructor(
     }
 
     private fun drawingWaypointIcon(waypoint: Waypoint, resourceIcon: ImageProvider) {
-        val viewWaypoint = mapObjects.addPlacemark(waypoint.point)
+        val viewWaypoint = mapObjects.addPlacemark(Point(waypoint.latitude, waypoint.longitude))
 
         viewWaypoint.setIcon(
             resourceIcon,
@@ -97,7 +99,7 @@ class MapViewModel @Inject constructor(
         var viewPlacemark: PlacemarkMapObject
 
         for (placemark in placemarksLocations) {
-            viewPlacemark = mapObjects.addPlacemark(placemark.point)
+            viewPlacemark = mapObjects.addPlacemark(Point(placemark.latitude, placemark.longitude))
             viewPlacemark.setIcon(
                 resourceIcon,
                 IconStyle()
@@ -182,7 +184,7 @@ class MapViewModel @Inject constructor(
         var distanceNow: Double
 
         for (waypoint in waypointsLocations) {
-            distanceNow = getDistanceBetweenPoints(waypoint.point, locationUser)
+            distanceNow = getDistanceBetweenPoints(Point(waypoint.latitude, waypoint.longitude), locationUser)
 
             if (waypoint == waypointsLocations[0])
                 distanceMin = distanceNow

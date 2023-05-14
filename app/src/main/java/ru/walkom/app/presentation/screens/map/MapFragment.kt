@@ -27,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
+import coil.load
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
@@ -81,12 +82,11 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         ) { permissions ->
             if (permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true ||
                 permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true) {
-                onMapReady()
+                getRouteHandler()
             }
         }
 
         checkPermission()
-        stateGetRouteHandler()
         clickHandler()
     }
 
@@ -142,7 +142,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         )
-            onMapReady()
+            getRouteHandler()
         else
             checkLocationPermission.launch(arrayOf(
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -180,7 +180,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         }
     }
 
-    private fun stateGetRouteHandler() {
+    private fun getRouteHandler() {
         viewModel.stateRoute.observe(viewLifecycleOwner) { response ->
             response?.let { state ->
                 when (state) {
@@ -188,13 +188,13 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                         Log.i(TAG, "Loading")
                     }
                     is Response.Success -> {
-                        Log.i(TAG, state.data.toString())
-//                        viewModel.placemarksLocations = state.data.placemarks
-//                        viewModel.waypointsLocations = state.data.waypoints
+                        viewModel.placemarksLocations = state.data?.placemarks ?: listOf()
+                        viewModel.waypointsLocations = state.data?.waypoints ?: listOf()
+                        onMapReady()
                         return@let
                     }
                     is Response.Error -> {
-                        Log.e(Constants.TAG, state.message)
+                        Log.e(TAG, state.message)
                     }
                 }
             }
@@ -225,10 +225,13 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     private fun initialApproximation() {
         binding.mapview.map.move(
             CameraPosition(
-                viewModel.placemarksLocations[0].point,
+                Point(
+                    viewModel.placemarksLocations[0].latitude,
+                    viewModel.placemarksLocations[0].longitude
+                ),
                 16.0f, 0.0f, 0.0f
             ),
-            Animation(Animation.Type.SMOOTH, 1f),
+            Animation(Animation.Type.SMOOTH, 0.3f),
             null
         )
     }
@@ -288,7 +291,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         constraintLayout.addView(cardView)
 
         viewModel.placemarkStart = viewModel.mapObjects.addPlacemark(
-            viewModel.placemarksLocations[0].point,
+            Point(
+                viewModel.placemarksLocations[0].latitude,
+                viewModel.placemarksLocations[0].longitude
+            ),
             ViewProvider(constraintLayout)
         )
     }
@@ -342,7 +348,8 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         for (placemark in viewModel.placemarksLocations) {
             textView.text = placemark.title
-            imageView.setImageResource(placemark.image)
+//            imageView.setImageResource(placemark.photos[0])
+            imageView.load(placemark.photos[0])
 
             linearLayout.removeAllViews()
             linearLayout.addView(imageView)
@@ -354,7 +361,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             constraintLayout.removeAllViews()
             constraintLayout.addView(cardView)
 
-            viewPlacemark = viewModel.mapObjects.addPlacemark(placemark.point, ViewProvider(constraintLayout))
+            viewPlacemark = viewModel.mapObjects.addPlacemark(
+                Point(placemark.latitude, placemark.longitude),
+                ViewProvider(constraintLayout)
+            )
             viewModel.placemarkCards.add(viewPlacemark)
         }
     }
@@ -398,7 +408,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
             binding.mapview.map.move(
                 CameraPosition(
-                    viewModel.placemarksLocations[0].point,
+                    Point(
+                        viewModel.placemarksLocations[0].latitude,
+                        viewModel.placemarksLocations[0].longitude
+                    ),
                     20.0f, 0.0f, 70.0f
                 ),
                 Animation(Animation.Type.SMOOTH, 1f),
@@ -521,7 +534,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         if (!viewModel.statusStartExcursion) {
             val statusContains = viewModel.containsPointArea(
-                viewModel.placemarksLocations[0].point,
+                Point(
+                    viewModel.placemarksLocations[0].latitude,
+                    viewModel.placemarksLocations[0].longitude
+                ),
                 locationUser,
                 Constants.DISTANCE_CONTAINS_START_POINT
             )
@@ -537,7 +553,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
     override fun onMasstransitRoutesError(error: Error) {
         Toast.makeText(APP_ACTIVITY, Constants.ERROR_DRAW_ROUTE, Toast.LENGTH_SHORT).show()
-        Log.e(Constants.TAG, error.toString())
+        Log.e(TAG, error.toString())
     }
 
     override fun onCameraPositionChanged(
@@ -564,7 +580,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         for (waypoint in viewModel.waypointsLocations) {
             // Проверка на подход пользователя к точке маршрута экскурсии
             statusContains = viewModel.containsPointArea(
-                waypoint.point,
+                Point(waypoint.latitude, waypoint.longitude),
                 locationUser,
                 Constants.DISTANCE_CONTAINS_WAYPOINT
             )
@@ -573,8 +589,8 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 //                if (waypoint.audio != null && !mediaPlayer.isPlaying)
 //                    startAudio(waypoint.audio)
 
-                if (waypoint.affiliationPlacemarkId != null)
-                    showInformationAboutPlacemark()
+//                if (waypoint.affiliationPlacemarkId != null)
+                showInformationAboutPlacemark()
 
                 waypoint.isPassed = true
             }

@@ -4,12 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import ru.walkom.app.data.firestoreDB.ExcursionFirestoreDB
 import ru.walkom.app.data.storage.ExcursionStorage
+import ru.walkom.app.domain.model.ExcursionAll
 import ru.walkom.app.domain.model.ExcursionItem
-import ru.walkom.app.domain.model.ExcursionMap
-import ru.walkom.app.domain.model.ExcursionOpen
-import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
-import ru.walkom.app.domain.model.Waypoint
 import ru.walkom.app.domain.repository.ExcursionRepository
 
 class ExcursionRepositoryImpl(
@@ -46,7 +43,5 @@ class ExcursionRepositoryImpl(
         }
     }
 
-    override fun getPlacemarksExcursion(id: String): List<Placemark> = excursionFirestoreDB.getPlacemarksExcursion(id)
-
-    override fun getWaypointsExcursion(id: String): List<Waypoint> = excursionFirestoreDB.getWaypointsExcursion(id)
+    override fun uploadExcursion(excursion: ExcursionAll): Flow<Response<Boolean>> = excursionFirestoreDB.uploadExcursion(excursion)
 }

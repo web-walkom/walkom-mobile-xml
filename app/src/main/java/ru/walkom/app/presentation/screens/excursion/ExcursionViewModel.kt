@@ -1,14 +1,11 @@
 package ru.walkom.app.presentation.screens.excursion
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.use_case.DownloadFilesExcursionUseCase
@@ -27,7 +24,7 @@ class ExcursionViewModel @Inject constructor(
     private val _stateAudio = MutableLiveData<Response<Boolean>>()
     val stateAudio: LiveData<Response<Boolean>> get() = _stateAudio
 
-    private val ID = "QQ4oHDyYxtOme3Nu2VFq"
+    private val ID = "I7bPIxO3oquep793tN6s"
 
     init {
         viewModelScope.launch {
