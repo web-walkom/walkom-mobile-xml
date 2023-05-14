@@ -7,26 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import coil.load
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.APP_ACTIVITY
+import ru.walkom.app.common.Constants.BUNDLE_KEY_ID
+import ru.walkom.app.common.Constants.BUNDLE_KEY_PHOTOS
+import ru.walkom.app.common.Constants.BUNDLE_KEY_TITLE
 import ru.walkom.app.common.Constants.BUTTON_LOAD_EXCURSION
 import ru.walkom.app.common.Constants.BUTTON_RUN_EXCURSION
 import ru.walkom.app.common.Constants.FOLDER_AUDIO
 import ru.walkom.app.common.Constants.FOLDER_MODELS
 import ru.walkom.app.common.Constants.TAG
-import ru.walkom.app.common.replaceFragment
 import ru.walkom.app.databinding.FragmentExcursionBinding
-import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.Response
-import ru.walkom.app.presentation.screens.map.MapFragment
 import java.io.File
 
 
-class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
+class ExcursionFragment() : Fragment() {
 
     private val viewModel: ExcursionViewModel by activityViewModels()
     private lateinit var binding: FragmentExcursionBinding
+//    private val args: ExcursionFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,14 +40,20 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.excursionTitle.text = excursion.title
-        binding.excursionPhoto.load(excursion.photos[0])
+        if (arguments?.getString(BUNDLE_KEY_ID) != null) {
+            viewModel.excursionId = arguments?.getString(BUNDLE_KEY_ID)
+            viewModel.excursionTitle = arguments?.getString(BUNDLE_KEY_TITLE)
+            viewModel.excursionPhoto = arguments?.getStringArray(BUNDLE_KEY_PHOTOS)?.get(0)
+        }
+
+        binding.excursionTitle.text = viewModel.excursionTitle
+        binding.excursionPhoto.load(viewModel.excursionPhoto)
 
         clickHandler()
         getExcursionHandler()
 
-        val folderAudio = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_AUDIO)
-        val folderModels = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_MODELS)
+        val folderAudio = File("${APP_ACTIVITY.filesDir}/${viewModel.excursionId}", FOLDER_AUDIO)
+        val folderModels = File("${APP_ACTIVITY.filesDir}/${viewModel.excursionId}", FOLDER_MODELS)
         if (!folderAudio.exists() || !folderModels.exists()) {
             binding.startExcursion.text = BUTTON_LOAD_EXCURSION
             getSizeFilesHandler()
@@ -81,7 +89,7 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
                         Log.i(TAG, "Loading")
                     }
                     is Response.Success -> {
-                        binding.startExcursion.text = "${BUTTON_LOAD_EXCURSION} (${state.data}MB)"
+                        binding.startExcursion.text = "$BUTTON_LOAD_EXCURSION (${state.data} MB)"
                         return@observe
                     }
                     is Response.Error -> {
@@ -95,7 +103,9 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
 
     private fun clickHandler() {
         binding.closeExcursion.setOnClickListener {
-            APP_ACTIVITY.supportFragmentManager.popBackStack()
+            Navigation
+                .findNavController(binding.root)
+                .navigate(R.id.navigateToBackExcursionsFragment)
         }
 
         binding.optionsExcursion.setOnClickListener {
@@ -108,11 +118,11 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
     }
 
     private fun runExcursion() {
-        val folderAudio = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_AUDIO)
-        val folderModels = File("${APP_ACTIVITY.filesDir}/${excursion.id}", FOLDER_MODELS)
+        val folderAudio = File("${APP_ACTIVITY.filesDir}/${viewModel.excursionId}", FOLDER_AUDIO)
+        val folderModels = File("${APP_ACTIVITY.filesDir}/${viewModel.excursionId}", FOLDER_MODELS)
 
         if (!folderAudio.exists() || !folderModels.exists()) {
-            val folderData = File(APP_ACTIVITY.filesDir, excursion.id)
+            val folderData = File(APP_ACTIVITY.filesDir, viewModel.excursionId)
             if (!folderData.exists())
                 folderData.mkdir()
 
@@ -144,7 +154,9 @@ class ExcursionFragment(val excursion: ExcursionItem) : Fragment() {
             }
         }
         else {
-            replaceFragment(MapFragment())
+            Navigation
+                .findNavController(binding.root)
+                .navigate(R.id.navigateToMapFragment)
         }
     }
 }

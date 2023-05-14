@@ -1,11 +1,14 @@
 package ru.walkom.app.presentation.screens.excursion
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.use_case.DownloadFilesExcursionUseCase
@@ -17,7 +20,8 @@ import javax.inject.Inject
 class ExcursionViewModel @Inject constructor(
     private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
     private val getSizeFilesExcursionUseCase: GetSizeFilesExcursionUseCase,
-    private val downloadFilesExcursionUseCase: DownloadFilesExcursionUseCase
+    private val downloadFilesExcursionUseCase: DownloadFilesExcursionUseCase,
+    private val savedStateHandle: SavedStateHandle
 ): ViewModel() {
 
     private val _stateExcursion = MutableLiveData<Response<ExcursionOpen?>>()
@@ -30,6 +34,9 @@ class ExcursionViewModel @Inject constructor(
     val stateDownload: LiveData<Response<Boolean>> get() = _stateDownload
 
     private val ID = "BVs8u01NWCTjpZDaTfeT"
+    var excursionId: String? = null
+    var excursionTitle: String? = null
+    var excursionPhoto: String? = null
 
     init {
         getExcursionById()

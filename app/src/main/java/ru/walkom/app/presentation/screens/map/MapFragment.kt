@@ -16,7 +16,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
-import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -27,6 +26,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import coil.load
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.yandex.mapkit.Animation
@@ -75,7 +75,6 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         MapKitFactory.initialize(APP_ACTIVITY)
-//        setWindowFlag()
 
         checkLocationPermission = registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -116,21 +115,6 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         super.onDestroy()
     }
-
-//    private fun setWindowFlag() {
-//        APP_ACTIVITY.supportActionBar?.setDisplayHomeAsUpEnabled(true)
-//        APP_ACTIVITY.supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-//        APP_ACTIVITY.supportActionBar?.elevation = 0f
-//        APP_ACTIVITY.window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-//                View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-//                View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
-//                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-//        APP_ACTIVITY.window.statusBarColor = Color.TRANSPARENT
-//        APP_ACTIVITY.window.navigationBarColor = Color.TRANSPARENT
-//        APP_ACTIVITY.window.attributes.flags = APP_ACTIVITY.window.attributes.flags and
-//                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS.inv() and
-//                WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION.inv()
-//    }
 
     private fun checkPermission() {
         if (ActivityCompat.checkSelfPermission(
@@ -467,7 +451,9 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     private fun onClickStopExcursion() {
-        APP_ACTIVITY.supportFragmentManager.popBackStack()
+        Navigation
+            .findNavController(binding.root)
+            .navigate(R.id.navigateToBackExcursionFragment)
     }
 
     private fun onClickLocationMe() {

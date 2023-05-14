@@ -7,12 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.Navigation
 import coil.load
+import ru.walkom.app.R
+import ru.walkom.app.common.Constants.BUNDLE_KEY_ID
+import ru.walkom.app.common.Constants.BUNDLE_KEY_PHOTOS
+import ru.walkom.app.common.Constants.BUNDLE_KEY_TITLE
 import ru.walkom.app.common.Constants.TAG
-import ru.walkom.app.common.replaceFragment
 import ru.walkom.app.databinding.FragmentExcursionsBinding
 import ru.walkom.app.domain.model.Response
-import ru.walkom.app.presentation.screens.excursion.ExcursionFragment
 
 
 class ExcursionsFragment : Fragment() {
@@ -42,7 +45,23 @@ class ExcursionsFragment : Fragment() {
                         binding.excursionPhoto.load(state.data[0].photos[0])
 
                         binding.excursionCard.setOnClickListener {
-                            replaceFragment(ExcursionFragment(state.data[0]))
+//                            replaceFragment(ExcursionFragment(state.data[0]))
+
+                            val excursion = state.data[0]
+//                            val action = ExcursionsFragmentDirections.navigateToExcursionFragment(
+//                                excursion.id,
+//                                excursion.title,
+//                                excursion.photos.toTypedArray()
+//                            )
+
+                            val bundle = Bundle()
+                            bundle.putString(BUNDLE_KEY_ID, excursion.id)
+                            bundle.putString(BUNDLE_KEY_TITLE, excursion.title)
+                            bundle.putStringArray(BUNDLE_KEY_PHOTOS, excursion.photos.toTypedArray())
+
+                            Navigation
+                                .findNavController(binding.root)
+                                .navigate(R.id.navigateToExcursionFragment, bundle)
                         }
                         return@observe
                     }

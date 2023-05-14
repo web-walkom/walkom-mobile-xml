@@ -118,7 +118,6 @@
             android:indeterminate="true"
             android:indeterminateTint="@color/white"
             android:visibility="gone"
-
             app:layout_constraintBottom_toBottomOf="@+id/startExcursion"
             app:layout_constraintStart_toStartOf="@+id/startExcursion"
             app:layout_constraintTop_toTopOf="@+id/startExcursion" />

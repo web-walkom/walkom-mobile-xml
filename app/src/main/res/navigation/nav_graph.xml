@@ -1,6 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/excursionsFragment">
 
+    <fragment
+        android:id="@+id/excursionsFragment"
+        android:name="ru.walkom.app.presentation.screens.excursions.ExcursionsFragment"
+        android:label="fragment_excursions"
+        tools:layout="@layout/fragment_excursions" >
+        <action
+            android:id="@+id/navigateToExcursionFragment"
+            app:destination="@id/excursionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/excursionFragment"
+        android:name="ru.walkom.app.presentation.screens.excursion.ExcursionFragment"
+        android:label="fragment_excursion"
+        tools:layout="@layout/fragment_excursion" >
+        <action
+            android:id="@+id/navigateToMapFragment"
+            app:destination="@id/mapFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/navigateToBackExcursionsFragment"
+            app:destination="@id/excursionsFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <argument
+            android:name="id"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="photos"
+            app:argType="string[]" />
+    </fragment>
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="ru.walkom.app.presentation.screens.map.MapFragment"
+        android:label="fragment_map"
+        tools:layout="@layout/fragment_map" >
+        <action
+            android:id="@+id/navigateToBackExcursionFragment"
+            app:destination="@id/excursionFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/navigateToCameraARFragment"
+            app:destination="@id/cameraARFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
+    <fragment
+        android:id="@+id/cameraARFragment"
+        android:name="ru.walkom.app.presentation.screens.camera.CameraARFragment"
+        android:label="fragment_camera_ar"
+        tools:layout="@layout/fragment_camera_ar" >
+        <action
+            android:id="@+id/navigateToBackMapFragment"
+            app:destination="@id/mapFragment"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
+    </fragment>
 </navigation>

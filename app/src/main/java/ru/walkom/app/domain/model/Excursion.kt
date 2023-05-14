@@ -1,5 +1,6 @@
 package ru.walkom.app.domain.model
 
+
 data class ExcursionItem(
     var id: String = "",
     val title: String = "",

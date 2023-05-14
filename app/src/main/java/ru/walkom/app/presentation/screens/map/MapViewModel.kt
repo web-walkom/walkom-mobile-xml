@@ -37,7 +37,7 @@ class MapViewModel @Inject constructor(
 
     private val _stateRoute = MutableLiveData<Response<ExcursionMap?>>()
     val stateRoute: LiveData<Response<ExcursionMap?>> get() = _stateRoute
-    private val ID = "I7bPIxO3oquep793tN6s"
+    private val ID = "BVs8u01NWCTjpZDaTfeT"
 
     lateinit var placemarksLocations: List<Placemark>
     lateinit var waypointsLocations: List<Waypoint>

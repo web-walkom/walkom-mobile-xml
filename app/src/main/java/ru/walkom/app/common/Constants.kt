@@ -36,6 +36,12 @@ object Constants {
     const val BUTTON_LOAD_EXCURSION = "Скачать"
     const val BUTTON_RUN_EXCURSION = "Запустить"
 
+    // Bundle keys
+    const val BUNDLE_KEY_EXCURSION = "excursion"
+    const val BUNDLE_KEY_ID = "id"
+    const val BUNDLE_KEY_TITLE = "title"
+    const val BUNDLE_KEY_PHOTOS = "photos"
+
     // Folders data
     const val FOLDER_AUDIO = "audios"
     const val FOLDER_MODELS = "models"

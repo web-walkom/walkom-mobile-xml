@@ -8,9 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import ru.walkom.app.common.Constants.ERROR_INVALID_ERROR
 import ru.walkom.app.common.isEmailValid
-import ru.walkom.app.common.replaceFragment
 import ru.walkom.app.databinding.FragmentWelcomeBinding
-import ru.walkom.app.presentation.screens.verify_code.VerifyCodeFragment
 
 
 class WelcomeFragment : Fragment() {
@@ -34,7 +32,6 @@ class WelcomeFragment : Fragment() {
                 binding.emailField.error = ERROR_INVALID_ERROR
             else {
                 viewModel.sendCode()
-                replaceFragment(VerifyCodeFragment())
             }
         }
     }

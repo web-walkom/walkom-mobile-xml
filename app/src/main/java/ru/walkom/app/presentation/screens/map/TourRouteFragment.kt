@@ -5,9 +5,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import ru.walkom.app.common.replaceFragment
+import androidx.navigation.Navigation
+import ru.walkom.app.R
 import ru.walkom.app.databinding.FragmentTourRouteBinding
-import ru.walkom.app.presentation.screens.camera.CameraARFragment
 
 class TourRouteFragment: Fragment() {
 
@@ -22,6 +22,8 @@ class TourRouteFragment: Fragment() {
     }
 
     fun showAR(view: View) {
-        replaceFragment(CameraARFragment())
+        Navigation
+            .findNavController(binding.root)
+            .navigate(R.id.navigateToCameraARFragment)
     }
 }
