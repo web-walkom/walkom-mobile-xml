@@ -42,6 +42,7 @@ object Constants {
 
     // Fragment arguments
     const val ARGUMENT_EXCURSION = "excursion"
+    const val ARGUMENT_EXCURSION_ID = "excursionId"
 
     // Firebase Firestore Database
     const val EXCURSIONS_COLLECTION = "excursions"

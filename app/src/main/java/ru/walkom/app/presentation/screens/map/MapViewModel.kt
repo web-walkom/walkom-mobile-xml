@@ -2,8 +2,10 @@ package ru.walkom.app.presentation.screens.map
 
 import android.graphics.Color
 import android.graphics.PointF
+import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yandex.mapkit.RequestPoint
@@ -22,6 +24,8 @@ import com.yandex.mapkit.user_location.UserLocationLayer
 import com.yandex.runtime.image.ImageProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.walkom.app.common.AudioPlayer
+import ru.walkom.app.common.Constants.ARGUMENT_EXCURSION_ID
 import ru.walkom.app.domain.model.ExcursionMap
 import ru.walkom.app.domain.model.Placemark
 import ru.walkom.app.domain.model.Response
@@ -33,11 +37,12 @@ import kotlin.math.pow
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
+    private val state: SavedStateHandle
 ): ViewModel() {
 
     private val _stateRoute = MutableLiveData<Response<ExcursionMap?>>()
     val stateRoute: LiveData<Response<ExcursionMap?>> get() = _stateRoute
-    private val ID = "BVs8u01NWCTjpZDaTfeT"
+    private val excursionId = state.get<String>(ARGUMENT_EXCURSION_ID)
 
     lateinit var placemarksLocations: List<Placemark>
     lateinit var waypointsLocations: List<Waypoint>
@@ -58,10 +63,14 @@ class MapViewModel @Inject constructor(
     var statusPause = false
     var statusBeingStartPoint = false
 
+    val audioPlayer = AudioPlayer()
+
     init {
         viewModelScope.launch {
-            getExcursionByIdUseCase.invoke(ID, ExcursionMap::class.java).collect { response ->
-                _stateRoute.postValue(response)
+            if (excursionId != null) {
+                getExcursionByIdUseCase.invoke(excursionId, ExcursionMap::class.java).collect { response ->
+                    _stateRoute.postValue(response)
+                }
             }
         }
     }

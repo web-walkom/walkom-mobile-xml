@@ -34,7 +34,6 @@ class ExcursionFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        Log.i(TAG, args.excursion.id)
         binding = FragmentExcursionBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -148,7 +147,7 @@ class ExcursionFragment : Fragment() {
             }
         }
         else {
-            val action = ExcursionFragmentDirections.navigateToMapFragment()
+            val action = ExcursionFragmentDirections.navigateToMapFragment(args.excursion.id)
             findNavController().navigate(action)
         }
     }

@@ -22,9 +22,9 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import coil.load
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
@@ -50,6 +50,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_WAYPOINT
+import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.FragmentMapBinding
 import ru.walkom.app.domain.model.Response
@@ -59,10 +61,10 @@ import ru.walkom.app.domain.model.Response
 class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListener,
     CameraListener {
 
+    private val args: MapFragmentArgs by navArgs()
     private val viewModel: MapViewModel by viewModels()
     private lateinit var binding: FragmentMapBinding
     private lateinit var checkLocationPermission: ActivityResultLauncher<Array<String>>
-    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -108,12 +110,8 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     override fun onDestroy() {
-        if (this::mediaPlayer.isInitialized) {
-            mediaPlayer.stop()
-            mediaPlayer.release()
-        }
-
         super.onDestroy()
+        viewModel.audioPlayer.release()
     }
 
     private fun checkPermission() {
@@ -382,49 +380,36 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                 null
             )
 
-            if (!this::mediaPlayer.isInitialized) {
-//                startAudio(viewModel.startPointAudio)
-//                mediaPlayer.setOnCompletionListener {
-//                    viewModel.statusStartExcursion = true
-//                    binding.soundAction.visibility = View.INVISIBLE
-//                    mediaPlayer.stop()
-//                    mediaPlayer.reset()
-//                }
-
-                binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-                    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                        if (fromUser)
-                            mediaPlayer.seekTo(progress)
-                    }
-
-                    override fun onStartTrackingTouch(p0: SeekBar?) {
-                    }
-
-                    override fun onStopTrackingTouch(p0: SeekBar?) {
-                    }
-                })
+            viewModel.audioPlayer.init()
+            viewModel.audioPlayer.play(
+                viewModel.waypointsLocations[0].audio,
+                args.excursionId,
+                { initialiseSeekBar() }
+            ) {
+                viewModel.statusStartExcursion = true
+                binding.soundAction.visibility = View.INVISIBLE
             }
-        }
-        else
-            Toast.makeText(APP_ACTIVITY, Constants.NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT).show()
+        } else
+            Toast.makeText(APP_ACTIVITY, NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT)
+                .show()
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun onClickPauseExcursion() {
         if (!viewModel.statusPause) {
-            binding.pauseExcursion.setImageDrawable(Constants.APP_ACTIVITY.getDrawable(R.drawable.ic_play))
+            binding.pauseExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_play))
             viewModel.statusPause = true
 
-            if (mediaPlayer.isPlaying) {
-                mediaPlayer.pause()
+            if (viewModel.audioPlayer.isPlaying()) {
+                viewModel.audioPlayer.pause()
             }
         }
         else {
             binding.pauseExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_pause))
             viewModel.statusPause = false
 
-            if (!mediaPlayer.isPlaying) {
-                mediaPlayer.start()
+            if (!viewModel.audioPlayer.isPlaying()) {
+                viewModel.audioPlayer.start()
             }
         }
     }
@@ -542,16 +527,21 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             statusContains = viewModel.containsPointArea(
                 Point(waypoint.latitude, waypoint.longitude),
                 locationUser,
-                Constants.DISTANCE_CONTAINS_WAYPOINT
+                DISTANCE_CONTAINS_WAYPOINT
             )
 
             if (statusContains && !waypoint.isPassed) {
-//                if (waypoint.audio != null && !mediaPlayer.isPlaying)
-//                    startAudio(waypoint.audio)
+                if (!viewModel.audioPlayer.isPlaying()) {
+                    viewModel.audioPlayer.play(
+                        waypoint.audio,
+                        args.excursionId,
+                        { initialiseSeekBar() }
+                    ) {
+                        binding.soundAction.visibility = View.INVISIBLE
+                    }
+                }
 
-//                if (waypoint.affiliationPlacemarkId != null)
                 showInformationAboutPlacemark()
-
                 waypoint.isPassed = true
             }
         }
@@ -569,29 +559,37 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         }
     }
 
-    private fun startAudio(audio: Int) {
-        mediaPlayer = MediaPlayer.create(APP_ACTIVITY, audio)
-        initialiseSeekBar()
-        mediaPlayer.start()
-        mediaPlayer.setOnCompletionListener {
-            binding.soundAction.visibility = View.INVISIBLE
-        }
-    }
-
     private fun initialiseSeekBar() {
         binding.soundAction.visibility = View.VISIBLE
-        binding.seekBar.max = mediaPlayer.duration
+        binding.seekBar.max = viewModel.audioPlayer.getDuration()
 
         val handler = Handler()
         handler.postDelayed(object: Runnable {
             override fun run() {
                 try {
-                    binding.seekBar.progress = mediaPlayer.currentPosition
+                    binding.seekBar.progress = viewModel.audioPlayer.getCurrentPosition()
                     handler.postDelayed(this, 1000)
                 } catch (e: java.lang.Exception) {
                     binding.seekBar.progress = 0
                 }
             }
         }, 0)
+
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(
+                seekBar: SeekBar?,
+                progress: Int,
+                fromUser: Boolean
+            ) {
+                if (fromUser)
+                    viewModel.audioPlayer.seekTo(progress)
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {
+            }
+
+            override fun onStopTrackingTouch(p0: SeekBar?) {
+            }
+        })
     }
 }

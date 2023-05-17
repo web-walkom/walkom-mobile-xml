@@ -38,6 +38,9 @@
         <action
             android:id="@+id/navigateToRouteTourFragment"
             app:destination="@id/tourRouteFragment" />
+        <argument
+            android:name="excursionId"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/cameraARFragment"
