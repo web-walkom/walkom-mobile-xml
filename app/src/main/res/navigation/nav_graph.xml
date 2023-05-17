@@ -26,20 +26,9 @@
             app:destination="@id/mapFragment"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
-        <action
-            android:id="@+id/navigateToBackExcursionsFragment"
-            app:destination="@id/excursionsFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
         <argument
-            android:name="id"
-            app:argType="string" />
-        <argument
-            android:name="title"
-            app:argType="string" />
-        <argument
-            android:name="photos"
-            app:argType="string[]" />
+            android:name="excursion"
+            app:argType="ru.walkom.app.domain.model.ExcursionItem" />
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
@@ -47,25 +36,21 @@
         android:label="fragment_map"
         tools:layout="@layout/fragment_map" >
         <action
-            android:id="@+id/navigateToBackExcursionFragment"
-            app:destination="@id/excursionFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
-        <action
-            android:id="@+id/navigateToCameraARFragment"
-            app:destination="@id/cameraARFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            android:id="@+id/navigateToRouteTourFragment"
+            app:destination="@id/tourRouteFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraARFragment"
         android:name="ru.walkom.app.presentation.screens.camera.CameraARFragment"
         android:label="fragment_camera_ar"
-        tools:layout="@layout/fragment_camera_ar" >
+        tools:layout="@layout/fragment_camera_ar" />
+    <dialog
+        android:id="@+id/tourRouteFragment"
+        android:name="ru.walkom.app.presentation.screens.map.TourRouteFragment"
+        android:label="fragment_tour_route"
+        tools:layout="@layout/fragment_tour_route" >
         <action
-            android:id="@+id/navigateToBackMapFragment"
-            app:destination="@id/mapFragment"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
-    </fragment>
+            android:id="@+id/navigateToCameraARFragment"
+            app:destination="@id/cameraARFragment" />
+    </dialog>
 </navigation>

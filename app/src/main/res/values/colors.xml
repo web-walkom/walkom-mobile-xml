@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
+    <color name="black_transparent">#BE1B1B1B</color>
+    <color name="black_transparent_pressed">#991B1B1B</color>
     <color name="white">#FFFFFFFF</color>
     <color name="dark_gray">#1B1B1B</color>
     <color name="light_gray">#414141</color>
@@ -10,6 +12,4 @@
     <color name="green">#238A4C</color>
     <color name="green_opacity">#BF238A4C</color>
     <color name="green_disable">#7F238A4C</color>
-    <color name="sliver_transparent">#E6A1A1A1</color>
-    <color name="sliver_transparent_pressed">#BFA1A1A1</color>
 </resources>

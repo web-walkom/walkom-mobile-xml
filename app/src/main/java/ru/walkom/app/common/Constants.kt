@@ -46,7 +46,7 @@ object Constants {
     const val FOLDER_AUDIO = "audios"
     const val FOLDER_MODELS = "models"
 
-    // FirestoreDB
+    // Firebase Firestore Database
     const val EXCURSIONS_COLLECTION = "excursions"
     const val TITLE_FIELD = "title"
     const val PHOTOS_FIELD = "photos"

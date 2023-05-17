@@ -39,6 +39,7 @@ class ExcursionViewModel @Inject constructor(
     var excursionPhoto: String? = null
 
     init {
+        Log.i(TAG, savedStateHandle.keys().toString())
         getExcursionById()
         getSizeFilesExcursion()
     }

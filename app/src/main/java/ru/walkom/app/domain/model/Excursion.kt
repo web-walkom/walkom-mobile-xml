@@ -1,11 +1,15 @@
 package ru.walkom.app.domain.model
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
+
+@Parcelize
 data class ExcursionItem(
     var id: String = "",
     val title: String = "",
     val photos: List<String> = emptyList()
-)
+): Parcelable
 
 data class ExcursionOpen(
     var id: String = "",

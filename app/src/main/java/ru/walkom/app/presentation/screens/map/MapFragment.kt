@@ -4,18 +4,15 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
-import android.view.Gravity
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.Window
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -26,9 +23,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import coil.load
-import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -74,6 +70,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         MapKitFactory.initialize(APP_ACTIVITY)
 
         checkLocationPermission = registerForActivityResult(
@@ -136,11 +133,11 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
     private fun clickHandler() {
         binding.closeExcursion.setOnClickListener {
-            onClickStopExcursion()
+            findNavController().popBackStack()
         }
 
         binding.listPlaces.setOnClickListener {
-            onClickListPlaces()
+            findNavController().navigate(R.id.navigateToRouteTourFragment)
         }
 
         binding.zoomIn.setOnClickListener {
@@ -355,28 +352,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     private fun showInformationAboutPlacemark() {
-        val dialogView = layoutInflater.inflate(R.layout.fragment_info_placemark, null)
-        val dialog = BottomSheetDialog(APP_ACTIVITY, R.style.BottomSheetDialogTheme)
 
-        showBottomSheet(dialogView, dialog)
-    }
-
-    private fun onClickListPlaces() {
-        val dialogView = layoutInflater.inflate(R.layout.fragment_tour_route, null)
-        val dialog = BottomSheetDialog(APP_ACTIVITY, R.style.BottomSheetDialogTheme)
-
-        showBottomSheet(dialogView, dialog)
-    }
-
-    private fun showBottomSheet(dialogView: View, dialog: BottomSheetDialog) {
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(dialogView)
-        dialog.show()
-
-        dialog.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.window?.attributes?.windowAnimations = R.style.BottomSheetAnimation
-        dialog.window?.setGravity(Gravity.BOTTOM)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -448,12 +424,6 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                 mediaPlayer.start()
             }
         }
-    }
-
-    private fun onClickStopExcursion() {
-        Navigation
-            .findNavController(binding.root)
-            .navigate(R.id.navigateToBackExcursionFragment)
     }
 
     private fun onClickLocationMe() {

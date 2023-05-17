@@ -7,12 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.WindowCompat
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
 import com.google.ar.core.TrackingState
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
 import io.github.sceneview.math.Position
-import ru.walkom.app.R
 import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
 import ru.walkom.app.databinding.FragmentCameraArBinding
@@ -32,6 +31,7 @@ class CameraARFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(APP_ACTIVITY.window, false)
 
         val arModelNode = ArModelNode(
@@ -49,9 +49,7 @@ class CameraARFragment : Fragment() {
         }
 
         binding.closeCameraAR.setOnClickListener {
-            Navigation
-                .findNavController(binding.root)
-                .navigate(R.id.navigateToBackMapFragment)
+            findNavController().popBackStack()
         }
 
         binding.sceneView.apply {

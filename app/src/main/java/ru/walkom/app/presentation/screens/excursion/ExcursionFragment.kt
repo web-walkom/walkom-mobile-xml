@@ -7,13 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.Navigation
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import coil.load
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants.APP_ACTIVITY
-import ru.walkom.app.common.Constants.BUNDLE_KEY_ID
-import ru.walkom.app.common.Constants.BUNDLE_KEY_PHOTOS
-import ru.walkom.app.common.Constants.BUNDLE_KEY_TITLE
 import ru.walkom.app.common.Constants.BUTTON_LOAD_EXCURSION
 import ru.walkom.app.common.Constants.BUTTON_RUN_EXCURSION
 import ru.walkom.app.common.Constants.FOLDER_AUDIO
@@ -24,11 +22,11 @@ import ru.walkom.app.domain.model.Response
 import java.io.File
 
 
-class ExcursionFragment() : Fragment() {
+class ExcursionFragment : Fragment() {
 
     private val viewModel: ExcursionViewModel by activityViewModels()
+    private val args: ExcursionFragmentArgs by navArgs()
     private lateinit var binding: FragmentExcursionBinding
-//    private val args: ExcursionFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -40,10 +38,12 @@ class ExcursionFragment() : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (arguments?.getString(BUNDLE_KEY_ID) != null) {
-            viewModel.excursionId = arguments?.getString(BUNDLE_KEY_ID)
-            viewModel.excursionTitle = arguments?.getString(BUNDLE_KEY_TITLE)
-            viewModel.excursionPhoto = arguments?.getStringArray(BUNDLE_KEY_PHOTOS)?.get(0)
+        super.onViewCreated(view, savedInstanceState)
+
+        if (args.excursion != null) {
+            viewModel.excursionId = args.excursion.id
+            viewModel.excursionTitle = args.excursion.title
+            viewModel.excursionPhoto = args.excursion.photos[0]
         }
 
         binding.excursionTitle.text = viewModel.excursionTitle
@@ -103,9 +103,7 @@ class ExcursionFragment() : Fragment() {
 
     private fun clickHandler() {
         binding.closeExcursion.setOnClickListener {
-            Navigation
-                .findNavController(binding.root)
-                .navigate(R.id.navigateToBackExcursionsFragment)
+            findNavController().popBackStack()
         }
 
         binding.optionsExcursion.setOnClickListener {
@@ -154,9 +152,8 @@ class ExcursionFragment() : Fragment() {
             }
         }
         else {
-            Navigation
-                .findNavController(binding.root)
-                .navigate(R.id.navigateToMapFragment)
+            val action = ExcursionFragmentDirections.navigateToMapFragment()
+            findNavController().navigate(action)
         }
     }
 }
