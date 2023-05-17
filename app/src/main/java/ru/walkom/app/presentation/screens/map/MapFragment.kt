@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import coil.load
 import com.yandex.mapkit.Animation
@@ -45,6 +46,7 @@ import com.yandex.mapkit.user_location.UserLocationView
 import com.yandex.runtime.Error
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
+import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
@@ -53,10 +55,11 @@ import ru.walkom.app.databinding.FragmentMapBinding
 import ru.walkom.app.domain.model.Response
 
 
+@AndroidEntryPoint
 class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListener,
     CameraListener {
 
-    private val viewModel: MapViewModel by activityViewModels()
+    private val viewModel: MapViewModel by viewModels()
     private lateinit var binding: FragmentMapBinding
     private lateinit var checkLocationPermission: ActivityResultLauncher<Array<String>>
     private lateinit var mediaPlayer: MediaPlayer

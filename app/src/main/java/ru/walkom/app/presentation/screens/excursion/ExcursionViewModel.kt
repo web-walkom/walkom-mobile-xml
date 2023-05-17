@@ -1,6 +1,5 @@
 package ru.walkom.app.presentation.screens.excursion
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -8,7 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import ru.walkom.app.common.Constants.TAG
+import ru.walkom.app.common.Constants.ARGUMENT_EXCURSION
+import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.use_case.DownloadFilesExcursionUseCase
@@ -21,7 +21,7 @@ class ExcursionViewModel @Inject constructor(
     private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
     private val getSizeFilesExcursionUseCase: GetSizeFilesExcursionUseCase,
     private val downloadFilesExcursionUseCase: DownloadFilesExcursionUseCase,
-    private val savedStateHandle: SavedStateHandle
+    private val state: SavedStateHandle
 ): ViewModel() {
 
     private val _stateExcursion = MutableLiveData<Response<ExcursionOpen?>>()
@@ -33,37 +33,39 @@ class ExcursionViewModel @Inject constructor(
     private val _stateDownload = MutableLiveData<Response<Boolean>>()
     val stateDownload: LiveData<Response<Boolean>> get() = _stateDownload
 
-    private val ID = "BVs8u01NWCTjpZDaTfeT"
-    var excursionId: String? = null
-    var excursionTitle: String? = null
-    var excursionPhoto: String? = null
+    private val excursionId = state.get<ExcursionItem>(ARGUMENT_EXCURSION)?.id
 
     init {
-        Log.i(TAG, savedStateHandle.keys().toString())
         getExcursionById()
         getSizeFilesExcursion()
     }
 
     private fun getExcursionById() {
         viewModelScope.launch {
-            getExcursionByIdUseCase.invoke(ID, ExcursionOpen::class.java).collect { response ->
-                _stateExcursion.postValue(response)
+            excursionId?.let {
+                getExcursionByIdUseCase.invoke(it, ExcursionOpen::class.java).collect { response ->
+                    _stateExcursion.postValue(response)
+                }
             }
         }
     }
 
     private fun getSizeFilesExcursion() {
         viewModelScope.launch {
-            getSizeFilesExcursionUseCase.invoke(ID).collect { response ->
-                _stateSizeFiles.postValue(response)
+            excursionId?.let {
+                getSizeFilesExcursionUseCase.invoke(it).collect { response ->
+                    _stateSizeFiles.postValue(response)
+                }
             }
         }
     }
 
     fun downloadFilesExcursion() {
         viewModelScope.launch {
-            downloadFilesExcursionUseCase.invoke(ID).collect { response ->
-                _stateDownload.postValue(response)
+            excursionId?.let {
+                downloadFilesExcursionUseCase.invoke(it).collect { response ->
+                    _stateDownload.postValue(response)
+                }
             }
         }
     }

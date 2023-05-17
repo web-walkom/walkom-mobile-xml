@@ -6,17 +6,19 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import coil.load
+import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.FragmentExcursionsBinding
 import ru.walkom.app.domain.model.Response
 
 
+@AndroidEntryPoint
 class ExcursionsFragment : Fragment() {
 
-    private val viewModel: ExcursionsViewModel by activityViewModels()
+    private val viewModel: ExcursionsViewModel by viewModels()
     private lateinit var binding: FragmentExcursionsBinding
 
     override fun onCreateView(
