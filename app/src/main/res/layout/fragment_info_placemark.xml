@@ -6,7 +6,8 @@
     android:layout_height="match_parent"
     android:background="@drawable/bg_bottom_sheet"
     android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context=".presentation.screens.map.InfoPlacemarkFragment">
 
     <View
         android:id="@+id/view"
@@ -24,7 +25,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Пермский медведь"
         android:textAlignment="center"
         android:textColor="@color/dark_gray"
         android:textSize="20sp"
@@ -46,7 +46,7 @@
     </androidx.viewpager2.widget.ViewPager2>
 
     <Button
-        android:id="@+id/startExcursion"
+        android:id="@+id/showAR"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="20dp"

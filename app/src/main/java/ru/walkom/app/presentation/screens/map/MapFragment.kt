@@ -4,7 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.graphics.Color
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.text.TextUtils
@@ -50,10 +49,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_START_POINT
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_WAYPOINT
+import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.FragmentMapBinding
+import ru.walkom.app.domain.model.PlacemarkInfoDialog
 import ru.walkom.app.domain.model.Response
 
 
@@ -352,13 +354,14 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         }
     }
 
-    private fun showInformationAboutPlacemark() {
-
+    private fun showInformationAboutPlacemark(placemark: PlacemarkInfoDialog) {
+        val action = MapFragmentDirections.navigateToInfoPlacemarkFragment(placemark)
+        findNavController().navigate(action)
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun onClickStartExcursion() {
-        if (!viewModel.statusBeingStartPoint) {
+        if (viewModel.statusBeingStartPoint) {
             binding.startExcursion.visibility = View.INVISIBLE
             binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_stop))
@@ -374,7 +377,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                         viewModel.placemarksLocations[0].latitude,
                         viewModel.placemarksLocations[0].longitude
                     ),
-                    20.0f, 0.0f, 70.0f
+                    20.0f, 0.0f, 50.0f
                 ),
                 Animation(Animation.Type.SMOOTH, 1f),
                 null
@@ -389,28 +392,29 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                 viewModel.statusStartExcursion = true
                 binding.soundAction.visibility = View.INVISIBLE
             }
-        } else
-            Toast.makeText(APP_ACTIVITY, NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT)
-                .show()
+
+            if (viewModel.waypointsLocations.size > 2)
+                viewModel.indexWaypointEnd = 2
+        }
+        else
+            Toast.makeText(APP_ACTIVITY, NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT).show()
     }
 
     @SuppressLint("UseCompatLoadingForDrawables")
     private fun onClickPauseExcursion() {
-        if (!viewModel.statusPause) {
+        if (!viewModel.statusPauseExcursion) {
             binding.pauseExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_play))
-            viewModel.statusPause = true
+            viewModel.statusPauseExcursion = true
 
-            if (viewModel.audioPlayer.isPlaying()) {
+            if (viewModel.audioPlayer.isPlaying())
                 viewModel.audioPlayer.pause()
-            }
         }
         else {
             binding.pauseExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_pause))
-            viewModel.statusPause = false
+            viewModel.statusPauseExcursion = false
 
-            if (!viewModel.audioPlayer.isPlaying()) {
+            if (!viewModel.audioPlayer.isPlaying())
                 viewModel.audioPlayer.start()
-            }
         }
     }
 
@@ -484,11 +488,11 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                     viewModel.placemarksLocations[0].longitude
                 ),
                 locationUser,
-                Constants.DISTANCE_CONTAINS_START_POINT
+                DISTANCE_CONTAINS_START_POINT
             )
             viewModel.statusBeingStartPoint = statusContains
         }
-        else if (viewModel.statusStartExcursion && !viewModel.statusPause)
+        else if (viewModel.statusStartExcursion && !viewModel.statusPauseExcursion)
             detectGPS(locationUser)
     }
 
@@ -497,7 +501,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     override fun onMasstransitRoutesError(error: Error) {
-        Toast.makeText(APP_ACTIVITY, Constants.ERROR_DRAW_ROUTE, Toast.LENGTH_SHORT).show()
+        Toast.makeText(APP_ACTIVITY, ERROR_DRAW_ROUTE, Toast.LENGTH_SHORT).show()
         Log.e(TAG, error.toString())
     }
 
@@ -522,8 +526,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     private fun detectGPS(locationUser: Point) {
         var statusContains = false
 
-        for (waypoint in viewModel.waypointsLocations) {
-            // Проверка на подход пользователя к точке маршрута экскурсии
+        for (waypoint in viewModel.waypointsLocations.slice(viewModel.indexWaypointStart..viewModel.indexWaypointEnd)) {
             statusContains = viewModel.containsPointArea(
                 Point(waypoint.latitude, waypoint.longitude),
                 locationUser,
@@ -538,11 +541,21 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                         { initialiseSeekBar() }
                     ) {
                         binding.soundAction.visibility = View.INVISIBLE
+
+                        if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
+                            viewModel.indexWaypointStart++
+                            viewModel.indexWaypointEnd++
+                        }
+                        else {
+                            // action to finish excursion
+                        }
                     }
                 }
 
-                showInformationAboutPlacemark()
+                val placemark = PlacemarkInfoDialog("Название метки", emptyList())
+                showInformationAboutPlacemark(placemark)
                 waypoint.isPassed = true
+                break
             }
         }
 

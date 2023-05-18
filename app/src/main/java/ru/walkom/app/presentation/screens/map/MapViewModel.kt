@@ -2,7 +2,6 @@ package ru.walkom.app.presentation.screens.map
 
 import android.graphics.Color
 import android.graphics.PointF
-import android.media.MediaPlayer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.SavedStateHandle
@@ -10,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.yandex.mapkit.RequestPoint
 import com.yandex.mapkit.RequestPointType
-import com.yandex.mapkit.geometry.Circle
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.IconStyle
@@ -40,9 +38,10 @@ class MapViewModel @Inject constructor(
     private val state: SavedStateHandle
 ): ViewModel() {
 
+    private val excursionId = state.get<String>(ARGUMENT_EXCURSION_ID)
+
     private val _stateRoute = MutableLiveData<Response<ExcursionMap?>>()
     val stateRoute: LiveData<Response<ExcursionMap?>> get() = _stateRoute
-    private val excursionId = state.get<String>(ARGUMENT_EXCURSION_ID)
 
     lateinit var placemarksLocations: List<Placemark>
     lateinit var waypointsLocations: List<Waypoint>
@@ -60,10 +59,12 @@ class MapViewModel @Inject constructor(
     var permissionLocation = false
     var followUserLocation = false
     var statusStartExcursion = false
-    var statusPause = false
+    var statusPauseExcursion = false
     var statusBeingStartPoint = false
 
     val audioPlayer = AudioPlayer()
+    var indexWaypointStart = 1
+    var indexWaypointEnd = 1
 
     init {
         viewModelScope.launch {
@@ -189,21 +190,22 @@ class MapViewModel @Inject constructor(
     }
 
     fun getDistanceNearestWaypoint(locationUser: Point): Double {
-        var distanceMin = 0.0
-        var distanceNow: Double
+        val distanceToStart = getDistanceBetweenPoints(
+            Point(
+                waypointsLocations[indexWaypointStart].latitude,
+                waypointsLocations[indexWaypointStart].longitude
+            ),
+            locationUser
+        )
+        val distanceToEnd = getDistanceBetweenPoints(
+            Point(
+                waypointsLocations[indexWaypointEnd].latitude,
+                waypointsLocations[indexWaypointEnd].longitude
+            ),
+            locationUser
+        )
 
-        for (waypoint in waypointsLocations) {
-            distanceNow = getDistanceBetweenPoints(Point(waypoint.latitude, waypoint.longitude), locationUser)
-
-            if (waypoint == waypointsLocations[0])
-                distanceMin = distanceNow
-            else {
-                if (distanceNow < distanceMin)
-                    distanceMin = distanceNow
-            }
-        }
-
-        return distanceMin
+        return distanceToStart.coerceAtMost(distanceToEnd)
     }
 
     private fun getDistanceBetweenPoints(point1: Point, point2: Point): Double {

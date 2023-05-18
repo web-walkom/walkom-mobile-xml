@@ -45,7 +45,7 @@ class ExcursionsFragment : Fragment() {
                         binding.excursionPhoto.load(state.data[0].photos[0])
 
                         binding.excursionCard.setOnClickListener {
-                            val excursion = state.data[0]
+                            val excursion = state.data[1]
                             val action = ExcursionsFragmentDirections.navigateToExcursionFragment(excursion)
                             findNavController().navigate(action)
                         }

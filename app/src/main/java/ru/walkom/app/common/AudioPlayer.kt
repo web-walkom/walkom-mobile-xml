@@ -48,7 +48,8 @@ class AudioPlayer {
     }
 
     fun release() {
-        mediaPlayer.release()
+        if (this::mediaPlayer.isInitialized)
+            mediaPlayer.release()
     }
 
     fun isPlaying(): Boolean {
