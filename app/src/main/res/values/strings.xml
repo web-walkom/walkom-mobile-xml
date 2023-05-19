@@ -6,6 +6,7 @@
     <string name="enter_code">Введите код</string>
     <string name="description_text">Мы отправим вас в невероятное путешествие, при помощи <font color="#238A4C"><b>дополненной реальности</b></font></string>
     <string name="tour_route">Маршрут экскурсии</string>
+    <string name="choose_action">Выберите действие</string>
     <string name="excursions">Экскурсии</string>
 
     <!-- Placeholders -->
@@ -17,6 +18,7 @@
     <string name="start_excursion">Начать экскурсию</string>
     <string name="showAR">Смотреть в AR</string>
     <string name="run_excursion">Запустить</string>
+    <string name="delete_files_excursion">Удалить файлы экскурсии</string>
 
     <!-- Content descriptions -->
     <string name="list_places_description">Посмотреть список мест</string>
@@ -29,6 +31,4 @@
     <string name="close_excursion">Закрыть экскурсию</string>
     <string name="options_excursion">Открыть окно с меню экскурсии</string>
     <string name="close_camera_ar">Закрыть окно с камерой</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

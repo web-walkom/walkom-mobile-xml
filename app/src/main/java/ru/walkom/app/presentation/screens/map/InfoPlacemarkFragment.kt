@@ -1,26 +1,20 @@
 package ru.walkom.app.presentation.screens.map
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import ru.walkom.app.R
 import ru.walkom.app.databinding.FragmentInfoPlacemarkBinding
+import ru.walkom.app.presentation.components.fragment_dialog.FragmentDialog
 
 
-class InfoPlacemarkFragment : BottomSheetDialogFragment() {
+class InfoPlacemarkFragment : FragmentDialog() {
 
     private val args: InfoPlacemarkFragmentArgs by navArgs()
     private lateinit var binding: FragmentInfoPlacemarkBinding
-
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        setStyle(STYLE_NORMAL, R.style.BottomSheetDialogTheme)
-        return super.onCreateDialog(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +26,6 @@ class InfoPlacemarkFragment : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog!!.window!!.attributes.windowAnimations = R.style.BottomSheetAnimation
 
         binding.titlePlacemark.text = args.placemark.title
 

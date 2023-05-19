@@ -29,6 +29,9 @@
         <argument
             android:name="excursion"
             app:argType="ru.walkom.app.domain.model.ExcursionItem" />
+        <action
+            android:id="@+id/navigateToActionsExcursionFragment"
+            app:destination="@id/actionsExcursionFragment" />
     </fragment>
     <fragment
         android:id="@+id/mapFragment"
@@ -70,5 +73,14 @@
         <argument
             android:name="placemark"
             app:argType="ru.walkom.app.domain.model.PlacemarkInfoDialog" />
+    </dialog>
+    <dialog
+        android:id="@+id/actionsExcursionFragment"
+        android:name="ru.walkom.app.presentation.screens.excursion.ActionsExcursionFragment"
+        android:label="fragment_action_excursion"
+        tools:layout="@layout/fragment_action_excursion" >
+        <argument
+            android:name="excursionId"
+            app:argType="string" />
     </dialog>
 </navigation>

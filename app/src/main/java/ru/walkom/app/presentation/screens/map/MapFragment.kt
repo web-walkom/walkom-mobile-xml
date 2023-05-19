@@ -49,10 +49,13 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.R
 import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE
+import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE_EXTREME
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_START_POINT
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_WAYPOINT
 import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
+import ru.walkom.app.common.Constants.NOTIFICATION_TERMINATION_DEVIATION_ROUTE
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.FragmentMapBinding
 import ru.walkom.app.domain.model.PlacemarkInfoDialog
@@ -364,7 +367,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         if (viewModel.statusBeingStartPoint) {
             binding.startExcursion.visibility = View.INVISIBLE
             binding.soundAction.visibility = View.VISIBLE
-            binding.closeExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_stop))
+            binding.closeExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_close))
 
             binding.titleTable.text = Constants.TEXT_INTRODUCTION_EXCURSION
             binding.descriptionTable.text = Constants.DESCRIPTION_INTRODUCTION_EXCURSION
@@ -524,50 +527,46 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     private fun detectGPS(locationUser: Point) {
-        var statusContains = false
+        val waypoint = viewModel.waypointsLocations[viewModel.indexWaypointEnd]
+        val statusContains = viewModel.containsPointArea(
+            Point(waypoint.latitude, waypoint.longitude),
+            locationUser,
+            DISTANCE_CONTAINS_WAYPOINT
+        )
 
-        for (waypoint in viewModel.waypointsLocations.slice(viewModel.indexWaypointStart..viewModel.indexWaypointEnd)) {
-            statusContains = viewModel.containsPointArea(
-                Point(waypoint.latitude, waypoint.longitude),
-                locationUser,
-                DISTANCE_CONTAINS_WAYPOINT
-            )
+        if (statusContains && !waypoint.isPassed) {
+            if (!viewModel.audioPlayer.isPlaying()) {
+                viewModel.audioPlayer.play(
+                    waypoint.audio,
+                    args.excursionId,
+                    { initialiseSeekBar() }
+                ) {
+                    binding.soundAction.visibility = View.INVISIBLE
 
-            if (statusContains && !waypoint.isPassed) {
-                if (!viewModel.audioPlayer.isPlaying()) {
-                    viewModel.audioPlayer.play(
-                        waypoint.audio,
-                        args.excursionId,
-                        { initialiseSeekBar() }
-                    ) {
-                        binding.soundAction.visibility = View.INVISIBLE
-
-                        if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
-                            viewModel.indexWaypointStart++
-                            viewModel.indexWaypointEnd++
-                        }
-                        else {
-                            // action to finish excursion
-                        }
+                    if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
+                        viewModel.indexWaypointStart++
+                        viewModel.indexWaypointEnd++
+                    }
+                    else {
+                        // action to finish excursion
                     }
                 }
-
-                val placemark = PlacemarkInfoDialog("Название метки", emptyList())
-                showInformationAboutPlacemark(placemark)
-                waypoint.isPassed = true
-                break
             }
+
+            val placemark = PlacemarkInfoDialog("Название метки", emptyList())
+            showInformationAboutPlacemark(placemark)
+            waypoint.isPassed = true
         }
 
         if (!statusContains) {
             // Проверка на отдаление от маршрута
             val distance = viewModel.getDistanceNearestWaypoint(locationUser)
 
-            if (distance > Constants.DISTANCE_CONTAINS_ROUTE && distance <= Constants.DISTANCE_CONTAINS_ROUTE_EXTREME)
+            if (distance > DISTANCE_CONTAINS_ROUTE && distance <= DISTANCE_CONTAINS_ROUTE_EXTREME)
                 Toast.makeText(APP_ACTIVITY, Constants.NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
-            if (distance > Constants.DISTANCE_CONTAINS_ROUTE_EXTREME) {
-                Toast.makeText(APP_ACTIVITY, Constants.NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
-                APP_ACTIVITY.supportFragmentManager.popBackStack()
+            if (distance > DISTANCE_CONTAINS_ROUTE_EXTREME) {
+                Toast.makeText(APP_ACTIVITY, NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
             }
         }
     }

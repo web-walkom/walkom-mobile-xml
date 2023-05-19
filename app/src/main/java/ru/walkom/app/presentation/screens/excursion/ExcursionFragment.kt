@@ -1,5 +1,6 @@
 package ru.walkom.app.presentation.screens.excursion
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,8 +16,6 @@ import ru.walkom.app.R
 import ru.walkom.app.common.Constants.APP_ACTIVITY
 import ru.walkom.app.common.Constants.BUTTON_LOAD_EXCURSION
 import ru.walkom.app.common.Constants.BUTTON_RUN_EXCURSION
-import ru.walkom.app.common.Constants.FOLDER_AUDIO
-import ru.walkom.app.common.Constants.FOLDER_MODELS
 import ru.walkom.app.common.Constants.TAG
 import ru.walkom.app.databinding.FragmentExcursionBinding
 import ru.walkom.app.domain.model.Response
@@ -46,12 +45,21 @@ class ExcursionFragment : Fragment() {
 
         clickHandler()
         getExcursionHandler()
+        checkFilesExcursion()
+    }
 
-        val folderAudio = File("${APP_ACTIVITY.filesDir}/${args.excursion.id}", FOLDER_AUDIO)
-        val folderModels = File("${APP_ACTIVITY.filesDir}/${args.excursion.id}", FOLDER_MODELS)
-        if (!folderAudio.exists() || !folderModels.exists()) {
-            binding.startExcursion.text = BUTTON_LOAD_EXCURSION
-            getSizeFilesHandler()
+    private fun clickHandler() {
+        binding.closeExcursion.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.actionsExcursion.setOnClickListener {
+            val action = ExcursionFragmentDirections.navigateToActionsExcursionFragment(args.excursion.id)
+            findNavController().navigate(action)
+        }
+
+        binding.startExcursion.setOnClickListener {
+            runExcursion()
         }
     }
 
@@ -76,12 +84,20 @@ class ExcursionFragment : Fragment() {
         }
     }
 
+    private fun checkFilesExcursion() {
+        if (!viewModel.checkFilesExcursion()) {
+            binding.actionsExcursion.visibility = View.GONE
+            binding.startExcursion.text = BUTTON_LOAD_EXCURSION
+            getSizeFilesHandler()
+        }
+    }
+
     private fun getSizeFilesHandler() {
         viewModel.stateSizeFiles.observe(viewLifecycleOwner) { response ->
             response?.let { state ->
                 when (state) {
                     is Response.Loading -> {
-                        Log.i(TAG, "Loading")
+
                     }
                     is Response.Success -> {
                         binding.startExcursion.text = "$BUTTON_LOAD_EXCURSION (${state.data} MB)"
@@ -96,28 +112,12 @@ class ExcursionFragment : Fragment() {
         }
     }
 
-    private fun clickHandler() {
-        binding.closeExcursion.setOnClickListener {
-            findNavController().popBackStack()
-        }
-
-        binding.optionsExcursion.setOnClickListener {
-
-        }
-
-        binding.startExcursion.setOnClickListener {
-            runExcursion()
-        }
-    }
-
+    @SuppressLint("UseCompatLoadingForDrawables")
     private fun runExcursion() {
-        val folderAudio = File("${APP_ACTIVITY.filesDir}/${args.excursion.id}", FOLDER_AUDIO)
-        val folderModels = File("${APP_ACTIVITY.filesDir}/${args.excursion.id}", FOLDER_MODELS)
-
-        if (!folderAudio.exists() || !folderModels.exists()) {
-            val folderData = File(APP_ACTIVITY.filesDir, args.excursion.id)
-            if (!folderData.exists())
-                folderData.mkdir()
+        if (!viewModel.checkFilesExcursion()) {
+            val folderFiles = File(APP_ACTIVITY.filesDir, args.excursion.id)
+            if (!folderFiles.exists())
+                folderFiles.mkdir()
 
             viewModel.downloadFilesExcursion()
             viewModel.stateDownload.observe(viewLifecycleOwner) { response ->
@@ -128,16 +128,15 @@ class ExcursionFragment : Fragment() {
                             binding.startExcursion.isEnabled = false
                             binding.startExcursion.background = resources.getDrawable(R.drawable.green_button_opacity)
                         }
-
                         is Response.Success -> {
                             binding.progressDownload.visibility = View.GONE
                             binding.startExcursion.isEnabled = true
                             binding.startExcursion.background = resources.getDrawable(R.drawable.green_button)
                             binding.startExcursion.text = BUTTON_RUN_EXCURSION
+                            binding.actionsExcursion.visibility = View.VISIBLE
 
                             return@observe
                         }
-
                         is Response.Error -> {
                             Log.e(TAG, state.message)
                             return@observe

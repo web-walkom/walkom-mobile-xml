@@ -7,13 +7,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.walkom.app.common.Constants
+import ru.walkom.app.common.Constants.APP_ACTIVITY
 import ru.walkom.app.common.Constants.ARGUMENT_EXCURSION
+import ru.walkom.app.common.Constants.FOLDER_AUDIO
+import ru.walkom.app.common.Constants.FOLDER_MODELS
 import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.ExcursionOpen
 import ru.walkom.app.domain.model.Response
 import ru.walkom.app.domain.use_case.DownloadFilesExcursionUseCase
 import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import ru.walkom.app.domain.use_case.GetSizeFilesExcursionUseCase
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,6 +63,13 @@ class ExcursionViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun checkFilesExcursion(): Boolean {
+        val folderAudios = File("${APP_ACTIVITY.filesDir}/$excursionId", FOLDER_AUDIO)
+        val folderModels = File("${APP_ACTIVITY.filesDir}/$excursionId", FOLDER_MODELS)
+
+        return folderAudios.exists() && folderModels.exists()
     }
 
     fun downloadFilesExcursion() {
