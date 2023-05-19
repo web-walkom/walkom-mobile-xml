@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:layout_marginTop="55dp"
-        android:text="@string/excursions"
+        android:text="@string/excursions_text"
         android:textColor="@color/dark_gray"
         android:textSize="@dimen/text_h1"
         android:textStyle="bold"

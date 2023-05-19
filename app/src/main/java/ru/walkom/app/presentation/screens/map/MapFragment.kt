@@ -2,6 +2,7 @@ package ru.walkom.app.presentation.screens.map
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
@@ -25,6 +26,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import coil.load
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -139,7 +141,23 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
     private fun clickHandler() {
         binding.closeExcursion.setOnClickListener {
-            findNavController().popBackStack()
+            if (viewModel.statusStartExcursion) {
+                val dialog = context?.let { context_ ->
+                    MaterialAlertDialogBuilder(context_, R.style.RoundedModalDialog)
+                        .setView(R.layout.modal_dialog)
+                        .show()
+                }
+
+                dialog?.findViewById<View>(R.id.confirm)?.setOnClickListener {
+                    findNavController().popBackStack()
+                    dialog.hide()
+                }
+                dialog?.findViewById<View>(R.id.cancel)?.setOnClickListener {
+                    dialog.hide()
+                }
+            }
+            else
+                findNavController().popBackStack()
         }
 
         binding.listPlaces.setOnClickListener {
@@ -536,22 +554,18 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         if (statusContains && !waypoint.isPassed) {
             if (!viewModel.audioPlayer.isPlaying()) {
-                viewModel.audioPlayer.play(
-                    waypoint.audio,
-                    args.excursionId,
-                    { initialiseSeekBar() }
-                ) {
-                    binding.soundAction.visibility = View.INVISIBLE
-
-                    if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
-                        viewModel.indexWaypointStart++
-                        viewModel.indexWaypointEnd++
-                    }
-                    else {
-                        // action to finish excursion
-                    }
+                if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
+                    viewModel.indexWaypointStart++
+                    viewModel.indexWaypointEnd++
                 }
+                else {
+                    // action to finish excursion
+                }
+
+                startAudio(waypoint.audio)
             }
+            else
+                viewModel.queueAudio.add(waypoint.audio)
 
             val placemark = PlacemarkInfoDialog("Название метки", emptyList())
             showInformationAboutPlacemark(placemark)
@@ -559,6 +573,19 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         }
 
         if (!statusContains) {
+            // Проверка на наличие в очереди аудио непрослушанной аудио
+            if (viewModel.queueAudio.isNotEmpty()) {
+                startAudio(viewModel.queueAudio[0])
+
+                if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
+                    viewModel.indexWaypointStart++
+                    viewModel.indexWaypointEnd++
+                }
+                else {
+                    // action to finish excursion
+                }
+            }
+
             // Проверка на отдаление от маршрута
             val distance = viewModel.getDistanceNearestWaypoint(locationUser)
 
@@ -568,6 +595,16 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                 Toast.makeText(APP_ACTIVITY, NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
                 findNavController().popBackStack()
             }
+        }
+    }
+
+    private fun startAudio(audio: String) {
+        viewModel.audioPlayer.play(
+            audio,
+            args.excursionId,
+            { initialiseSeekBar() }
+        ) {
+            binding.soundAction.visibility = View.INVISIBLE
         }
     }
 

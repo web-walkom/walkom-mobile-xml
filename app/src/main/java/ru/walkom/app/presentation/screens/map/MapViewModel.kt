@@ -66,6 +66,8 @@ class MapViewModel @Inject constructor(
     var indexWaypointStart = 1
     var indexWaypointEnd = 1
 
+    var queueAudio = arrayListOf<String>()
+
     init {
         viewModelScope.launch {
             if (excursionId != null) {

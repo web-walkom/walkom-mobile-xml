@@ -131,7 +131,7 @@
         android:layout_marginHorizontal="40dp"
         android:layout_marginBottom="23dp"
         android:background="@drawable/green_button"
-        android:text="@string/start_excursion"
+        android:text="@string/start_excursion_button"
         android:textAllCaps="false"
         android:textColor="@color/white"
         android:textSize="16sp"

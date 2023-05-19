@@ -3,11 +3,13 @@
 
     <!-- Text -->
     <string name="welcome_text">Добро пожаловать!</string>
-    <string name="enter_code">Введите код</string>
+    <string name="enter_code_text">Введите код</string>
     <string name="description_text">Мы отправим вас в невероятное путешествие, при помощи <font color="#238A4C"><b>дополненной реальности</b></font></string>
-    <string name="tour_route">Маршрут экскурсии</string>
-    <string name="choose_action">Выберите действие</string>
-    <string name="excursions">Экскурсии</string>
+    <string name="tour_route_text">Маршрут экскурсии</string>
+    <string name="choose_action_text">Выберите действие</string>
+    <string name="excursions_text">Экскурсии</string>
+    <string name="confirm_text">Вы уверены?</string>
+    <string name="close_excursion_description_text">Если закроете экскурсию, то не сможете ее продолжить и весь пройденный маршрут будет сброшен</string>
 
     <!-- Placeholders -->
     <string name="email_placeholder">Введите почту</string>
@@ -15,10 +17,12 @@
     <!-- Buttons -->
     <string name="continue_button">Продолжить</string>
     <string name="continue_guest_button">Продолжить как гость</string>
-    <string name="start_excursion">Начать экскурсию</string>
-    <string name="showAR">Смотреть в AR</string>
-    <string name="run_excursion">Запустить</string>
-    <string name="delete_files_excursion">Удалить файлы экскурсии</string>
+    <string name="start_excursion_button">Начать экскурсию</string>
+    <string name="show_ar_button">Смотреть в AR</string>
+    <string name="run_excursion_button">Запустить</string>
+    <string name="delete_files_excursion_button">Удалить файлы экскурсии</string>
+    <string name="confirm_button">Да</string>
+    <string name="cancel_button">Отмена</string>
 
     <!-- Content descriptions -->
     <string name="list_places_description">Посмотреть список мест</string>
