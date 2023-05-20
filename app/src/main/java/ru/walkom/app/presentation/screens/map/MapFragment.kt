@@ -2,7 +2,6 @@ package ru.walkom.app.presentation.screens.map
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Bundle
@@ -49,16 +48,21 @@ import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.ui_view.ViewProvider
 import dagger.hilt.android.AndroidEntryPoint
 import ru.walkom.app.R
-import ru.walkom.app.common.Constants
 import ru.walkom.app.common.Constants.APP_ACTIVITY
+import ru.walkom.app.common.Constants.DESCRIPTION_INTRODUCTION_EXCURSION
+import ru.walkom.app.common.Constants.DESCRIPTION_START_EXCURSION
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_ROUTE_EXTREME
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_START_POINT
 import ru.walkom.app.common.Constants.DISTANCE_CONTAINS_WAYPOINT
 import ru.walkom.app.common.Constants.ERROR_DRAW_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_CONDITIONS_START_TOUR
+import ru.walkom.app.common.Constants.NOTIFICATION_DEVIATION_ROUTE
 import ru.walkom.app.common.Constants.NOTIFICATION_TERMINATION_DEVIATION_ROUTE
 import ru.walkom.app.common.Constants.TAG
+import ru.walkom.app.common.Constants.TEXT_INTRODUCTION_EXCURSION
+import ru.walkom.app.common.Constants.TEXT_START
+import ru.walkom.app.common.Constants.TEXT_START_EXCURSION
 import ru.walkom.app.databinding.FragmentMapBinding
 import ru.walkom.app.domain.model.PlacemarkInfoDialog
 import ru.walkom.app.domain.model.Response
@@ -141,27 +145,12 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
     private fun clickHandler() {
         binding.closeExcursion.setOnClickListener {
-            if (viewModel.statusStartExcursion) {
-                val dialog = context?.let { context_ ->
-                    MaterialAlertDialogBuilder(context_, R.style.RoundedModalDialog)
-                        .setView(R.layout.modal_dialog)
-                        .show()
-                }
-
-                dialog?.findViewById<View>(R.id.confirm)?.setOnClickListener {
-                    findNavController().popBackStack()
-                    dialog.hide()
-                }
-                dialog?.findViewById<View>(R.id.cancel)?.setOnClickListener {
-                    dialog.hide()
-                }
-            }
-            else
-                findNavController().popBackStack()
+            closeExcursion()
         }
 
         binding.listPlaces.setOnClickListener {
-            findNavController().navigate(R.id.navigateToRouteTourFragment)
+            val action = MapFragmentDirections.navigateToRouteTourFragment(args.excursionId)
+            findNavController().navigate(action)
         }
 
         binding.zoomIn.setOnClickListener {
@@ -210,8 +199,8 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     private fun onMapReady() {
         val mapKit = MapKitFactory.getInstance()
 
-        binding.titleTable.text = Constants.TEXT_START_EXCURSION
-        binding.descriptionTable.text = Constants.DESCRIPTION_START_EXCURSION
+        binding.titleTable.text = TEXT_START_EXCURSION
+        binding.descriptionTable.text = DESCRIPTION_START_EXCURSION
 
         viewModel.userLocationLayer = mapKit.createUserLocationLayer(binding.mapview.mapWindow)
         viewModel.userLocationLayer.isVisible = true
@@ -231,10 +220,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     private fun initialApproximation() {
         binding.mapview.map.move(
             CameraPosition(
-                Point(
-                    viewModel.placemarksLocations[0].latitude,
-                    viewModel.placemarksLocations[0].longitude
-                ),
+                viewModel.placemarksLocations[0].point,
                 16.0f, 0.0f, 0.0f
             ),
             Animation(Animation.Type.SMOOTH, 0.3f),
@@ -262,7 +248,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         viewModel.drawingPlacemarkIcon(resourcePlacemarkIcon)
         drawingStartPlacemark()
-        drawingPlacemarkCard()
+//        drawingPlacemarkCard()
 
         viewModel.transportRouter = TransportFactory.getInstance().createPedestrianRouter()
         viewModel.transportRouter.requestRoutes(requestPoints, TimeOptions(), this)
@@ -279,7 +265,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
         )
         textView.setTextColor(resources.getColor(R.color.dark_gray))
         textView.setPadding(20, 10, 20, 10)
-        textView.text = Constants.TEXT_START
+        textView.text = TEXT_START
 
         cardView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
@@ -293,14 +279,11 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
-        constraintLayout.setPadding(0, 0, 0, 200)
+        constraintLayout.setPadding(0, 100, 0, 0)
         constraintLayout.addView(cardView)
 
         viewModel.placemarkStart = viewModel.mapObjects.addPlacemark(
-            Point(
-                viewModel.placemarksLocations[0].latitude,
-                viewModel.placemarksLocations[0].longitude
-            ),
+            viewModel.waypointsLocations[0].point,
             ViewProvider(constraintLayout)
         )
     }
@@ -354,7 +337,6 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         for (placemark in viewModel.placemarksLocations) {
             textView.text = placemark.title
-//            imageView.setImageResource(placemark.photos[0])
             imageView.load(placemark.photos[0])
 
             linearLayout.removeAllViews()
@@ -368,7 +350,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             constraintLayout.addView(cardView)
 
             viewPlacemark = viewModel.mapObjects.addPlacemark(
-                Point(placemark.latitude, placemark.longitude),
+                placemark.point,
                 ViewProvider(constraintLayout)
             )
             viewModel.placemarkCards.add(viewPlacemark)
@@ -387,17 +369,14 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             binding.soundAction.visibility = View.VISIBLE
             binding.closeExcursion.setImageDrawable(APP_ACTIVITY.getDrawable(R.drawable.ic_close))
 
-            binding.titleTable.text = Constants.TEXT_INTRODUCTION_EXCURSION
-            binding.descriptionTable.text = Constants.DESCRIPTION_INTRODUCTION_EXCURSION
+            binding.titleTable.text = TEXT_INTRODUCTION_EXCURSION
+            binding.descriptionTable.text = DESCRIPTION_INTRODUCTION_EXCURSION
 
             viewModel.placemarkStart.isVisible = false
 
             binding.mapview.map.move(
                 CameraPosition(
-                    Point(
-                        viewModel.placemarksLocations[0].latitude,
-                        viewModel.placemarksLocations[0].longitude
-                    ),
+                    viewModel.placemarksLocations[0].point,
                     20.0f, 0.0f, 50.0f
                 ),
                 Animation(Animation.Type.SMOOTH, 1f),
@@ -414,8 +393,8 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
                 binding.soundAction.visibility = View.INVISIBLE
             }
 
-            if (viewModel.waypointsLocations.size > 2)
-                viewModel.indexWaypointEnd = 2
+            if (viewModel.waypointsLocations.size > 1)
+                viewModel.indexWaypointEnd++
         }
         else
             Toast.makeText(APP_ACTIVITY, NOTIFICATION_CONDITIONS_START_TOUR, Toast.LENGTH_SHORT).show()
@@ -437,6 +416,26 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             if (!viewModel.audioPlayer.isPlaying())
                 viewModel.audioPlayer.start()
         }
+    }
+
+    private fun closeExcursion() {
+        if (viewModel.statusStartExcursion) {
+            val dialog = context?.let { context_ ->
+                MaterialAlertDialogBuilder(context_, R.style.RoundedModalDialog)
+                    .setView(R.layout.modal_dialog)
+                    .show()
+            }
+
+            dialog?.findViewById<View>(R.id.confirm)?.setOnClickListener {
+                findNavController().popBackStack()
+                dialog.hide()
+            }
+            dialog?.findViewById<View>(R.id.cancel)?.setOnClickListener {
+                dialog.hide()
+            }
+        }
+        else
+            findNavController().popBackStack()
     }
 
     private fun onClickLocationMe() {
@@ -504,10 +503,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         if (!viewModel.statusStartExcursion) {
             val statusContains = viewModel.containsPointArea(
-                Point(
-                    viewModel.placemarksLocations[0].latitude,
-                    viewModel.placemarksLocations[0].longitude
-                ),
+                viewModel.placemarksLocations[0].point,
                 locationUser,
                 DISTANCE_CONTAINS_START_POINT
             )
@@ -547,22 +543,19 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     private fun detectGPS(locationUser: Point) {
         val waypoint = viewModel.waypointsLocations[viewModel.indexWaypointEnd]
         val statusContains = viewModel.containsPointArea(
-            Point(waypoint.latitude, waypoint.longitude),
+            waypoint.point,
             locationUser,
             DISTANCE_CONTAINS_WAYPOINT
         )
 
         if (statusContains && !waypoint.isPassed) {
             if (!viewModel.audioPlayer.isPlaying()) {
+                startAudio(waypoint.audio)
+
                 if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
                     viewModel.indexWaypointStart++
                     viewModel.indexWaypointEnd++
                 }
-                else {
-                    // action to finish excursion
-                }
-
-                startAudio(waypoint.audio)
             }
             else
                 viewModel.queueAudio.add(waypoint.audio)
@@ -572,25 +565,23 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
             waypoint.isPassed = true
         }
 
-        if (!statusContains) {
-            // Проверка на наличие в очереди аудио непрослушанной аудио
-            if (viewModel.queueAudio.isNotEmpty()) {
-                startAudio(viewModel.queueAudio[0])
+        if (!viewModel.audioPlayer.isPlaying() && viewModel.queueAudio.isNotEmpty()) {
+            // Включение аудио из очереди
+            startAudio(viewModel.queueAudio[0])
+            viewModel.queueAudio.removeAt(0)
 
-                if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
-                    viewModel.indexWaypointStart++
-                    viewModel.indexWaypointEnd++
-                }
-                else {
-                    // action to finish excursion
-                }
+            if (viewModel.waypointsLocations.size - 1 != viewModel.indexWaypointEnd) {
+                viewModel.indexWaypointStart++
+                viewModel.indexWaypointEnd++
             }
+        }
 
+        if (!statusContains) {
             // Проверка на отдаление от маршрута
             val distance = viewModel.getDistanceNearestWaypoint(locationUser)
 
             if (distance > DISTANCE_CONTAINS_ROUTE && distance <= DISTANCE_CONTAINS_ROUTE_EXTREME)
-                Toast.makeText(APP_ACTIVITY, Constants.NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
+                Toast.makeText(APP_ACTIVITY, NOTIFICATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
             if (distance > DISTANCE_CONTAINS_ROUTE_EXTREME) {
                 Toast.makeText(APP_ACTIVITY, NOTIFICATION_TERMINATION_DEVIATION_ROUTE, Toast.LENGTH_SHORT).show()
                 findNavController().popBackStack()

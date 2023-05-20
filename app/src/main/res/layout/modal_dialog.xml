@@ -30,8 +30,7 @@
         <Button
             android:id="@+id/confirm"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
-            android:paddingHorizontal="15dp"
+            android:layout_height="40dp"
             android:background="@drawable/green_button"
             android:text="@string/confirm_button"
             android:textAllCaps="false"
@@ -41,10 +40,11 @@
         <Button
             android:id="@+id/cancel"
             android:layout_width="wrap_content"
-            android:layout_height="45dp"
+            android:layout_height="40dp"
             android:layout_marginStart="10dp"
-            android:paddingHorizontal="15dp"
+            android:paddingHorizontal="20dp"
             android:background="@drawable/green_button"
+            android:backgroundTint="@color/red"
             android:text="@string/cancel_button"
             android:textAllCaps="false"
             android:textColor="@color/white"

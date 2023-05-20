@@ -14,7 +14,6 @@
         android:id="@+id/view"
         android:layout_width="45dp"
         android:layout_height="5dp"
-        android:layout_marginTop="5dp"
         android:background="@drawable/line"
         app:layout_constraintCircleRadius="50dp"
         app:layout_constraintEnd_toEndOf="parent"

@@ -7,5 +7,5 @@ class UploadExcursionUseCase(
     private val repository: ExcursionRepository
 ) {
 
-    operator fun invoke(excursion: ExcursionNew) = repository.uploadExcursion(excursion)
+    operator fun invoke(excursion: ExcursionNew, id: String) = repository.uploadExcursion(excursion, id)
 }

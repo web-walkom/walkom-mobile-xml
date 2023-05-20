@@ -5,13 +5,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import ru.walkom.app.R
+import androidx.navigation.fragment.navArgs
 import ru.walkom.app.databinding.FragmentTourRouteBinding
-import ru.walkom.app.presentation.components.fragment_dialog.FragmentDialog
+import ru.walkom.app.presentation.components.fragment_alert_dialog.FragmentDialog
 
 
 class TourRouteFragment: FragmentDialog() {
 
+    private val args: TourRouteFragmentArgs by navArgs()
     private lateinit var binding: FragmentTourRouteBinding
 
     override fun onCreateView(
@@ -26,7 +27,8 @@ class TourRouteFragment: FragmentDialog() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.showAR.setOnClickListener {
-            findNavController().navigate(R.id.navigateToCameraARFragment)
+            val action = TourRouteFragmentDirections.navigateToCameraARFragment(args.excursionId)
+            findNavController().navigate(action)
         }
     }
 }

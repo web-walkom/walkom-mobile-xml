@@ -5,11 +5,13 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import ru.walkom.app.common.Constants.DESCRIPTION_FIELD
 import ru.walkom.app.common.Constants.EXCURSIONS_COLLECTION
+import ru.walkom.app.common.Constants.MODELS_FIELD
 import ru.walkom.app.common.Constants.PHOTOS_FIELD
 import ru.walkom.app.common.Constants.PLACEMARKS_FIELD
 import ru.walkom.app.common.Constants.PRICE_FIELD
 import ru.walkom.app.common.Constants.TITLE_FIELD
 import ru.walkom.app.common.Constants.WAYPOINTS_FIELD
+import ru.walkom.app.domain.model.ExcursionCamera
 import ru.walkom.app.domain.model.ExcursionNew
 import ru.walkom.app.domain.model.ExcursionItem
 import ru.walkom.app.domain.model.ExcursionMap
@@ -46,10 +48,11 @@ class ExcursionFirestoreDBImpl(
                 .toObject(type)
 
             excursion?.let {
-                if (it is ExcursionMap)
-                    (it as ExcursionMap).id = id
-                else if (it is ExcursionOpen)
-                    (it as ExcursionOpen).id = id
+                when (it) {
+                    is ExcursionOpen -> (it as ExcursionOpen).id = id
+                    is ExcursionMap -> (it as ExcursionMap).id = id
+                    is ExcursionCamera -> (it as ExcursionCamera).id = id
+                }
             }
 
             emit(Response.Success(excursion))
@@ -58,7 +61,7 @@ class ExcursionFirestoreDBImpl(
         }
     }
 
-    override fun uploadExcursion(excursion: ExcursionNew) = flow<Response<Boolean>> {
+    override fun uploadExcursion(excursion: ExcursionNew, id: String) = flow<Response<Boolean>> {
         try {
             emit(Response.Loading)
 
@@ -66,11 +69,11 @@ class ExcursionFirestoreDBImpl(
             mapExcursion[TITLE_FIELD] = excursion.title
             mapExcursion[PHOTOS_FIELD] = excursion.photos
             mapExcursion[DESCRIPTION_FIELD] = excursion.description
-            mapExcursion[PRICE_FIELD] = excursion.price ?: 0
             mapExcursion[PLACEMARKS_FIELD] = excursion.placemarks
             mapExcursion[WAYPOINTS_FIELD] = excursion.waypoints
-            db.collection(EXCURSIONS_COLLECTION).add(mapExcursion).await()
+            mapExcursion[MODELS_FIELD] = excursion.models
 
+            db.collection(EXCURSIONS_COLLECTION).document(id).set(mapExcursion).await()
             emit(Response.Success(true))
         } catch (e: Exception) {
             emit(Response.Error(e.message.toString()))

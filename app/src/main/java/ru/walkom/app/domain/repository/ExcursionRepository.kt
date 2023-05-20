@@ -10,5 +10,5 @@ interface ExcursionRepository {
     fun <T> getExcursionById(id: String, type: Class<T>): Flow<Response<T?>>
     fun getSizeFilesExcursion(id: String): Flow<Response<Int>>
     fun downloadFilesExcursion(id: String): Flow<Response<Boolean>>
-    fun uploadExcursion(excursion: ExcursionNew): Flow<Response<Boolean>>
+    fun uploadExcursion(excursion: ExcursionNew, id: String): Flow<Response<Boolean>>
 }

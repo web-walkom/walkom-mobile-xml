@@ -8,7 +8,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import ru.walkom.app.R
 import ru.walkom.app.databinding.FragmentInfoPlacemarkBinding
-import ru.walkom.app.presentation.components.fragment_dialog.FragmentDialog
+import ru.walkom.app.presentation.components.fragment_alert_dialog.FragmentDialog
 
 
 class InfoPlacemarkFragment : FragmentDialog() {

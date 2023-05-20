@@ -32,6 +32,7 @@ import ru.walkom.app.domain.use_case.GetExcursionByIdUseCase
 import javax.inject.Inject
 import kotlin.math.pow
 
+
 @HiltViewModel
 class MapViewModel @Inject constructor(
     private val getExcursionByIdUseCase : GetExcursionByIdUseCase,
@@ -63,8 +64,8 @@ class MapViewModel @Inject constructor(
     var statusBeingStartPoint = false
 
     val audioPlayer = AudioPlayer()
-    var indexWaypointStart = 1
-    var indexWaypointEnd = 1
+    var indexWaypointStart = 0
+    var indexWaypointEnd = 0
 
     var queueAudio = arrayListOf<String>()
 
@@ -83,7 +84,7 @@ class MapViewModel @Inject constructor(
 
         for (waypoint in waypointsLocations) {
             requestPoints.add(RequestPoint(
-                Point(waypoint.latitude, waypoint.longitude),
+                waypoint.point,
                 RequestPointType.WAYPOINT,
                 null
             ))
@@ -91,11 +92,13 @@ class MapViewModel @Inject constructor(
             drawingWaypointIcon(waypoint, resourceIcon)
         }
 
+//        drawingWaypointIcon(waypointsLocations[0], resourceIcon)
+
         return requestPoints
     }
 
     private fun drawingWaypointIcon(waypoint: Waypoint, resourceIcon: ImageProvider) {
-        val viewWaypoint = mapObjects.addPlacemark(Point(waypoint.latitude, waypoint.longitude))
+        val viewWaypoint = mapObjects.addPlacemark(waypoint.point)
 
         viewWaypoint.setIcon(
             resourceIcon,
@@ -111,7 +114,7 @@ class MapViewModel @Inject constructor(
         var viewPlacemark: PlacemarkMapObject
 
         for (placemark in placemarksLocations) {
-            viewPlacemark = mapObjects.addPlacemark(Point(placemark.latitude, placemark.longitude))
+            viewPlacemark = mapObjects.addPlacemark(placemark.point)
             viewPlacemark.setIcon(
                 resourceIcon,
                 IconStyle()
@@ -193,17 +196,11 @@ class MapViewModel @Inject constructor(
 
     fun getDistanceNearestWaypoint(locationUser: Point): Double {
         val distanceToStart = getDistanceBetweenPoints(
-            Point(
-                waypointsLocations[indexWaypointStart].latitude,
-                waypointsLocations[indexWaypointStart].longitude
-            ),
+            waypointsLocations[indexWaypointStart].point,
             locationUser
         )
         val distanceToEnd = getDistanceBetweenPoints(
-            Point(
-                waypointsLocations[indexWaypointEnd].latitude,
-                waypointsLocations[indexWaypointEnd].longitude
-            ),
+            waypointsLocations[indexWaypointEnd].point,
             locationUser
         )
 

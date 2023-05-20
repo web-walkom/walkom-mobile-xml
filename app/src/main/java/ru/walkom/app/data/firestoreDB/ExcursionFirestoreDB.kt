@@ -8,5 +8,5 @@ import ru.walkom.app.domain.model.Response
 interface ExcursionFirestoreDB {
     fun getExcursions(): Flow<Response<List<ExcursionItem>>>
     fun <T> getExcursionById(id: String, type: Class<T>): Flow<Response<T?>>
-    fun uploadExcursion(excursion: ExcursionNew): Flow<Response<Boolean>>
+    fun uploadExcursion(excursion: ExcursionNew, id: String): Flow<Response<Boolean>>
 }

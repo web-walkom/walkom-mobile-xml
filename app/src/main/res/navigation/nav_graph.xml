@@ -52,7 +52,11 @@
         android:id="@+id/cameraARFragment"
         android:name="ru.walkom.app.presentation.screens.camera.CameraARFragment"
         android:label="fragment_camera_ar"
-        tools:layout="@layout/fragment_camera_ar" />
+        tools:layout="@layout/fragment_camera_ar" >
+        <argument
+            android:name="excursionId"
+            app:argType="string" />
+    </fragment>
     <dialog
         android:id="@+id/tourRouteFragment"
         android:name="ru.walkom.app.presentation.screens.map.TourRouteFragment"
@@ -61,6 +65,9 @@
         <action
             android:id="@+id/navigateToCameraARFragment"
             app:destination="@id/cameraARFragment" />
+        <argument
+            android:name="excursionId"
+            app:argType="string" />
     </dialog>
     <dialog
         android:id="@+id/infoPlacemarkFragment"

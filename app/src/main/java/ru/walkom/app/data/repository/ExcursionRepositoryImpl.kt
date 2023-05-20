@@ -35,5 +35,6 @@ class ExcursionRepositoryImpl(
         }
     }
 
-    override fun uploadExcursion(excursion: ExcursionNew): Flow<Response<Boolean>> = excursionFirestoreDB.uploadExcursion(excursion)
+    override fun uploadExcursion(excursion: ExcursionNew, id: String): Flow<Response<Boolean>> =
+        excursionFirestoreDB.uploadExcursion(excursion, id)
 }
