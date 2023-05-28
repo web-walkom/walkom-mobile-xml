@@ -13,6 +13,16 @@
         tools:layout_editor_absoluteX="178dp"
         tools:layout_editor_absoluteY="1dp" />
 
+<!--    <io.github.sceneview.ar.ArSceneView-->
+<!--        android:id="@+id/sceneView"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:visibility="gone"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+
     <ImageButton
         android:id="@+id/closeExcursion"
         android:layout_width="50dp"

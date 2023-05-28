@@ -1,5 +1,7 @@
 package ru.walkom.app.presentation.screens.camera
 
+import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -11,6 +13,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.ar.core.TrackingState
+import com.yandex.mapkit.geometry.Point
 import dagger.hilt.android.AndroidEntryPoint
 import io.github.sceneview.ar.node.ArModelNode
 import io.github.sceneview.ar.node.PlacementMode
@@ -29,7 +32,6 @@ class CameraARFragment : Fragment() {
     private val args: CameraARFragmentArgs by navArgs()
     private val viewModel: CameraARViewModel by viewModels()
     private lateinit var binding: FragmentCameraArBinding
-    private var statusCreateAnchors = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,13 +44,31 @@ class CameraARFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(APP_ACTIVITY.window, false)
+        getModelsHandler()
 
         binding.closeCameraAR.setOnClickListener {
+            for (node in viewModel.nodes)
+                node.destroy()
+
             findNavController().popBackStack()
         }
 
-        overlayModels()
-//        getModelsHandler()
+        binding.test.setOnClickListener {
+            manualOverlay()
+        }
+
+        binding.testPoint.setOnClickListener {
+            overlayModels()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        for (node in viewModel.nodes) {
+            node.anchor?.detach()
+            node.destroy()
+        }
     }
 
     private fun getModelsHandler() {
@@ -58,11 +78,13 @@ class CameraARFragment : Fragment() {
                     is Response.Loading -> {
                         Log.i(TAG, "Loading")
                     }
+
                     is Response.Success -> {
                         viewModel.models = state.data?.models ?: listOf()
-                        overlayModels()
+                        binding.actions.visibility = View.VISIBLE
                         return@observe
                     }
+
                     is Response.Error -> {
                         Log.e(TAG, state.message)
                         return@observe
@@ -72,92 +94,92 @@ class CameraARFragment : Fragment() {
         }
     }
 
+    private fun manualOverlay() {
+        val arModelNode = ArModelNode(
+            placementMode = PlacementMode.BEST_AVAILABLE,
+            hitPosition = Position(0.0f, 0.0f, -2.0f),
+            followHitPosition = false,
+            instantAnchor = true
+        ).apply {
+            val file =
+                File("${APP_ACTIVITY.filesDir}/${args.excursionId}/$FOLDER_MODELS/${viewModel.models[viewModel.indexModelEnd].model}")
+            loadModelGlbAsync(
+                glbFileLocation = Uri.fromFile(file).toString(),
+                autoAnimate = true,
+                scaleToUnits = 1.5f,
+                centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
+            )
+        }
+
+        binding.sceneView.addChild(arModelNode)
+        viewModel.nodes.add(arModelNode)
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun overlayModels() {
-
-
         binding.sceneView.apply {
             geospatialEnabled = true
             onArSessionFailed = { e: Exception ->
                 Log.e(TAG, e.message.toString())
             }
-            onArFrame = {
-                val earth = it.session.earth
+            onArFrame = { arFrame ->
+                arFrame.session.earth.let { earth ->
+                    binding.latitude.text =
+                        "Latitude: ${String.format("%.6f", earth?.cameraGeospatialPose?.latitude)}"
+                    binding.longitude.text =
+                        "Longitude: ${String.format("%.6f", earth?.cameraGeospatialPose?.longitude)}"
+                    binding.altitude.text =
+                        "Altitude: ${String.format("%.6f", earth?.cameraGeospatialPose?.altitude)}"
 
-                binding.latitude.text =
-                    "Latitude: ${String.format("%.6f", earth?.cameraGeospatialPose?.latitude)}"
-                binding.longitude.text =
-                    "Longitude: ${String.format("%.6f", earth?.cameraGeospatialPose?.longitude)}"
-                binding.altitude.text = "Altitude: ${earth?.cameraGeospatialPose?.altitude}"
-                if (earth != null)
-                    binding.earthState.text = "Status earth: ${earth.earthState}"
-                else
-                    binding.earthState.text = "Earth state: NULL"
-                binding.trackingState.text = "Tracking state: ${earth?.trackingState}"
+                    if (earth != null)
+                        binding.earthState.text = "Status earth: ${earth.earthState}"
+                    else
+                        binding.earthState.text = "Earth state: NULL"
+                    binding.trackingState.text = "Tracking state: ${earth?.trackingState}"
 
-                if (earth?.trackingState == TrackingState.TRACKING && !statusCreateAnchors) {
-                    val cameraGeospatialPose = earth.cameraGeospatialPose
-
-                    val arModelNode = ArModelNode(
-                        placementMode = PlacementMode.BEST_AVAILABLE,
-                        hitPosition = Position(0.0f, 0.0f, -2.0f),
-                        followHitPosition = false,
-                        instantAnchor = true
-                    ).apply {
-                        loadModelGlbAsync(
-//                glbFileLocation = "${APP_ACTIVITY.filesDir}/${args.excursionId}/$FOLDER_MODELS/diligense.glb",
-                            glbFileLocation = "models/diligense.glb",
-                            autoAnimate = true,
-                            scaleToUnits = 1f,
-                            centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
+                    if (earth?.trackingState == TrackingState.TRACKING && !viewModel.statusCreateAnchors) {
+                        val cameraGeospatialPose = earth.cameraGeospatialPose
+                        val model = viewModel.models[viewModel.indexModelEnd]
+                        val distance = viewModel.getDistanceBetweenPoints(
+                            Point(cameraGeospatialPose.latitude, cameraGeospatialPose.longitude),
+                            model.point
                         )
+
+                        binding.distance.text = "Distance: ${String.format("%.4f", distance)}"
+                        binding.indexModel.text = "Index model: ${viewModel.indexModelEnd}"
+
+                        if (distance < 0.01) {
+                            val earthAnchor = earth.createAnchor(
+                                model.point.latitude, model.point.longitude,
+                                cameraGeospatialPose.altitude - 1.5,
+                                0f, 0f, 0f, 1f
+                            )
+
+                            val arModelNode = ArModelNode(
+                                placementMode = PlacementMode.BEST_AVAILABLE,
+                                hitPosition = Position(0.0f, 0.0f, -2.0f),
+                                followHitPosition = false,
+                                instantAnchor = true
+                            ).apply {
+                                val file = File("${APP_ACTIVITY.filesDir}/${args.excursionId}/$FOLDER_MODELS/${viewModel.models[viewModel.indexModelEnd].model}")
+                                loadModelGlbAsync(
+                                    glbFileLocation = Uri.fromFile(file).toString(),
+                                    autoAnimate = true,
+                                    scaleToUnits = 2f,
+                                    centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
+                                )
+                            }
+
+                            arModelNode.anchor = earthAnchor
+                            binding.sceneView.addChild(arModelNode)
+                            viewModel.nodes.add(arModelNode)
+
+                            if (viewModel.indexModelEnd != viewModel.models.size)
+                                viewModel.indexModelEnd++
+                            else
+                                viewModel.statusCreateAnchors = true
+                        }
                     }
-
-                    val earthAnchor = earth.createAnchor(
-                        58.037186, 56.124991,
-                        cameraGeospatialPose.altitude - 1.5,
-                        0f, 0f, 0f, 1f
-                    )
-
-                    arModelNode.anchor = earthAnchor
-                    binding.sceneView.addChild(arModelNode)
-
-//                    for (model in viewModel.models.slice(0..5)) {
-//                        val earthAnchor = earth.createAnchor(
-//                            model.point.latitude, model.point.longitude,
-//                            cameraGeospatialPose.altitude - 1.5,
-//                            0f, 0f, 0f, 1f
-//                        )
-//
-//                        arModelNode.anchor = earthAnchor
-//                        binding.sceneView.addChild(arModelNode)
-//                    }
-
-//                    for (model in viewModel.models) {
-//                        val arModelNode = ArModelNode(
-//                            placementMode = PlacementMode.BEST_AVAILABLE,
-//                            hitPosition = Position(0.0f, 0.0f, -2.0f),
-//                            followHitPosition = false,
-//                            instantAnchor = true
-//                        ).apply {
-//                            loadModelGlbAsync(
-//                                glbFileLocation = "${APP_ACTIVITY.filesDir}/${args.excursionId}/$FOLDER_MODELS/${model.model}",
-//                                autoAnimate = true,
-//                                scaleToUnits = 1f,
-//                                centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
-//                            )
-//                        }
-//
-//                        val earthAnchor = earth.createAnchor(
-//                            model.point.latitude, model.point.longitude,
-//                            cameraGeospatialPose.altitude - 1.5,
-//                            0f, 0f, 0f, 1f
-//                        )
-//
-//                        arModelNode.anchor = earthAnchor
-//                        binding.sceneView.addChild(arModelNode)
-//                    }
-
-                    statusCreateAnchors = true
                 }
             }
             onArSessionCreated = { arSession ->

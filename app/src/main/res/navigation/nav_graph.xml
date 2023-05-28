@@ -68,6 +68,9 @@
         <argument
             android:name="excursionId"
             app:argType="string" />
+        <action
+            android:id="@+id/navigateToCameraARTestFragment"
+            app:destination="@id/cameraARTestFragment" />
     </dialog>
     <dialog
         android:id="@+id/infoPlacemarkFragment"
@@ -80,6 +83,9 @@
         <argument
             android:name="placemark"
             app:argType="ru.walkom.app.domain.model.PlacemarkInfoDialog" />
+        <argument
+            android:name="excursionId"
+            app:argType="string" />
     </dialog>
     <dialog
         android:id="@+id/actionsExcursionFragment"
@@ -90,4 +96,9 @@
             android:name="excursionId"
             app:argType="string" />
     </dialog>
+    <fragment
+        android:id="@+id/cameraARTestFragment"
+        android:name="ru.walkom.app.presentation.screens.camera_test.CameraARTestFragment"
+        android:label="fragment_camera_ar_test"
+        tools:layout="@layout/fragment_camera_ar_test" />
 </navigation>

@@ -63,11 +63,11 @@ class MapViewModel @Inject constructor(
     var statusPauseExcursion = false
     var statusBeingStartPoint = false
 
-    val audioPlayer = AudioPlayer()
     var indexWaypointStart = 0
     var indexWaypointEnd = 0
 
-    var queueAudio = arrayListOf<String>()
+    val audioPlayer = AudioPlayer()
+    val queueAudio = arrayListOf<String>()
 
     init {
         viewModelScope.launch {

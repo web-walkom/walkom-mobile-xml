@@ -6,7 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import ru.walkom.app.R
+import io.github.sceneview.math.Position
+import io.github.sceneview.node.ModelNode
 import ru.walkom.app.databinding.FragmentInfoPlacemarkBinding
 import ru.walkom.app.presentation.components.fragment_alert_dialog.FragmentDialog
 
@@ -30,7 +31,18 @@ class InfoPlacemarkFragment : FragmentDialog() {
         binding.titlePlacemark.text = args.placemark.title
 
         binding.showAR.setOnClickListener {
-            findNavController().navigate(R.id.navigateToCameraARFragment)
+            val action = InfoPlacemarkFragmentDirections.navigateToCameraARFragment(args.excursionId)
+            findNavController().navigate(action)
         }
+
+        val model = ModelNode()
+        model.loadModelGlbAsync(
+            glbFileLocation = "models/diligense.glb",
+            scaleToUnits = 1f,
+            autoAnimate = true,
+            centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f)
+        )
+
+        binding.sceneView.addChild(model)
     }
 }

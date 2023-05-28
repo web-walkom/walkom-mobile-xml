@@ -163,6 +163,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         binding.location.setOnClickListener {
             onClickLocationMe()
+//            if (binding.sceneView.visibility == View.GONE)
+//                binding.sceneView.visibility = View.VISIBLE
+//            else
+//                binding.sceneView.visibility = View.GONE
         }
 
         binding.startExcursion.setOnClickListener {
@@ -358,7 +362,7 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
     }
 
     private fun showInformationAboutPlacemark(placemark: PlacemarkInfoDialog) {
-        val action = MapFragmentDirections.navigateToInfoPlacemarkFragment(placemark)
+        val action = MapFragmentDirections.navigateToInfoPlacemarkFragment(placemark, args.excursionId)
         findNavController().navigate(action)
     }
 
