@@ -120,30 +120,30 @@ class ExcursionsViewModel @Inject constructor(
                 ),
             ),
             models = listOf(
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.037188, 56.124989)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.036989, 56.124917)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.036841, 56.126014)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.036672, 56.127291)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.036879, 56.127382)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.037025, 56.126263)
-                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.037157, 56.124980)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.036989, 56.124917)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.036841, 56.126014)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.036672, 56.127291)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.036879, 56.127382)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.037025, 56.126263)
+//                ),
             )
         )
 
@@ -226,30 +226,30 @@ class ExcursionsViewModel @Inject constructor(
                 ),
             ),
             models = listOf(
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.010433, 56.237325)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.010934, 56.237625)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.011374, 56.239166)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.012477, 56.243069)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.012575, 56.243399)
-                ),
-                Model3D(
-                    model = "diligense.glb",
-                    Point(58.012757, 56.244027)
-                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.010433, 56.237325)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.010934, 56.237625)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.011374, 56.239166)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.012477, 56.243069)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.012575, 56.243399)
+//                ),
+//                Model3D(
+//                    model = "diligense.glb",
+//                    Point(58.012757, 56.244027)
+//                ),
             )
         )
 

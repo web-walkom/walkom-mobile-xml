@@ -163,6 +163,10 @@ class MapFragment : Fragment(), UserLocationObjectListener, Session.RouteListene
 
         binding.location.setOnClickListener {
             onClickLocationMe()
+
+//            val action = MapFragmentDirections.navigateToCameraARTestFragment()
+//            findNavController().navigate(action)
+
 //            if (binding.sceneView.visibility == View.GONE)
 //                binding.sceneView.visibility = View.VISIBLE
 //            else

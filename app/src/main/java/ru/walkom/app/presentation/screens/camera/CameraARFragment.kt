@@ -47,8 +47,10 @@ class CameraARFragment : Fragment() {
         getModelsHandler()
 
         binding.closeCameraAR.setOnClickListener {
-            for (node in viewModel.nodes)
+            for (node in viewModel.nodes) {
+                node.anchor?.detach()
                 node.destroy()
+            }
 
             findNavController().popBackStack()
         }
@@ -62,15 +64,6 @@ class CameraARFragment : Fragment() {
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        for (node in viewModel.nodes) {
-            node.anchor?.detach()
-            node.destroy()
-        }
-    }
-
     private fun getModelsHandler() {
         viewModel.stateModels.observe(viewLifecycleOwner) { response ->
             response?.let { state ->
@@ -81,7 +74,9 @@ class CameraARFragment : Fragment() {
 
                     is Response.Success -> {
                         viewModel.models = state.data?.models ?: listOf()
-                        binding.actions.visibility = View.VISIBLE
+//                        binding.actions.visibility = View.VISIBLE
+                        overlayModels()
+//                        overlayModelTest()
                         return@observe
                     }
 
@@ -101,8 +96,7 @@ class CameraARFragment : Fragment() {
             followHitPosition = false,
             instantAnchor = true
         ).apply {
-            val file =
-                File("${APP_ACTIVITY.filesDir}/${args.excursionId}/$FOLDER_MODELS/${viewModel.models[viewModel.indexModelEnd].model}")
+            val file = File("${APP_ACTIVITY.filesDir}/${args.excursionId}/$FOLDER_MODELS/${viewModel.models[viewModel.indexModelEnd].model}")
             loadModelGlbAsync(
                 glbFileLocation = Uri.fromFile(file).toString(),
                 autoAnimate = true,
@@ -142,7 +136,7 @@ class CameraARFragment : Fragment() {
                         val model = viewModel.models[viewModel.indexModelEnd]
                         val distance = viewModel.getDistanceBetweenPoints(
                             Point(cameraGeospatialPose.latitude, cameraGeospatialPose.longitude),
-                            model.point
+                            Point(model.point.latitude, model.point.longitude)
                         )
 
                         binding.distance.text = "Distance: ${String.format("%.4f", distance)}"
@@ -165,7 +159,7 @@ class CameraARFragment : Fragment() {
                                 loadModelGlbAsync(
                                     glbFileLocation = Uri.fromFile(file).toString(),
                                     autoAnimate = true,
-                                    scaleToUnits = 2f,
+                                    scaleToUnits = 3f,
                                     centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f),
                                 )
                             }
@@ -178,6 +172,12 @@ class CameraARFragment : Fragment() {
                                 viewModel.indexModelEnd++
                             else
                                 viewModel.statusCreateAnchors = true
+
+                            if (viewModel.nodes.size > 3) {
+                                viewModel.nodes[0].anchor?.detach()
+                                viewModel.nodes[0].destroy()
+                                viewModel.nodes.removeAt(0)
+                            }
                         }
                     }
                 }

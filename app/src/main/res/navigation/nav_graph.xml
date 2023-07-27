@@ -40,13 +40,17 @@
         tools:layout="@layout/fragment_map" >
         <action
             android:id="@+id/navigateToRouteTourFragment"
-            app:destination="@id/tourRouteFragment" />
+            app:destination="@id/tourRouteFragment"
+            app:popUpToInclusive="false" />
         <argument
             android:name="excursionId"
             app:argType="string" />
         <action
             android:id="@+id/navigateToInfoPlacemarkFragment"
             app:destination="@id/infoPlacemarkFragment" />
+        <action
+            android:id="@+id/navigateToCameraARTestFragment"
+            app:destination="@id/cameraARTestFragment" />
     </fragment>
     <fragment
         android:id="@+id/cameraARFragment"

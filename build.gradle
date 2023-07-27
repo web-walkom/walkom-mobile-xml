@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        sceneview_version = "0.9.8"
+        sceneview_version = "0.9.9"
         mapkit_version = "4.3.1-full"
         arcore_version = "1.37.0"
         hilt_version = "2.44"

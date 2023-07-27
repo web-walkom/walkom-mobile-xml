@@ -35,18 +35,8 @@ class TourRouteFragment: FragmentDialog() {
 
         binding.showAR.setOnClickListener {
             val action = TourRouteFragmentDirections.navigateToCameraARFragment(args.excursionId)
+//            val action = TourRouteFragmentDirections.navigateToCameraARTestFragment()
             findNavController().navigate(action)
         }
-
-        val model = ModelNode()
-        val file = File("${APP_ACTIVITY.filesDir}/${args.excursionId}/${FOLDER_MODELS}/treasure_chest.glb")
-        model.loadModelGlbAsync(
-            glbFileLocation = Uri.fromFile(file).toString(),
-            scaleToUnits = 1f,
-            autoAnimate = true,
-            centerOrigin = Position(x = 0.0f, y = 0.0f, z = 0.0f)
-        )
-
-        binding.sceneView.addChild(model)
     }
 }
